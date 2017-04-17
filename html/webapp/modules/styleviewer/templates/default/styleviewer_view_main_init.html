@@ -1,0 +1,36 @@
+<{* スタイルビューア *}>
+<div class="styleviewer_select">
+<form id="styleviewer_edit_form<{$id}>" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="styleviewer_action_main_init">
+    <select name="new_style" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;">
+        <option value="">初期値
+        <{foreach from=$action.dir_list item=dir_item}>
+            <{if strpos($dir_item, 'OPTGROUP') === 0}>
+                <optgroup label="<{$dir_item|substr:9}>">
+            <{elseif strpos($dir_item, '/OPTGROUP') === 0}>
+                </optgroup>
+            <{else}>
+                <{if $smarty.session._new_style}>
+                    <option value="<{$dir_item}>"<{if $smarty.session._new_style == $dir_item}> selected<{/if}>><{$dir_item}>
+                <{else}>
+                    <option value="<{$dir_item}>"<{if $action.current_style == $dir_item}> selected<{/if}>><{$dir_item}>
+                <{/if}>
+            <{/if}>
+        <{/foreach}>
+    </select>
+<{*
+	<br />
+	<br />
+	文字の大きさ<br />
+	<label><input type="radio" name="style_size" value="1" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if $smarty.session.style_size == 1}> checked<{/if}>>小</input></label>
+	<label><input type="radio" name="style_size" value="0" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if !$smarty.session.style_size}> checked<{/if}>>中</input></label>
+	<label><input type="radio" name="style_size" value="2" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if $smarty.session.style_size == 2}> checked<{/if}>>大</input></label>
+	<br /><br />
+	表示色の変更<br />
+	<label><input type="radio" name="style_color" value="0" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if !$smarty.session.style_color}> checked<{/if}>>標準</input></label>
+	<label><input type="radio" name="style_color" value="1" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if $smarty.session.style_color == 1}> checked<{/if}>>1</input></label>
+	<label><input type="radio" name="style_color" value="2" onchange="styleviewerCls['<{$id}>'].setStyle(); return false;"<{if $smarty.session.style_color == 2}> checked<{/if}>>2</input></label>
+*}>
+</form>
+</div>
+<{include file="styleviewer_script.html"}>

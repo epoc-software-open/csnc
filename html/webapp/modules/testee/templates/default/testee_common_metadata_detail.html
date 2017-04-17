@@ -1,0 +1,444 @@
+<{strip}>
+
+<{assign var="metadata_id" value=$metadata.metadata_id}>
+<{assign var="testee_id" value=$action.testee_id}>
+<{if $action_name=="testee_view_main_init" || $action_name=="testee_view_main_detail" || $action_name=="testee_view_main_print"}>
+	<{assign var="content" value=$item.$metadata_id|smarty:nodefaults}>
+	<{if $metadata.type == TESTEE_META_TYPE_FILE && $content != "" && $metadata.file_count_flag == _ON}>
+		<{assign var="upload_id_var" value="upload_id"|cat:$metadata_id}>
+		<{assign var="download_count_var" value="download_count"|cat:$metadata_id}>
+		<{assign var="upload_id" value=$item.$upload_id_var}>
+		<{assign var="download_count" value=$item.$download_count_var}>
+	<{/if}>
+<{elseif $action_name=="testee_view_main_content_init"}>
+	<{assign var="content" value=$smarty.session.testee_content.$block_id.$metadata_id|smarty:nodefaults}>
+<{elseif $action_name=="testee_view_edit_metadata_preview"}>
+	<{assign var="content" value=$lang.mdb_sample_text|smarty:nodefaults}>
+<{/if}>
+
+<{* 行背景色対応 EddyK  *}>
+<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0;">
+<{* コメントの場合、表示のみ EddyK *}>
+	<{if $metadata.type == TESTEE_META_TYPE_N_COMMENT}>
+		<td class="<{$mdb_detail_head}> mdb_detail_head_top_bottom" scope="row" colspan="2"<{if $loop_first}> style="background-color:<{$bgcolor}>"<{/if}>>
+
+			<{if $metadata.decoration_bold == _ON || $metadata.decoration_underline == _ON || $metadata.decoration_red == _ON}>
+				<span class="
+					<{if $metadata.decoration_bold == _ON}> mdb_decoration_bold<{else}> mdb_decoration_bold_normal<{/if}>
+					<{if $metadata.decoration_underline == _ON}> mdb_decoration_underline<{/if}>
+					<{if $metadata.decoration_red == _ON}> mdb_decoration_red<{/if}>">
+					<{$action.comments.$metadata_id|nl2br}>
+				</span>
+			<{else}>
+				<{$action.comments.$metadata_id|nl2br|smarty:nodefaults}>
+			<{/if}>
+		</td>
+	<{else}>
+		<{if ($metadata.type != TESTEE_META_TYPE_IMAGE && $metadata.name_flag == _ON) || $mode == "regist" }>
+			<th class="mdb_detail_head mdb_detail_head_top_bottom
+				<{if $metadata.decoration_bold == _ON}> mdb_decoration_bold<{else}> mdb_decoration_bold_normal<{/if}>
+				<{if $metadata.decoration_underline == _ON}> mdb_decoration_underline<{/if}>
+				<{if $metadata.decoration_red == _ON}> mdb_decoration_red<{/if}>"
+				 scope="row"><{* classからnowraqpを削除　EddyK *}>
+				<{if $mode == regist}><label for="mdb_metadatas_<{$metadata.metadata_id}><{$id}>"><{/if}>
+					<{$metadata.name|nl2br}>
+				<{if $mode == regist}></label><{/if}>
+				<{* 必須 *}>
+				<{if $mode == "regist"}>
+					<{if $metadata.require_flag == _ON}>
+						<{$lang.mdb_require_flag|smarty:nodefaults}>
+					<{/if}>
+				<{/if}>
+			</th>
+		<{/if}>
+		<{if ($metadata.type == TESTEE_META_TYPE_IMAGE && ($mode == "confirm" || $mode == "preview" || $mode == "detail" || $mode == "list")) || $metadata.name_flag == _OFF}>
+			<td class="mdb_edit_detail" colspan="2">
+		<{else}>
+			<td class="mdb_edit_detail">
+		<{/if}>
+			<{if $mode == "preview" }>
+				<{* preview用 *}>
+				<{if $metadata.type == TESTEE_META_TYPE_IMAGE}>
+					<img src="<{""|get_image_url}><{$smarty.const.TESTEE_SAMPLE_IMAGE}>" class="mdb_metadata_image" alt="NO IMAGE" />
+				<{else}>
+					<{$content}>
+				<{/if}>
+			<{elseif $mode == "list" || $mode == "detail"}>
+				<{* 一覧用 *}>
+				<{if $metadata.type == TESTEE_META_TYPE_FILE}>
+					<{if $content == ""}>
+						&nbsp;
+					<{else}>
+						<{$content|smarty:nodefaults}>
+						<{if $metadata.file_count_flag == _ON}>
+							<span id="mdb_file_download_count_<{$upload_id}><{$id}>" class="mdb_file_download_count_font">(<{$download_count}>)</span>
+						<{/if}>
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_IMAGE}>
+					<{if $content == ""}>
+						<img src="<{""|get_image_url}><{$smarty.const.TESTEE_SAMPLE_IMAGE}>" class="mdb_metadata_image" alt="NO IMAGE" />
+					<{else}>
+						<{$content|smarty:nodefaults}>
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_LINK}>
+					<a class="syslink" href="<{$content}>" title="<{$lang.mdb_open_title|smarty:nodefaults|sprintf:$content}>" target="_blank"><{$content}></a>
+				<{elseif $metadata.type == TESTEE_META_TYPE_WYSIWYG}>
+					<{$content|smarty:nodefaults|wysiwig_convert_url}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_TEXTAREA}>
+					<{$content|change_tex|nl2br}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_TEXT}>
+					<{$content|change_tex}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_MAIL}>
+					<{if ($content != "") }>
+						<{assign var="emailArr" value="@"|explode:$content}>
+						<{$emailArr.0|smarty:nodefaults}>
+						<img class="icon" src="<{"mailmark.gif"|get_modules_image}>" alt="" title="" />
+						<{$emailArr.1|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_DATE}>
+					<{if ($content != "") }>
+						<{$content|timezone_date_format:$lang._date_format|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_AUTONUM}>
+					<{if ($content|intval > 0) }>
+						<{$content|intval}>
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_INSERT_TIME}>
+					<{if ($item.insert_time != "") }>
+						<{$item.insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_UPDATE_TIME}>
+					<{if ($item.update_time != "") }>
+						<{$item.update_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_MULTIPLE}>
+					<{if ($content != "") }>
+						<{foreach from=$content|smarty:nodefaults item=option}>
+							<{$option}><br />
+						<{/foreach}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+
+
+	<{*********************** 追加メタタイプを反映 start EddyK ***********************}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_NUMERIC || 
+						 $metadata.type == TESTEE_META_TYPE_N_COMMENT || 
+						 $metadata.type == TESTEE_META_TYPE_N_STATURE || 
+						 $metadata.type == TESTEE_META_TYPE_N_WEIGHT || 
+						 $metadata.type == TESTEE_META_TYPE_N_CREATININE || 
+						 $metadata.type == TESTEE_META_TYPE_N_BSA || 
+						 $metadata.type == TESTEE_META_TYPE_N_CCR }>
+					<{$content|change_tex}>
+					<{if $content != "" && $metadata.type == TESTEE_META_TYPE_N_NUMERIC}>
+						<{$metadata.view_unit}>
+					<{elseif $metadata.type == TESTEE_META_TYPE_N_STATURE }>
+						<{* 身長 *}>
+						cm
+					<{elseif $metadata.type == TESTEE_META_TYPE_N_WEIGHT }>
+						<{* 体重 *}>
+						kg
+					<{/if}>
+
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_DATE || 
+						$metadata.type == TESTEE_META_TYPE_N_BIRTHDAY }>
+					<{if ($content != "") }>
+						<{$content|timezone_date_format:$lang._date_format|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+	<{*********************** 追加メタタイプを反映 end EddyK ***********************}>
+
+
+				<{else}>
+					<{$content}>
+				<{/if}>
+			<{elseif $mode == "regist"}>
+				<{if $metadata.type == TESTEE_META_TYPE_TEXT || $metadata.type == TESTEE_META_TYPE_MAIL }>
+					<{* テキスト *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:<{$smarty.const.TESTEE_INPUT_TEXTBOX_DEFAULT_SIZE}>px;" value="<{$content}>"/>
+
+				<{elseif $metadata.type == TESTEE_META_TYPE_LINK}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:<{$smarty.const.TESTEE_INPUT_TEXTBOX_DEFAULT_SIZE}>px;" value="<{if $content != '' }><{$content}><{else}>http://<{/if}>"/>
+				<{elseif $metadata.type == TESTEE_META_TYPE_TEXTAREA}>
+					<{* テキストエリア *}>
+					<textarea name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" cols=<{$smarty.const.TESTEE_INPUT_TEXTAREA_COLS}> rows=<{$smarty.const.TESTEE_INPUT_TEXTAREA_ROWS}>><{$content}></textarea>
+				<{elseif $metadata.type == TESTEE_META_TYPE_IMAGE || $metadata.type == TESTEE_META_TYPE_FILE}>
+					<{* 画像とファイル 登録用 *}>
+					<input name="files[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="file" value="" />
+					<{if $metadata.type == TESTEE_META_TYPE_FILE && $metadata.file_password_flag == _ON}>
+						<{assign var="password_var" value=$metadata_id|cat:"_file_password"}>
+						<{assign var="file_password" value=$smarty.session.testee_content.$block_id.$password_var|smarty:nodefaults}>
+						<br />
+						<label for="mdb_metadata_file_password_<{$metadata.metadata_id}><{$id}>">
+							<input type="checkbox" id="mdb_metadata_file_password_<{$metadata.metadata_id}><{$id}>" name="password_checkbox[<{$metadata.metadata_id}>]" <{if $file_password != ""}> checked=checked <{/if}> value="<{$smarty.const._ON}>" onclick="if(this.checked == true){commonCls.displayVisible($('mdb_metadata_file_password_input_div_<{$metadata.metadata_id}><{$id}>'));}else{commonCls.displayNone($('mdb_metadata_file_password_input_div_<{$metadata.metadata_id}><{$id}>'));$('mdb_metadata_file_password_input_<{$metadata.metadata_id}><{$id}>').value='';}">
+							<{$lang.mdb_add_file_password|smarty:nodefaults}>
+						</label>
+						<div id="mdb_metadata_file_password_input_div_<{$metadata.metadata_id}><{$id}>" <{if $file_password == ""}>class="display-none"<{/if}>>
+							<input type="text" id="mdb_metadata_file_password_input_<{$metadata.metadata_id}><{$id}>" name="passwords[<{$metadata.metadata_id}>]" maxlength="100" value='<{if $file_password != ""}><{$file_password}><{/if}>'>
+						</div>
+					<{/if}>
+					<{if $content != ""}>
+						<br />
+						<{if $metadata.require_flag != _ON}>
+							<label for="mdb_metadata_image_delete_<{$metadata.metadata_id}><{$id}>">
+								<input type="checkbox" id="mdb_metadata_image_delete_<{$metadata.metadata_id}><{$id}>" name="datas[<{$metadata.metadata_id}>]" value="<{$smarty.const._ON}>">
+								<{if $metadata.type == TESTEE_META_TYPE_IMAGE}>
+									<{$lang.mdb_delete_image|smarty:nodefaults}>
+								<{elseif $metadata.type == TESTEE_META_TYPE_FILE}>
+									<{$lang.mdb_delete_file|smarty:nodefaults}>
+								<{/if}>
+							</label>
+						<{/if}>
+						<br /><{$content|smarty:nodefaults}>
+					<{/if}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_SECTION}>
+					<{* セレクトリスト *}>
+					<select name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>">
+						<{* 未選択 *}>
+						<option value="" ></option>
+						<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+							<option value="<{$option}>" 
+								<{if $content === $option}> selected="selected"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+							><{$option}>
+							</option>
+						<{/foreach}>
+					</select>
+				<{elseif $metadata.type == TESTEE_META_TYPE_MULTIPLE}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label class="nowrap" for="mdb_metadatas_<{$metadata.metadata_id}>_<{$smarty.foreach.selectloop.iteration}><{$id}>">
+							<input name="datas[<{$metadata.metadata_id}>][]" type="checkbox" value="<{$option}>" id="mdb_metadatas_<{$metadata.metadata_id}>_<{$smarty.foreach.selectloop.iteration}><{$id}>" <{if isset($content.$option|smarty:nodefaults)}>checked="checked" <{/if}>/>
+							<{$option}><br />
+						</label>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_WYSIWYG}>
+					<script class="nc_script" type="text/javascript">
+						mdbCls["<{$id}>"].wysiwygInit(<{$metadata.metadata_id}>);
+					</script>
+					<textarea id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" class="textarea_<{$metadata.metadata_id}><{$id}>" rows="10" cols="60"><{$content|smarty:nodefaults|wysiwig_convert_url|escape:"html"}></textarea>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" />
+				<{elseif $metadata.type == TESTEE_META_TYPE_AUTONUM}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:<{$smarty.const.TESTEE_INPUT_AUTONUM_DEFAULT_SIZE}>px;" value="<{if ($content != "") }><{$content|intval}><{else}><{$lang.mdb_type_autonum|smarty:nodefaults}><{/if}>" disabled="disabled" />
+				<{elseif $metadata.type == TESTEE_META_TYPE_DATE}>
+					<input id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" name="datas[<{$metadata.metadata_id}>]" type="text" value="<{if ($metadata.require_flag == _ON || $content != "") }><{$content|timezone_date_format:$lang._date_format|smarty:nodefaults}><{/if}>" size="13" maxlength="10" />
+					<script class="nc_script" type="text/javascript">
+						mdbCls["<{$id}>"].calendarInit(<{$metadata.metadata_id}>);
+					</script>
+
+
+	<{*********************** 追加メタタイプを反映 start EddyK ***********************}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_NUMERIC }>
+					<{* チェック付数値 *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>" /> <{$metadata.view_unit}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_STATURE }>
+					<{* 身長 *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="stature_<{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>"/>　cm
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_WEIGHT }>
+					<{* 体重 *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="weight_<{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>"/>　kg
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_CREATININE }>
+					<{* クレアチニン *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="creatinine_<{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>"/>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_BSA }>
+					<{* BSA *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="bsa_<{$id}>" type="text" style="width:100px;" value="<{$content}>" readonly="readonly"/>
+					<input type="button" value="BSA計算" onclick="document.getElementById('bsa_<{$id}>').value=mdbCls['<{$id}>'].calcBSA(document.getElementById('stature_<{$id}>'),document.getElementById('weight_<{$id}>'));">
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_CCR }>
+					<{* Ccr *}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="ccr_<{$id}>" type="text" style="width:100px;" value="<{$content}>" readonly="readonly"/>
+					<input type="button" value="Ccr計算" onclick="document.getElementById('ccr_<{$id}>').value=mdbCls['<{$id}>'].calcCcr(document);">
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_HOSPITAL }>
+					<{* 施設名 *}>
+					<{assign var="hospital_set" value=""}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="hospital_<{$id}>">
+					<select name="datas[<{$metadata.metadata_id}>]" onchange="document.getElementById('hospital_<{$id}>').value=this.value;">
+
+						<{if $action.content_id}>
+							<option value="<{$content}>"><{$content}></option>
+							<{assign var="hospital_set" value=$content}>
+						<{else}>
+							<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+								<{* ログインユーザーの施設情報 *}>
+								<{if $action.hospital_name_default === $option}>
+									<option value="<{$option}>"
+
+										<{* 選択値別件数設定での制御 *}>
+										<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+									><{$option}></option>
+									<{assign var="hospital_set" value=$option}>
+								<{/if}>
+							<{/foreach}>
+						<{/if}>
+					</select>
+					<{if $hospital_set == ""}>
+						<span style="color: red;">
+							<br />ユーザ情報の施設名が未設定か、試験で設定
+							<br />されている施設ではない可能性があります。
+							<br />管理者に確認してください。
+						</span>
+					<{/if}>
+
+<{*
+					<select name="datas[<{$metadata.metadata_id}>]" onchange="document.getElementById('hospital_<{$id}>').value=this.value;">
+						<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+							<option value="<{$option}>" 
+								<{if $action.content_id}>
+									<{if $content === $option}> selected="selected"<{/if}>
+								<{else}>
+*}>
+									<{* ログインユーザーの施設情報 *}>
+<{*
+									<{if $action.hospital_name_default === $option}> selected="selected"<{/if}>
+								<{/if}>
+*}>
+								<{* 選択値別件数設定での制御 *}>
+<{*
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+							><{$option}>
+							</option>
+						<{/foreach}>
+					</select>
+*}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_RADIO }>
+					<{* ラジオボタン *}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>">
+					<{* 未選択 *}>
+					<{*
+					<input type="radio" value="" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+						<{if $content == "" || $content == null}> checked="checked"<{/if}>
+						>未選択
+					</input><br>
+					*}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label>
+							<input type="radio" value="<{$option}>" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='<{$option}>';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+								<{if $content == $option}> checked="checked"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+								><{$option}>
+							</input>
+						</label>
+						<{if $smarty.foreach.selectloop.total > 2}><br /><{/if}>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_YESNO }>
+					<{* はい・いいえ *}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>">
+					<{* 未選択 *}>
+					<{*
+					<input type="radio" value="" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+						<{if $content == "" || $content == null}> checked="checked"<{/if}>
+						>未選択
+					</input><br>
+					*}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label>
+							<input type="radio" value="<{$option}>" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='<{$option}>';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+								<{if $content == $option}> checked="checked"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+								><{$option}>
+							</input>
+						</label>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_APPLICABLE }>
+					<{* 該当せず・該当 *}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>">
+					<{* 未選択 *}>
+					<{*
+					<input type="radio" value="" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+						<{if $content == "" || $content == null}> checked="checked"<{/if}>
+						>未選択
+					</input><br>
+					*}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label>
+							<input type="radio" value="<{$option}>" onclick="document.getElementById('mdb_metadatas_<{$metadata.metadata_id}><{$id}>').value='<{$option}>';" name="datas[<{$metadata.metadata_id}>]_tmp" 
+								<{if $content == $option}> checked="checked"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok}> disabled="disabled"<{/if}>
+								><{$option}>
+							</input>
+						</label>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_SEX }>
+					<{* 性別 *}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="sex_<{$id}>">
+					<{* 未選択 *}>
+					<{*
+					<input type="radio" value="<{$option}>" onclick="document.getElementById('sex_<{$id}>').value='<{$option}>';" name="sex_<{$id}>" >未選択</input><br>
+					*}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label>
+							<input type="radio" value="<{$option}>" onclick="document.getElementById('sex_<{$id}>').value='<{$option}>';" name="sex_<{$id}>" 
+								<{if $content == $option}> checked="checked"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok && !$content}> disabled="disabled"<{/if}>
+								><{$option}>
+							</input>
+						</label>
+						<{if $smarty.foreach.selectloop.total > 2}><br /><{/if}>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_GROUP }>
+					<{* グループ *}>
+					<input type="hidden" name="datas[<{$metadata.metadata_id}>]" value="<{$content}>" id="group_<{$id}>">
+					<{* 未選択 *}>
+					<{*
+					<input type="radio" value="" onclick="document.getElementById('group_<{$id}>').value='';" name="group_<{$id}>" 
+						<{if $content == "" || $content == null}> checked="checked"<{/if}>
+						>未選択
+					</input><br>
+					*}>
+					<{foreach from=$metadata.select_content_array|smarty:nodefaults item=option name=selectloop}>
+						<label>
+							<input type="radio" value="<{$option}>" onclick="document.getElementById('group_<{$id}>').value='<{$option}>';" name="group_<{$id}>" 
+								<{if $content == $option}> checked="checked"<{/if}>
+								<{* 選択値別件数設定での制御 *}>
+								<{if $action.counts_data.counts_id == $metadata.metadata_id && !$action.counts_check.$option.add_ok && !$content}> disabled="disabled"<{/if}>
+								><{$option}>
+							</input>
+						</label>
+						<{if $smarty.foreach.selectloop.total > 2}><br /><{/if}>
+					<{/foreach}>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_DATE }>
+					<{* チェック付日付 *}>
+					<input id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" name="datas[<{$metadata.metadata_id}>]" type="text" value="<{if ($metadata.require_flag == _ON || $content != "") }><{$content|timezone_date_format:$lang._date_format|smarty:nodefaults}><{/if}>" size="13" maxlength="10" />
+					<script class="nc_script" type="text/javascript">
+						mdbCls["<{$id}>"].calendarInit(<{$metadata.metadata_id}>);
+					</script>
+				<{elseif $metadata.type == TESTEE_META_TYPE_N_BIRTHDAY }>
+					<{* 生年月日 *}>
+					<{if $action.content_id}>
+						<input id="birthday_<{$id}>" name="datas[<{$metadata.metadata_id}>]" type="text" value="<{if ($metadata.require_flag == _ON || $content != "") }><{$content|timezone_date_format:$lang._date_format|smarty:nodefaults}><{/if}>" size="13" maxlength="10" onBlur="mdbCls['<{$id}>'].setAge(this,document.getElementById('content_insert_date_<{$id}>'),document.getElementById('age_<{$id}>'));" />
+					<{else}>
+						<input id="birthday_<{$id}>" name="datas[<{$metadata.metadata_id}>]" type="text" value="<{if $action.default_birthday != "" }><{$action.default_birthday}><{/if}>" size="13" maxlength="10" onBlur="mdbCls['<{$id}>'].setAge(this,document.getElementById('content_insert_date_<{$id}>'),document.getElementById('age_<{$id}>'));" />
+					<{/if}>
+					<script class="nc_script" type="text/javascript">
+						mdbCls["<{$id}>"].calendarInit2(<{$metadata.metadata_id}>);
+						mdbCls['<{$id}>'].setAge(document.getElementById('birthday_<{$id}>'), document.getElementById('content_insert_date_<{$id}>'), document.getElementById('age_<{$id}>'));
+					</script>
+					　年齢：<span name="age" id="age_<{$id}>" style="display: inline;"></span>
+	<{*********************** 追加メタタイプを反映 end EddyK ***********************}>
+
+
+				<{elseif $metadata.type == TESTEE_META_TYPE_INSERT_TIME || $metadata.type == TESTEE_META_TYPE_UPDATE_TIME}>
+					<{if ($content != "") }>
+						<{$content|timezone_date_format:$lang._full_date_format|smarty:nodefaults}>
+					<{else}>
+						&nbsp;
+					<{/if}>
+				<{/if}>
+			<{/if}>
+		</td>
+	<{/if}>
+</tr>
+<{/strip}>

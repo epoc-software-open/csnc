@@ -1,0 +1,42 @@
+<{strip}>
+<{* 項目追加-選択肢値 *}>
+<{if $option == ''}>
+	<{* 選択肢追加時使用 *}>
+	<{assign var="option" value=$action.option}>
+	<{assign var="correct" value=""}>
+	<{assign var="select_content_code" value=$action.select_content_code}>
+	<{assign var="iteration" value=$action.iteration}>
+	<{assign var="type" value=$action.type}>
+	<{assign var="option_type" value="1"}>				<{* オプションのID名を区分けするため追加（標準の選択肢タイプ）	 EddyK *}>
+	<{if $type == TESTEE_META_TYPE_N_YESNO}>
+		<{assign var="option_type" value="2"}>			<{* オプションのID名を区分けするため追加（はい・いいえタイプ）	 EddyK *}>
+	<{elseif $type == TESTEE_META_TYPE_N_APPLICABLE}>
+		<{assign var="option_type" value="3"}>			<{* オプションのID名を区分けするため追加（該当せず・該当タイプ） EddyK *}>
+	<{/if}>
+<{/if}>
+<table id="mdb_metadata_option<{$option_type}><{$iteration}><{$id}>" class="outer">
+	<tr>
+		<td class="mdb_metadata_option_width1">
+			<label for="mdb_list_value<{$iteration}><{$id}>">
+				<{*	<{$lang.mdb_list_value|smarty:nodefaults}>		タイトル行の追加により不要	EddyK *}>
+				<input name="options[<{$option_type}>][<{$iteration}>]" id="mdb_list_value<{$iteration}><{$id}>" type="text" onclick="if(event.keyCode == 13){this.onchange();} return false;" value="<{$option}>"/> <{* 幅を広げる（ style="width:250px;"）不要 EddyK *}>
+			</label>
+		</td>
+
+<{* 正解 EddyK *}>
+		<td id="mdb_matadata_correct<{$iteration}><{$id}>" class="mdb_metadata_option_width2 <{if $type != $smarty.const.TESTEE_META_TYPE_N_RADIO && $type != $smarty.const.TESTEE_META_TYPE_N_YESNO && $type != $smarty.const.TESTEE_META_TYPE_N_APPLICABLE}>display-none<{/if}>">
+			<input name="correct[<{$option_type}>][<{$iteration}>]" id="mdb_correct<{$iteration}><{$id}>" type="checkbox" value="1" <{if $correct == 1}>checked="checked"<{/if}>/>
+		</td>
+<{* 選択肢コード値 EddyK *}>
+		<td id="mdb_matadata_select_content_code<{$iteration}><{$id}>" class="mdb_metadata_option_width3 <{if $type != $smarty.const.TESTEE_META_TYPE_N_RADIO && $type != $smarty.const.TESTEE_META_TYPE_N_YESNO && $type != $smarty.const.TESTEE_META_TYPE_N_APPLICABLE && $type != $smarty.const.TESTEE_META_TYPE_N_HOSPITAL && $type != $smarty.const.TESTEE_META_TYPE_N_SEX && $type != $smarty.const.TESTEE_META_TYPE_N_GROUP }>display-none<{/if}>">
+			<input name="select_content_code[<{$option_type}>][<{$iteration}>]" id="mdb_select_content_code<{$iteration}><{$id}>" type="text" onclick="if(event.keyCode == 13){this.onchange();} return false;" value="<{$select_content_code}>" style="width:25px;"/>
+		</td>
+
+		<td class="mdb_metadata_option_width4">
+			<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delOption($('mdb_metadata_option<{$option_type}><{$iteration}><{$id}>'), '<{$lang._del_confirm|sprintf:$lang.mdb_list_name}>'); return false;">
+				<img title="<{$lang.mdb_del_list|smarty:nodefaults}>" alt="<{$lang.mdb_del_list|smarty:nodefaults}>" src="<{"trash.gif"|get_themes_image}>" class="icon" />
+			</a>
+		</td>
+	</tr>
+</table>
+<{/strip}>

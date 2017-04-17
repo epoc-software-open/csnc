@@ -1,0 +1,40 @@
+<{strip}>
+
+<table class="outer">
+<tbody>
+	<tr>
+		<td class="mdb_metadata_option_width1"><{$lang.mdb_list_value|smarty:nodefaults}></td>
+		<td class="mdb_metadata_option_width2 display-none">正解</td>
+		<td class="mdb_metadata_option_width3">コード値</td>
+		<td class="mdb_metadata_option_width4">削除</td>
+	</tr>
+</tbody>
+</table>
+
+<{foreach from=$action.room_hospital key=code item=hospital name=hospital_loop}>
+<table class="outer" id="mdb_metadata_option1<{$smarty.foreach.hospital_loop.index}><{$id}>">
+<tbody>
+<tr>
+	<td class="mdb_metadata_option_width1">
+		<label for="mdb_list_value<{$smarty.foreach.hospital_loop.index}><{$id}>">
+			<input type="text" value="<{$hospital.hospital}>" onclick="if(event.keyCode == 13){this.onchange();} return false;" id="mdb_list_value<{$smarty.foreach.hospital_loop.index}><{$id}>" name="options[1][<{$smarty.foreach.hospital_loop.index}>]"> 
+		</label>
+	</td>
+	<td class="mdb_metadata_option_width2 display-none" id="mdb_matadata_correct<{$smarty.foreach.hospital_loop.index}><{$id}>">
+		<input type="checkbox" value="1" id="mdb_correct<{$smarty.foreach.hospital_loop.index}><{$id}>" name="correct[1][<{$id}>]">
+	</td>
+	<td class="mdb_metadata_option_width3" id="mdb_matadata_select_content_code<{$smarty.foreach.hospital_loop.index}><{$id}>">
+		<input type="text" style="width:25px;" value="<{$code}>" onclick="if(event.keyCode == 13){this.onchange();} return false;" id="mdb_select_content_code<{$smarty.foreach.hospital_loop.index}><{$id}>" name="select_content_code[1][<{$smarty.foreach.hospital_loop.index}>]">
+	</td>
+	<td class="mdb_metadata_option_width4">
+		<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delOption($('mdb_metadata_option1<{$smarty.foreach.hospital_loop.index}><{$id}>'), '<{$lang._del_confirm|sprintf:$lang.mdb_list_name}>'); return false;">
+			<img title="<{$lang.mdb_del_list|smarty:nodefaults}>" alt="<{$lang.mdb_del_list|smarty:nodefaults}>" src="<{"trash.gif"|get_themes_image}>" class="icon" />
+		</a>
+	</td>
+</tr>
+</tbody>
+</table>
+<{/foreach}>
+
+<{include file="../testee_script.html"}>
+<{/strip}>

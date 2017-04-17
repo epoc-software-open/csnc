@@ -1,0 +1,21 @@
+<{strip}>
+<span class="downloadlog_page_switch">
+	<{if $action.pager.prev_link}>
+  		<a class="syslink" title="<{$lang.downloadlog_back|smarty:nodefaults}>" href="#" onclick="downloadlogCls['<{$id}>'].toPage('<{$action.pager.now_page-1}>'); return false;">
+  			<img class="icon" alt="" src="<{"previous.gif"|get_themes_image}>"/>
+  			<{$lang.downloadlog_back|smarty:nodefaults}>
+  		</a>
+	<{/if}>
+	<{section name=cnt loop=$action.pager.link_array}>
+		<a class="syslink<{if $action.pager.now_page==$action.pager.link_array[cnt]}> current<{/if}>" href="#" title="<{$action.pager.link_array[cnt]}>" onclick="<{if $action.pager.now_page!=$action.pager.link_array[cnt]}>downloadlogCls['<{$id}>'].toPage('<{$action.pager.link_array[cnt]}>');<{/if}> return false;">
+			<{$action.pager.link_array[cnt]}>
+		</a>
+	<{/section}>
+	<{if $action.pager.next_link}>
+  		<a class="syslink" title="<{$lang.downloadlog_next|smarty:nodefaults}>" href="#" onclick="downloadlogCls['<{$id}>'].toPage('<{$action.pager.now_page+1}>'); return false;">
+  			<{$lang.downloadlog_next|smarty:nodefaults}>
+  			<img class="icon" alt="" src="<{"next.gif"|get_themes_image}>"/>
+  		</a>
+	<{/if}>
+</span>
+<{/strip}>

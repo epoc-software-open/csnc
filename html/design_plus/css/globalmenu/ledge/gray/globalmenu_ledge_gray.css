@@ -1,0 +1,69 @@
+@charset "UTF-8";
+
+/* *** グローバルメニュー
+----------------------------------------------------------- */
+
+/* メニューの基本部分
+----------------------------------------------------------- */
+#globalmenu {
+	position: relative;
+	height: 43px;
+	font-size: 14px;
+	text-transform: uppercase;
+	background: #fff url("images/time4bed_bg.gif") repeat-x bottom left;
+}
+
+/* リスト ul
+----------------------------------------------------------- */
+#globalmenu ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	width: auto;
+	float: left;
+}
+
+/* リスト li
+----------------------------------------------------------- */
+#globalmenu ul li {
+	display: block;
+	float: left;
+	margin: 0 2px;
+}
+
+/* リスト リンク
+----------------------------------------------------------- */
+#globalmenu ul li a {
+	display: block;
+	float: left;
+	color: #ffffff;
+	text-decoration: none;
+	padding: 0 0 0 25px;
+	height: 43px;
+	line-height: 50px;
+}
+#globalmenu ul li a span {
+	display: block;
+	float: left;
+	padding: 0 25px 0 0;
+	height: 31px;
+	width: auto;
+}
+#globalmenu ul li a:hover {
+	color: #fff;
+}
+#globalmenu ul li a:hover span {
+	display: block;
+	cursor: pointer;
+}
+
+/* リスト リンク：カレント
+----------------------------------------------------------- */
+#globalmenu ul li a.current,#time4bed-nav ul li a.current:hover {
+	color: #606060;
+	background: transparent url("images/time2bed_left-ON.gif") no-repeat top left;
+}
+#globalmenu ul li a.current span {
+	background: transparent url("images/time2bed_right-ON.gif") no-repeat top right;
+	height: 43px;
+}

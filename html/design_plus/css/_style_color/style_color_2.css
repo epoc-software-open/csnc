@@ -1,0 +1,78 @@
+@charset "UTF-8";
+
+/* *** NetCommons スタイル上書き
+----------------------------------------------------------- */
+
+/* 全体的な設定
+----------------------------------------------------------- */
+body {
+    color: black;
+    background-color: #ccc;
+}
+a, a:link, a:visited {
+    color: blue;
+}
+
+/* ヘッダー
+----------------------------------------------------------- */
+.headercolumn_menu {
+    background-color: #ccc;
+}
+
+table#header_menu a.menulink, table#header_menu a.menulink:link, table#header_menu a.menulink:visited, table#header_menu a.menulink:active, table#header_menu a.menulink:hover {
+    color: blue !important;
+}
+
+/* フッター
+----------------------------------------------------------- */
+.copyright {
+    color: black;
+}
+table#footerbar .copyright {
+    color: black;
+}
+/* カラム
+----------------------------------------------------------- */
+.headercolumn {
+    background-color: #ccc;
+}
+.leftcolumn {
+    background-color: #ccc;
+}
+.centercolumn {
+    background-color: #ccc;
+}
+.footercolumn {
+    background-color: #ccc;
+}
+div.headercolumn_menu {
+    background-color: #ccc;
+}
+
+/* 新着
+----------------------------------------------------------- */
+tr.whatsnew_unread td a {
+    color: blue !important;
+}
+
+/* メニュー
+----------------------------------------------------------- */
+a.menulink, a.menulink:link, a.menulink:visited {
+    /* color: blue; */
+}
+
+/* グローバルメニュー
+----------------------------------------------------------- */
+#globalmenu {
+    background-color: #ccc;
+}
+
+/* テンプレート
+----------------------------------------------------------- */
+.th_classic_default {
+    background-color: #ccc;
+}
+.th_dotround_content {
+    background-color: #ccc;
+}
+

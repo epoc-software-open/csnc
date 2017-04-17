@@ -1,0 +1,290 @@
+<{strip}>
+
+<{* ------------------------------ *}>
+<{* *** 治療後の検体登録(Ｄ)   *** *}>
+<{* ------------------------------ *}>
+<{if $action.status_show_list[4] == 2 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>治療後の検体登録</legend>
+
+			<table class="testee_kentai_table">
+				<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+				<tr><td>施設患者番号　</td>
+					<td>
+						<{if $action.mod_status_id == "4" && $action.statuses.4.1.unique_patient_cd }>
+							<{$action.statuses.4.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.4.1.unique_patient_cd}>">
+						<{else}>
+							<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+						<{/if}>
+					</td>
+				</tr>
+				<tr><td>参加施設での検体採取日　</td><td><input id="mdb_metadatas_kentai_d1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.4.1.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>検体受領日　</td><td><input id="mdb_metadatas_kentai_d2<{$id}>" name="content_data[2]" type="text" value="<{$action.statuses.4.2.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>受領した血清検体の本数　</td><td><input name="content_data[4]" type="text" value="<{$action.statuses.4.4.content_data}>"></td></tr>
+				<tr><td>送付者氏名　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.4.3.content_data}>"></td></tr>
+			</table>
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(4); return false;" class="btn-width">　
+			<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{if $action.status_show_list[4] == 1 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>治療後の検体登録</legend>
+
+			<table class="testee_kentai_view_table">
+				<tr>
+				<td>
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr><td>施設患者番号　</td><td><{$action.statuses.4.1.unique_patient_cd}></td></tr>
+						<tr><td>参加施設での検体採取日　</td><td><{$action.statuses.4.1.content_data}></td></tr>
+						<tr><td>検体受領日　</td><td><{$action.statuses.4.2.content_data}></td></tr>
+						<tr><td>受領した血清検体の本数　</td><td><{$action.statuses.4.4.content_data}></td></tr>
+						<tr><td>送付者氏名　</td><td><{$action.statuses.4.3.content_data}></td></tr>
+					</table>
+				</td>
+				<td align="right" valign="bottom">
+					<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:4}); return false;">変更</a>
+				</tr>
+			</table>
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{* ---------------------------------- *}>
+<{* *** 検体払い出し(治療前)(Ｅ)   *** *}>
+<{* ---------------------------------- *}>
+<{if $action.status_show_list[5] == 2 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>検体払い出し（治療前）</legend>
+
+			<table class="testee_kentai_table">
+				<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+				<tr><td>施設患者番号　</td>
+					<td>
+						<{if $action.mod_status_id == "5"}>
+							<{$action.statuses.5.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.5.1.unique_patient_cd}>">
+						<{else}>
+							<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+						<{/if}>
+					</td>
+				</tr>
+				<tr><td>検体を払い出した日　</td><td><input id="mdb_metadatas_kentai_e1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.5.1.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>払い出した血清検体の本数　</td><td><input name="content_data[2]" type="text" value="<{$action.statuses.5.2.content_data}>"></td></tr>
+				<tr><td>払い出し者氏名　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.5.3.content_data}>"></td></tr>
+			</table>
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(5); return false;" class="btn-width">　
+			<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{if $action.status_show_list[5] == 1 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>検体払い出し（治療前）</legend>
+
+			<table class="testee_kentai_view_table">
+				<tr>
+				<td>
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr><td>施設患者番号　</td><td><{$action.statuses.5.1.unique_patient_cd}></td></tr>
+						<tr><td>検体を払い出した日　</td><td><{$action.statuses.5.1.content_data}></td></tr>
+						<tr><td>払い出した血清検体の本数　</td><td><{$action.statuses.5.2.content_data}></td></tr>
+						<tr><td>払い出し者氏名　</td><td><{$action.statuses.5.3.content_data}></td></tr>
+					</table>
+				</td>
+				<td align="right" valign="bottom">
+					<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:5}); return false;">変更</a>
+				</tr>
+			</table>
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{* ---------------------------------- *}>
+<{* *** 検体払い出し(治療後)(Ｆ)   *** *}>
+<{* ---------------------------------- *}>
+<{if $action.status_show_list[6] == 2 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>検体払い出し（治療後）</legend>
+
+			<table class="testee_kentai_table">
+				<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+				<tr><td>施設患者番号　</td>
+					<td>
+						<{if $action.mod_status_id == "6" && $action.statuses.6.1.unique_patient_cd }>
+							<{$action.statuses.6.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.6.1.unique_patient_cd}>">
+						<{else}>
+							<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+						<{/if}>
+					</td>
+				</tr>
+				<tr><td>検体を払い出した日　</td><td><input id="mdb_metadatas_kentai_f1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.6.1.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>払い出した血清検体の本数　</td><td><input name="content_data[2]" type="text" value="<{$action.statuses.6.2.content_data}>"></td></tr>
+				<tr><td>払い出し者氏名　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.6.3.content_data}>"></td></tr>
+			</table>
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(6); return false;" class="btn-width">　
+			<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{if $action.status_show_list[6] == 1 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>検体払い出し（治療後）</legend>
+
+			<table class="testee_kentai_view_table">
+				<tr>
+				<td>
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr><td>施設患者番号　</td><td><{$action.statuses.6.1.unique_patient_cd}></td></tr>
+						<tr><td>検体を払い出した日　</td><td><{$action.statuses.6.1.content_data}></td></tr>
+						<tr><td>払い出した血清検体の本数　</td><td><{$action.statuses.6.2.content_data}></td></tr>
+						<tr><td>払い出し者氏名　</td><td><{$action.statuses.6.3.content_data}></td></tr>
+					</table>
+				</td>
+				<td align="right" valign="bottom">
+					<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:6}); return false;">変更</a>
+				</tr>
+			</table>
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{* ----------------------------------------- *}>
+<{* *** マイクロRNA測定データ受領確認(Ｇ) *** *}>
+<{* ----------------------------------------- *}>
+<{if $action.status_show_list[7] == 2 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>マイクロRNA測定データ受領確認</legend>
+
+			<table class="testee_kentai_table">
+				<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+				<tr><td>施設患者番号　</td>
+					<td>
+						<{if $action.mod_status_id == "7"}>
+							<{$action.statuses.7.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.7.1.unique_patient_cd}>">
+						<{else}>
+							<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+						<{/if}>
+					</td>
+				</tr>
+				<tr><td>測定データを受領した日　</td><td><input id="mdb_metadatas_kentai_g1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.7.1.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>受領したデータの内容　</td><td><label><input name="content_data[2]" type="radio" value="1"<{if $action.statuses.7.2.content_data == "1"}> checked<{/if}>>判別データあり</input></label>　<label><input name="content_data[2]" type="radio" value="2"<{if $action.statuses.7.2.content_data == "2"}> checked<{/if}>>判別データなし</input></label></td></tr>
+				<tr><td>データ確認者　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.7.3.content_data}>"></td></tr>
+			</table>
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(7); return false;" class="btn-width">　
+			<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{if $action.status_show_list[7] == 1 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>マイクロRNA測定データ受領確認</legend>
+
+			<table class="testee_kentai_view_table">
+				<tr>
+				<td>
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr><td>施設患者番号　</td><td><{$action.statuses.7.1.unique_patient_cd}></td></tr>
+						<tr><td>測定データを受領した日　</td><td><{$action.statuses.7.1.content_data}></td></tr>
+						<tr><td>受領したデータの内容　</td><td><{if $action.statuses.7.2.content_data == "1"}>判別データあり<{elseif $action.statuses.7.2.content_data == "2"}>判別データなし<{/if}></td></tr>
+						<tr><td>データ確認者　</td><td><{$action.statuses.7.3.content_data}></td></tr>
+					</table>
+				</td>
+				<td align="right" valign="bottom">
+					<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:7}); return false;">変更</a>
+				</tr>
+			</table>
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{* ----------------------------------------------------- *}>
+<{* *** 治療後検体のマイクロRNA測定データ受領確認(Ｈ) *** *}>
+<{* ----------------------------------------------------- *}>
+<{if $action.status_show_list[8] == 2 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>治療後検体のマイクロRNA測定データ受領確認</legend>
+
+			<table class="testee_kentai_table">
+				<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+				<tr><td>施設患者番号　</td>
+					<td>
+						<{if $action.mod_status_id == "8"}>
+							<{$action.statuses.8.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.8.1.unique_patient_cd}>">
+						<{else}>
+							<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+						<{/if}>
+					</td>
+				</tr>
+				<tr><td>測定データを受領した日　</td><td><input id="mdb_metadatas_kentai_h1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.8.1.content_data}>" size="13" maxlength="10" /></td></tr>
+				<tr><td>受領したデータの内容　</td><td><label><input name="content_data[2]" type="radio" value="1"<{if $action.statuses.8.2.content_data == "1"}> checked<{/if}>>判別データあり</input></label>　<label><input name="content_data[2]" type="radio" value="2"<{if $action.statuses.8.2.content_data == "1"}> checked<{/if}>>判別データなし</input></label></tr>
+				<tr><td>データ確認者　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.8.3.content_data}>"></td></tr>
+			</table>
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(8); return false;" class="btn-width">　
+			<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{if $action.status_show_list[8] == 1 }>
+	<div>
+		<fieldset class="testee_kentai_fieldset">
+			<legend>治療後検体のマイクロRNA測定データ受領確認</legend>
+
+			<table class="testee_kentai_view_table">
+				<tr>
+				<td>
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr><td>施設患者番号　</td><td><{$action.statuses.8.1.unique_patient_cd}></td></tr>
+						<tr><td>測定データを受領した日　</td><td><{$action.statuses.8.1.content_data}></td></tr>
+						<tr><td>受領したデータの内容　</td><td><{if $action.statuses.8.2.content_data == "1"}>判別データあり<{elseif $action.statuses.8.2.content_data == "2"}>判別データなし<{/if}></td></tr>
+						<tr><td>データ確認者　</td><td><{$action.statuses.8.3.content_data}></td></tr>
+					</table>
+				</td>
+				<td align="right" valign="bottom">
+					<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:8}); return false;">変更</a>
+				</tr>
+			</table>
+
+		</fieldset>
+		<br />
+	</div>
+<{/if}>
+
+<{/strip}>

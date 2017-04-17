@@ -1,0 +1,53 @@
+<{strip}>
+<div class="outerdiv">
+	<div class="nowrap bold">
+		<{$action.mdb_obj.testee_name}>
+	</div>
+	<div class="top_description">
+		<{$lang.mdb_datecheck_readme|smarty:nodefaults}>
+	</div>
+	<{if $action.contents_count > 0}>
+		<div class="mdb_contents_exist_warning top_description">
+			<{$lang.mdb_contents_exist_warning|smarty:nodefaults}>
+		</div>
+	<{/if}>
+	<{*チェックの追加*}>
+	<div class="mdb_datecheck_add_btn">
+		<a id="mdb_adddatecheck<{$id}>" class="syslink" href="#" title="<{$lang.mdb_add_datecheck_title|smarty:nodefaults|sprintf:$action.mdb_obj.testee_name}>" onclick="mdbCls['<{$id}>'].showPopupDatecheck(event, <{$action.testee_id}>); return false;">
+			<img src="<{"add.gif"|get_themes_image}>" alt="" title="" />&nbsp;<{$lang.mdb_add_datecheck|smarty:nodefaults}>
+		</a>
+	</div>
+	<{if $action.count == 0}>
+		<div><{$lang.mdb_noneexists_datecheck|smarty:nodefaults}></div>
+	<{else}>
+		<table id="mdb_datecheck_setting<{$id}>" class="mdb_datecheck_main" summary="" cellspacing="0" cellpadding="5">
+			<tr class="mdb_datecheck_tr"><th>チェック</th><th>日付項目（自）</th><th>日付項目（至）</th><th>編集</th><th>削除</th></tr>
+				<{foreach from=$action.datechecks item=datecheck name=loop}>
+					<tr class="mdb_datecheck_tr">
+						<th >
+							<{$lang.mdb_datecheck|smarty:nodefaults|sprintf:$smarty.foreach.loop.iteration}>
+						</th>
+						<td ><{$datecheck.date1}></td>
+						<td ><{$datecheck.date2}></td>
+						<td>
+							<{* 編集 *}>
+							<a class="syslink" href="#" title="<{$lang.mdb_datecheck_edit_title}>" onclick="mdbCls['<{$id}>'].showPopupDatecheck(event, <{$action.testee_id}>, <{$datecheck.condition_id}>); return false;">
+								<{$lang._edit|smarty:nodefaults}>
+							</a>
+						</td>
+						<td>
+							<{* 削除 *}>
+							<a class="syslink" href="#" title="<{$lang.mdb__datecheck_del_title}>" onclick="mdbCls['<{$id}>'].delDatecheck(<{$action.testee_id}>, <{$datecheck.condition_id}>, '<{$lang._del_confirm|sprintf:"指定の関連日付チェック"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">
+								<{$lang._delete|smarty:nodefaults}>
+							</a>
+						</td>
+					</tr>
+				<{/foreach}>
+		</table>
+	<{/if}>
+	<div class="btn-bottom">
+		<input class="btn-width lined_btn" type="button" value="<{$lang._list|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', 'testee_view_edit_list'); return false;" />
+	</div>
+</div>
+<{include file="../testee_script.html"}>
+<{/strip}>

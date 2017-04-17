@@ -1,0 +1,48 @@
+<div class="outerdiv">
+
+	<fieldset>
+		<legend>CSV一括権限設定</legend>
+
+		<a href="#" class="syslink" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_edit_tedcauthority_export&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+			現在の権限をCSVダウンロードする
+		</a>
+		<br /><br />
+		権限をアップロードする。<br />
+		<form id="testeeTedcauthorityForm<{$id}>" name="testeeTedcauthorityForm<{$id}>" class="outerdiv" action="#" target="attachment_form<{$id}>" enctype="multipart/form-data" onsubmit="return false;">
+			<input type="file" class="form-control" name="attachment"><br />
+			<input type="button" value="アップロード" onclick="mdbCls['<{$id}>'].imporTedcauthorityCsv('<{$action.testee_id}>'); return false;" class="btn">
+		</form>
+	</fieldset>
+	<br />
+
+	試験毎・ユーザ毎権限一覧<br />
+	<table class="tedc_authority">
+		<tr>
+			<th>施設名</th>
+			<th>ハンドル名</th>
+			<th>NC権限</th>
+			<th>ベース権限</th>
+			<th>試験毎権限</th>
+			<th>変更</th>
+		</tr>
+
+		<{foreach item=user from=$action.users name=users_loop}>
+			<tr>
+				<td><{$user.hospital}></td>
+				<td><{$user.handle}></td>
+				<td><{$user.nc_authority_name}></td>
+				<td><{$user.item_tedc_authority_name|smarty:nodefaults}></td>
+				<td><{$user.tedc_authority_name}></td>
+				<td>
+					<a href="#"  onclick="mdbCls['<{$id}>'].showAuthorityEdit(event, '<{$action.testee_id}>', '<{$user.user_id}>'); return false;">
+						変更
+					</a>
+				</td>
+			</tr>
+		<{/foreach}>
+	</table>
+	<div class="btn-bottom">
+		<input class="btn-width lined_btn" type="button" value="<{$lang._list|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', 'testee_view_edit_list'); return false;" />
+	</div>
+</div>
+<{include file="../testee_script.html"}>

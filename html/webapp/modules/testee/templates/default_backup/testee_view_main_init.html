@@ -1,0 +1,295 @@
+<{strip}>
+<{* <font color="red">【テスト】現在のコンテンツの件数：<{$action.contents|@count}></font><br> *}>
+<{if $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_ADMIN }>
+<{* TEDC権限が管理者のみ、管理者メニューを表示　 EddyK *}>
+	<fieldset style="margin: 5px;">
+		<legend style="margin-left: 5px;">管理者メニュー</legend>
+		<ul style="padding-top: 5px; padding-bottom: 5px; margin: 0px;">
+			<li>
+				<a href="#" class="syslink" title="メタデータ仕様書出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_metadataexcel&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					メタデータ仕様書出力
+				</a>
+			</li>
+			<li>試験ID：<{$action.testee_id}></li>
+			<li>
+				<a href="#" class="syslink" title="データCSV出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_export&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					データCSV出力
+				</a>
+			</li>
+			<li>
+				現在の登録番号：<{$action.content_no}>&nbsp;&nbsp;&nbsp;&nbsp;
+				(
+				<{if $action.contents}>
+					登録番号クリアはデータをすべて削除した場合に実行できます。
+				<{else}>
+					<a href="#" class="syslink" title="登録番号クリア実行" onclick="mdbCls['<{$id}>'].clearContentNo('<{$action.testee_id}>', '<{"「`$action.mdb_obj.testee_name`」の登録番号をクリアしてよろしいですか？"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">
+						登録番号クリア実行
+					</a>
+				<{/if}>
+				)
+			</li>
+		</ul>
+	</fieldset>
+	<br />
+<{elseif $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_DM}>
+<{* TEDC権限がDM以上、管理者メニュー（CSVダウンロード）を表示　 EddyK *}>
+	<fieldset style="margin: 5px;">
+		<legend style="margin-left: 5px;">管理者メニュー</legend>
+		<ul style="padding-top: 5px; padding-bottom: 5px; margin: 0px;">
+			<li>試験ID：<{$action.testee_id}></li>
+			<li>
+				<a href="#" class="syslink" title="データCSV出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_export&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					データCSV出力
+				</a>
+			</li>
+		</ul>
+	</fieldset>
+	<br />
+<{/if}>
+<{* 一覧画面 *}>
+<div class="outerdiv">
+<{* ***********************テスト用に表示***************************<font color="red"><{$action.my_hospital}>:<{$action.tedc_authority}></font> *}>
+	<{if !$action.metadata_exists}>
+		<{$lang.mdb_noneexists_metadata|smarty:nodefaults}>
+	<{else}>
+		<div class="bold">
+			<{$action.mdb_obj.testee_name}>
+		</div>
+		<table class="outer">
+			<tr>
+				<td class="nowrap mdb_right_space">
+					<{if $action.mdb_obj.post_auth && $action.mdb_obj.active_flag == $smarty.const._ON}>
+
+					<{* 予定件数に達しているかのチェック EddyK *}>
+
+						<{if $action.counts_check}>
+							<{if $action.counts_check.ALL.add_ok}>
+								<{* 　TEDC権限による登録可否を判断　 EddyK *}>
+								<{if $action.tedc_authority > $smarty.const.TEDC_AUTHORITY_ASSISTANT && 
+									($action.tedc_authority != $smarty.const.TEDC_AUTHORITY_MONITOR && $action.tedc_authority != $smarty.const.TEDC_AUTHORITY_DM)
+								}>
+
+									<div style="margin-top: 10px;">
+										<a class="syslink testee_btn" href="#" title="<{$lang.mdb_new_content_title|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_content_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+											<img class="icon" alt="" src="<{"edit.gif"|get_themes_image}>"/>
+											<{$lang.mdb_new_content|smarty:nodefaults}>
+										</a>
+									</div>
+								<{/if}>
+							<{else}>
+								登録予定数に達しました。<br />
+							<{/if}>
+						<{else}>
+							<{* 　権限による登録可否を判断　（CRC以上、モニター・DMを除く権限のみ登録可） EddyK *}>
+							<{if $action.tedc_authority >= $smarty.const.TEDC_AUTHORITY_CRC && 
+								($action.tedc_authority != $smarty.const.TEDC_AUTHORITY_MONITOR && $action.tedc_authority != $smarty.const.TEDC_AUTHORITY_DM)
+							}>
+								<div style="margin-top: 10px;">
+									<a class="syslink testee_btn" href="#" title="<{$lang.mdb_new_content_title|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_content_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+										<img class="icon" alt="" src="<{"edit.gif"|get_themes_image}>"/>
+										<{$lang.mdb_new_content|smarty:nodefaults}>
+									</a>
+								</div>
+							<{/if}>
+						<{/if}>
+					<{* 表示順変更は使用しない EddyK *}>
+					<{* 表示順変更 *}>
+					<{*
+						<{if $smarty.session._auth_id >= $smarty.const._AUTH_CHIEF}>
+							<{if $action.counts_check}>
+								<{if $action.counts_check.ALL.add_ok}>
+									<{$lang._separator|smarty:nodefaults}>
+								<{/if}>
+							<{else}>
+								<{$lang._separator|smarty:nodefaults}>
+							<{/if}>
+							<a class="syslink" href="#" title="" onclick="mdbCls['<{$id}>'].showDataSeqPop(event, '<{$action.testee_id}>'); return false;">
+								<{$lang.mdb_sequence|smarty:nodefaults}>
+							</a>
+						<{/if}>
+					*}>
+						<br>
+					<{* 選択値別件数設定にて予定件数に達しているかのチェック EddyK *}>
+						<{if $action.counts_check && $action.counts_check.ALL.add_ok}>
+							<{assign var="init" value=false}>
+							<{foreach from=$action.counts_check item=counts_check key=key}>
+								<{if !$counts_check.add_ok}>
+									<{if !$init}>
+										<fieldset style="width: 300px; margin-top: 5px;">
+										<{assign var="init" value=true}>
+									<{/if}>
+										<div style="padding: 5px; color: blue;"><{$key|smarty:nodefaults}>は登録予定数に達しています。<br/></div>
+								<{/if}>
+							<{/foreach}>
+							<{if $init}>
+								</fieldset>
+							<{/if}>
+						<{/if}>
+					<{/if}>
+				</td>
+				<{* TEDC権限が管理者のみ、検索機能を表示　 EddyK *}>
+				<{if $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_ADMIN }>
+					<td class="align-right nowrap">
+						<a class="syslink" href="#" title="<{$lang.mdb_search_title|smarty:nodefaults|sprintf:$action.mdb_obj.testee_name}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_search_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+							<img class="icon" src="<{"search.gif"|get_themes_image}>" alt="<{$lang.mdb_search|smarty:nodefaults}>" title="<{$lang.mdb_search|smarty:nodefaults}>" />
+							<{$lang.mdb_search|smarty:nodefaults}>
+						</a>
+					</td>
+				<{/if}>
+			</tr>
+		</table>
+		<{include file = "testee_view_main_init_control.html" position="top"}>
+		<{if !$action.exists}>
+			<br /><{$lang.mdb_noneexists_data|smarty:nodefaults}>
+		<{else}>
+			<{if $action.mdblist.metadata == ""}>
+				<br /><{$lang.mdb_noneexists_list_metadata|smarty:nodefaults}>
+			<{else}>
+				<{assign var="mode" value="list"}>
+				<{assign var="data_pos_1" value=$action.mdblist.metadata.1}>
+				<{assign var="data_pos_2" value=$action.mdblist.metadata.2}>
+				<{assign var="data_pos_3" value=$action.mdblist.metadata.3}>
+				<{assign var="data_pos_4" value=$action.mdblist.metadata.4}>
+
+				<{* 詳細部 *}>
+				<{* ***********************テスト用に表示***************************<font color="red"><{$item.content}></font> *}>
+
+				<{* 一覧のテーブル定義開始 ここから *}>
+				<br />
+				<table style="width: 100%;">
+				<{* 一覧のテーブル定義開始 ここまで *}>
+
+					<{* ヘッダ行 ここから *}>
+					<tr>
+
+						<{* 詳細リンクのタイトル *}>
+						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap><{$lang.mdb_detail_link|smarty:nodefaults}></td>
+
+						<{* プリント *}>
+						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap><img src="<{"print.gif"|get_themes_image}>" title="<{$lang._print_icon|smarty:nodefaults}>" alt="<{$lang._print_icon|smarty:nodefaults}>" /></td>
+
+						<{* 登録者 *}>
+						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>登録者</td>
+
+						<{* 登録番号 *}>
+						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>登録番号</td>
+
+						<{* 割付 *}>
+						<{if $action.allocation.allocation_result_flag == 1}>
+							<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" class="mdb_detail_allocate" nowrap>割付</td>
+							<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>介入</td>
+						<{/if}>
+
+						<{* 登録日時 *}>
+						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>登録日時</td>
+
+						<{* メタデータをループして、タイトル行を生成 *}>
+						<{foreach item=metadata_block from=$action.mdblist.metadata}>
+							<{foreach item=metadata from=$metadata_block}>
+								<{if $metadata}>
+									<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0; white-space: nowrap;" nowrap><{$metadata.name}></td>
+								<{/if}>
+							<{/foreach}>
+						<{/foreach}>
+					</tr>
+					<{* ヘッダ行 ここまで *}>
+
+					<{foreach item=item key=key from=$action.mdblist.value}>
+						<{* 詳細部 *}>
+
+						<{* コメントアウト
+							<{include file="testee_common_metadata.html"}>
+							<br />
+						*}>
+
+						<{* ループの追加 ここから *}>
+						<tr>
+
+							<td style="border: 1px solid gray; padding: 5px;">
+
+								<{* ここから、testee_common_metadata.html の116行目から127行目をコピー *}>
+
+								<{if strpos($id, TESTEE_REFERENCE_PREFIX_NAME)}>
+									<a href="#" title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" class="syslink" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$item.content_id}>, testee_id:<{$action.testee_id}>}, {'loading_el':this}); return false;">
+								<{else}>
+									<{if ($item.short_url != "") }>
+										<{include file="../../../../templates/main/abbreviate_url.html" short_url=$item.short_url assign=short_url}>
+									<{else}>
+										<{assign var="short_url" value="`$smarty.const.BASE_URL``$smarty.const.INDEX_FILE_NAME`?active_action=testee_view_main_detail&content_id=`$item.content_id`&testee_id=`$action.testee_id`&block_id=`$block_id`#`$smarty.session._id`"}>
+									<{/if}>
+									<a class="syslink"  title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" href="<{$short_url}>" onclick="if(_nc_current_url.match('<{$item.short_url}>')) {location.reload(); } else { location.href='<{$short_url}>';} return false;">
+								<{/if}>
+									<{$lang.mdb_detail_link|smarty:nodefaults}>
+								</a>
+
+								<{* ここまで、testee_common_metadata.html の116行目から127行目をコピー *}>
+
+								<{if $item.temporary_flag != $smarty.const._OFF}><br />
+									<span class="deadline"><{$lang._temporary_state|smarty:nodefaults}></span>
+									<{if $mode == "detail"}>
+										<{$lang._separator|smarty:nodefaults}>
+									<{/if}>
+								<{elseif $item.agree_flag == $smarty.const._ON}><br />
+									<span class="deadline"><{$lang.mdb_wait_agree|smarty:nodefaults}></span>
+									<{if $mode == "detail"}>
+										<{$lang._separator|smarty:nodefaults}>
+									<{/if}>
+								<{/if}>
+							</td>
+
+							<{* プリント *}>
+							<td style="border: 1px solid gray; padding: 5px;">
+
+								<{assign var="short_url" value="`$smarty.const.BASE_URL``$smarty.const.INDEX_FILE_NAME`?active_action=testee_view_main_detail&content_id=`$item.content_id`&testee_id=`$action.testee_id`&print_flag=on&block_id=`$block_id`"}>
+								<a class="syslink"  title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" href="<{$short_url}>" onclick="if(_nc_current_url.match('<{$item.short_url}>')) {location.reload(); } else { location.href='<{$short_url}>';} return false;">
+
+									<img src="<{"print.gif"|get_themes_image}>" title="<{$lang._print_icon|smarty:nodefaults}>" alt="<{$lang._print_icon|smarty:nodefaults}>" />
+								</a>
+							</td>
+
+							<{* 登録者 *}>
+							<td style="border: 1px solid gray; padding: 5px;"><{$item.insert_user_name}></td>
+
+							<{* 登録番号 *}>
+							<td style="border: 1px solid gray; padding: 5px;"><{$item.content_no}>
+
+								<{* new *}>
+								<{if $item.temporary_flag == $smarty.const._OFF && $item.agree_flag == $smarty.const._OFF && $action.mdb_obj.new_period_time <= $item.insert_time && $action.mdb_obj.new_period > 0}>
+									<br /><img class="icon" src="<{"new.gif"|get_modules_image}>" alt="<{$lang._new|smarty:nodefaults}>" title="<{$lang._new|smarty:nodefaults}>" />
+								<{/if}>
+
+							</td>
+
+							<{* 割付 *}>
+							<{if $action.allocation.allocation_result_flag == 1}>
+								<td style="border: 1px solid gray; padding: 5px; white-space: nowrap;" class="mdb_detail_allocate" nowrap><{$item.group_name}></td>
+								<td style="border: 1px solid gray; padding: 5px;"><{$item.intervention}></td>
+							<{/if}>
+
+							<{* 登録日付 *}>
+							<td style="border: 1px solid gray; padding: 5px;"><{$item.insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults}></td>
+
+							<{foreach item=metadata_block from=$action.mdblist.metadata}>
+								<{foreach item=metadata from=$metadata_block}>
+									<td style="border: 1px solid gray; padding: 5px;"><{include file="testee_common_metadata_detail_simple.html"}></td>
+								<{/foreach}>
+							<{/foreach}>
+						</tr>
+						<{* ループの追加 ここまで *}>
+
+					<{/foreach}>
+
+				<{* 一覧のテーブル定義終了 ここから *}>
+				</table>
+				<br />
+				<{* 一覧のテーブル定義終了 ここまで *}>
+
+				<{* 下部のページャー他抽出などのコントロールは不要　EddyK
+					<{include file = "testee_view_main_init_control.html" position="bottom"}>
+				*}>
+			<{/if}>
+		<{/if}>
+	<{/if}>
+</div>
+<{include file="../testee_script.html"}>
+<{/strip}>

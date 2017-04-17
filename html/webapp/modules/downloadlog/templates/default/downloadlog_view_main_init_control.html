@@ -1,0 +1,23 @@
+<{strip}>
+	<input type="hidden" name="action" value="downloadlog_view_main_init" />
+	<span class="downloadlog_separator">
+		<select name="ym_select" class="log_ym<{$id}>" onchange="downloadlogCls['<{$id}>'].changeCondition('<{if $position == "bottom"}>_bottom<{/if}>');" size="1">
+			<option value="0"><{$lang.downloadlog_ym_select|smarty:nodefaults}></option>
+			<{foreach from=$action.ym_list item=ym_item}>
+				<option value="<{$ym_item.ym_value}>"<{if ($action.ym_select==$ym_item.ym_value)}> selected="selected"<{/if}>><{$ym_item.ym_name}></option>
+			<{/foreach}>
+		</select>
+	</span>
+
+	<span>
+		<select name="visible_item" class="visible_item<{$id}>" onchange="downloadlogCls['<{$id}>'].changeCondition('<{if $position == "bottom"}>_bottom<{/if}>');" size="1">
+			<option value="1" <{if $action.visible_item==1}>selected="selected"<{/if}>>1<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<option value="5" <{if $action.visible_item==5}>selected="selected"<{/if}>>5<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<option value="10" <{if $action.visible_item==10}>selected="selected"<{/if}>>10<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<option value="20" <{if $action.visible_item==20}>selected="selected"<{/if}>>20<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<option value="50" <{if $action.visible_item==50}>selected="selected"<{/if}>>50<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<option value="100" <{if $action.visible_item==100}>selected="selected"<{/if}>>100<{$lang.downloadlog_display_item|smarty:nodefaults}></option>
+			<{* <option value="0" <{if $action.visible_item==0}>selected="selected"<{/if}>><{$lang.downloadlog_display_item_all|smarty:nodefaults}></option> *}>
+		</select>
+	</span>
+<{/strip}>

@@ -1,0 +1,33 @@
+<{* 施設一覧 *}>
+
+<form id="hospitalinfo_popup_form<{$id}>" onsubmit="return false;" action="#" method="post">
+<input name="action" type="hidden" value="hospitalinfo_action_main_popup" />
+<input name="hospitalinfo_id" type="hidden" value="<{$action.hospitalinfo.0.hospitalinfo_id}>" />
+
+<div class="hospitalinfo_list">
+	<table >
+		<tr>
+			<th>施設名</th>
+			<th>かな</th>
+			<th>施設コード</th>
+		</tr>
+		<tr>
+			<td><input type="text" name="hospital_name" class="hospital_name" value="<{$action.hospitalinfo.0.hospital_name}>"></td>
+			<td><input type="text" name="hospital_kana" class="hospital_kana" value="<{$action.hospitalinfo.0.hospital_kana}>"></td>
+			<td><input type="text" name="hospital_code" class="hospital_code" value="<{$action.hospitalinfo.0.hospital_code}>"></td>
+		</tr>
+	</table>
+
+	<table style="width: 100%;">
+		<tr>
+			<td style="text-align: center; border: none;" align="center">
+				<input type="button" value="変更" onclick="hospitalinfoCls['<{$id}>'].updateHospitalinfo(); return false;">
+				　　　
+				<input type="button" value="キャンセル" onclick="commonCls.removeBlock(<{$id}>);">
+			</td>
+		</tr>
+	</table >
+</div>
+</form>
+
+<{include file="hospitalinfo_script.html"}>

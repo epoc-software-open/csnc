@@ -1,0 +1,108 @@
+<{* フッターエディット *}>
+
+<div class="outerdiv">
+
+<form id="footeredit_edit_form<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+	<input name="action" type="hidden" value="footeredit_action_edit_init" />
+	<input name="layout" type="hidden" value="1" />
+
+	編集タイプ　
+	<label><input type="radio" name="edit_type" value="0" <{if $action.footer_data.edit_type == 0}> checked<{/if}> onclick="footereditCls['<{$id}>'].changeEditType(0);">簡易エディタ</label>
+	<label><input type="radio" name="edit_type" value="1" <{if $action.footer_data.edit_type == 1}> checked<{/if}> onclick="footereditCls['<{$id}>'].changeEditType(1);">HTML埋め込み</label>
+	<br />
+
+	<div id="footeredit_easy"<{if $action.footer_data.edit_type == 1}> style="display: none;"<{/if}>>
+		簡易エディタ
+		<table class="footeredit_edit_table" cellspacing="0" summary="">
+		<tr>
+			<th colspan="2" class="footer_center">左エリア</th>
+		</tr>
+		<tr>
+			<th>1行目 (e.g. 組織名)</th>
+			<td>
+				<input type="text" name="address" class="footedit_input" value="<{$action.footer_data.address}>">
+			</td>
+		</tr>
+		<tr>
+			<th>2行目 (e.g. 住所)</th>
+			<td>
+				<input type="text" name="tel" class="footedit_input" value="<{$action.footer_data.tel}>">
+			</td>
+		</tr>
+		<tr>
+			<th>3行目 (e.g. 電話、FAX)</th>
+			<td>
+				<input type="text" name="fax" class="footedit_input" value="<{$action.footer_data.fax}>">
+			</td>
+		</tr>
+		<tr>
+			<th>4行目 (e.g. メール)</th>
+			<td>
+				<input type="text" name="mail" class="footedit_input" value="<{$action.footer_data.mail}>">
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2" class="footer_center">右エリア</th>
+		</tr>
+		<tr>
+			<th>e.g. リンクエリアHTML</th>
+			<td>
+				<textarea cols="60" rows="7" name="link_html" class="footedit_input"><{$action.footer_data.link_html}></textarea>
+			</td>
+		</tr>
+		<tr>
+			<th colspan="2" class="footer_center">下中央エリア</th>
+		</tr>
+		<tr>
+			<th>e.g. コピーライト</th>
+			<td>
+				<textarea cols="60" rows="2" name="copyright" class="footedit_input"><{$action.footer_data.copyright}></textarea>
+			</td>
+		</tr>
+<{*
+		<tr>
+			<th>フッターレイアウト</th>
+			<td>
+				<select name="layout">
+					<option value="1">レイアウト1
+				</select>
+			</td>
+		</tr>
+*}>
+		</table>
+	</div>
+
+	<div id="footeredit_html"<{if $action.footer_data.edit_type == 0}> style="display: none;"<{/if}>>
+		埋め込みHTML
+		<table class="footeredit_edit_table" cellspacing="0" summary="">
+		<tr>
+			<th>埋め込みHTML</th>
+			<td>
+				<textarea cols="60" rows="7" name="embed_html" class="footedit_input"><{$action.footer_data.embed_html}></textarea>
+			</td>
+		</tr>
+		</table>
+	</div>
+
+	<div id="footeredit_other">
+		その他
+		<table class="footeredit_edit_table" cellspacing="0" summary="">
+		<tr>
+			<th>その他</th>
+			<td class="footedit_check_td">
+				<label><input type="checkbox" name="chk_nc" value="1"<{if $action.footer_data.chk_nc}> checked<{/if}>>Powered by NetCommons2</label>
+			</td>
+		</tr>
+		</table>
+	</div>
+
+	<div class="footeredit_btn_bottom">
+		<input class="btn-width lined_btn" onclick="footereditCls['<{$id}>'].setFooter(); return false;" type="button" value="決定"/>
+		<div class="footeredit_default">
+			<input class="footeredit_default_btn lined_btn" onclick="footereditCls['<{$id}>'].setFooterDefault(); return false;" type="button" value="フッタを初期値に戻す"/>
+		</div>
+	</div>
+</form>
+
+</div>
+<{include file="footeredit_script.html"}>

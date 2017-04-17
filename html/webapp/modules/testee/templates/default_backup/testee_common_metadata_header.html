@@ -1,0 +1,26 @@
+<{strip}>
+	<tr>
+		<td class="<{$mdb_detail_head}> nowrap">登録者</td>
+		<td class="mdb_edit_detail"><{$content_insert_user_name}></td>
+	</tr>
+	<{if $mode == "list" || $mode == "detail"}>
+		<tr>
+			<td class="<{$mdb_detail_head}> nowrap">登録番号</td>
+			<td class="mdb_edit_detail"><{$item.content_no}></td>
+		</tr>
+		<{if $action.allocation.allocation_result_flag == 1}>
+			<tr>
+				<td class="<{$mdb_detail_head}> mdb_detail_allocate nowrap">割付</td>
+				<td class="mdb_edit_detail mdb_detail_allocate"><{$item.group_name}></td>
+			</tr>
+			<tr>
+				<td class="<{$mdb_detail_head}> nowrap">介入</td>
+				<td class="mdb_edit_detail"><{$item.intervention}></td>
+			</tr>
+		<{/if}>
+	<{/if}>
+	<tr>
+		<td class="<{$mdb_detail_head}> nowrap">登録日時</td>
+		<td class="mdb_edit_detail"><{$content_insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults}></td>
+	</tr>
+<{/strip}>

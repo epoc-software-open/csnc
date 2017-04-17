@@ -1,0 +1,80 @@
+<{strip}>
+<div class="outerdiv" id="target<{$id}>">
+	<div class="nowrap bold">
+		<{$action.mdb_obj.testee_name}>
+	</div>
+	<div class="top_description">
+		<{$lang.mdb_counts_readme|smarty:nodefaults}>
+	</div>
+	<{if $action.contents_count > 0}>
+		<div class="mdb_contents_exist_warning top_description">
+			<{$lang.mdb_contents_exist_warning|smarty:nodefaults}>
+		</div>
+	<{/if}>
+	<form id="counts_form<{$id}>" action="">
+		<table id="mdb_datecheck_setting<{$id}>" class="mdb_datecheck_main" summary="" cellspacing="0" cellpadding="5">
+			<{* 全体件数 *}>
+			<tr class="mdb_datecheck_tr">
+				<th><{$lang.mdb_all_counts|smarty:nodefaults}></th>
+				<td>
+					<input name="all_counts" type="text" value="<{$action.counts_data.all_counts}>" size="5" />
+				</td>
+				<th><{$lang.mdb_current_counts|smarty:nodefaults}></th>
+				<td>
+					<{$action.contents_count}>
+				</td>
+			</tr>
+			<{* 件数指定項目 *}>
+			<tr class="mdb_datecheck_tr">
+				<th><{$lang.mdb_counts_field|smarty:nodefaults}></th>
+				<td colspan="3">
+					<{* セレクトリスト *}>
+					<select name="counts_id" id="mdb_counts<{$id}>" onchange="mdbCls['<{$id}>'].getOptions(<{$action.testee_id}>)">
+						<{* 未選択 *}>
+						<option value="" <{if $action.counts_data.counts_id == "" || $action.counts_data.counts_id == null}> selected="selected"<{/if}>>
+						</option>
+						<{foreach from=$action.counts_matadatas item=meta_data}>
+							<option value="<{$meta_data.metadata_id}>" <{if $action.counts_data.counts_id === $meta_data.metadata_id}> selected="selected"<{/if}>>
+								<{$meta_data.name}>
+							</option>
+						<{/foreach}>
+					</select>
+				</td>
+			</tr>
+			<{* 選択値別件数 *}>
+			<tr class="mdb_datecheck_tr">
+				<th><{$lang.mdb_counts_option|smarty:nodefaults}></th>
+				<td colspan="3" class="mdb_count_option_td">
+					<div  id="mdb_counts_option<{$id}>">
+					<{if $action.counts_data.counts_id != "" && $action.counts_data.counts_id != null && $action.counts_data.counts_id != 0}>
+					<table style="width:100%;">
+						<tr><td>選択肢</td><td>設定件数</td><td>現在の登録件数</td></tr>
+						<{foreach from=$action.options item=option key=i}>
+							<tr>
+								<td><{$option}></td>
+								<td>
+									<input name="option_counts[<{$action.options_code.$i}>]" type="text" value="<{$action.option_counts.$i}>" size="5" />
+								</td>
+								<td style="text-align: right">
+									<{$action.option_current_counts.$i}>
+								</td>
+							</tr>
+						<{/foreach}>
+					</table>
+					<{/if}>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<input type="hidden" name="testee_id" value="<{$action.testee_id}>">
+		<div class="note">
+			<{$lang.mdb_group_desc|smarty:nodefaults}>
+		</div>
+		<div class="btn-bottom">
+			<input class="btn-width lined_btn" type="button" value="<{$lang._regist|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].setCounts();"/>
+			<input class="lined_btn btn-width" type="button" onclick="commonCls.removeBlock('<{$id}>');return false;" value="<{$lang._cancel|smarty:nodefaults}>" />
+		</div>
+	</form>
+</div>
+<{include file="../testee_script.html"}>
+<{/strip}>

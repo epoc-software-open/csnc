@@ -1,0 +1,83 @@
+/* Css定義ファイル                     */
+
+/* 編集画面の表項目
+-------------------------------------------------*/
+/* 項目の表 */
+.footeredit_edit_table {
+}
+.footeredit_edit_table td {
+	border: #c0c0c0 solid 1px;
+	padding: 5px;
+}
+.footeredit_edit_table th {
+	border: #c0c0c0 solid 1px;
+	padding: 5px;
+	width: 150px;
+	background-color: #f0f0f0;
+	text-align: left;
+	white-space: nowrap;
+}
+.footeredit_edit_table th.footer_center {
+	text-align: center;
+}
+.footedit_input {
+	width: 498px;
+}
+.footedit_check_td {
+    width: 498px;
+}
+/* ボタン */
+.footeredit_btn_bottom {
+	margin-left: 120px;
+	margin-top: 10px;
+	text-align: center;
+}
+
+/* ロゴファイル選択 */
+.footeredit_input_logo_file {
+	width: 500px;
+}
+
+/* フッタを初期値に戻す */
+.footeredit_default {
+	float: right;
+}
+.footeredit_default_btn {
+	width: 150px;
+	padding: 0.2em;
+}
+
+#footeredit_easy, #footeredit_html, #footeredit_other {
+	margin-top: 8px;
+}
+
+/* 使い方画面
+-------------------------------------------------*/
+.footeredit_help fieldset {
+	border: none;
+}
+
+.footeredit_copyright {
+	text-align: right;
+	color: #a3a3a3;
+	font-size: 90%;
+	font-weight: bold;
+	vertical-align: middle;
+}
+.footeredit_caution {
+	color: #0000ff;
+}
+.footeredit_help {
+	margin: 10px;
+	line-height: 1.5em;
+}
+.footeredit_help fieldset {
+	padding: 10px;
+}
+.footeredit_help_block {
+	margin: 0px 0px 5px 30px;
+}
+.footeredit_sample {
+	height: 100px;
+	width: 500px;
+}

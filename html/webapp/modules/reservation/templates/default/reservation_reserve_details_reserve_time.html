@@ -1,0 +1,34 @@
+<{strip}>
+
+<th class="nowrap" scope="row">
+	<{$lang.reservation_reserve_time|smarty:nodefaults}>
+</th>
+<td class="nowrap">
+	<{if $action.reserve_block.display_timeframe == $smarty.const._ON}>
+		<{if !empty($action.start_timeframe|smarty:nodefaults) && !empty($action.end_timeframe|smarty:nodefaults)}>
+			<{if $action.start_timeframe.timeframe_id == $action.end_timeframe.timeframe_id}>
+				<{$action.start_timeframe.timeframe_name}>
+			<{else}>
+				<{$action.start_timeframe.timeframe_name}>
+				<{$lang.reservation_time_pause|smarty:nodefaults}>
+				<{$action.end_timeframe.timeframe_name}>
+			<{/if}>
+			<br />
+		<{/if}>
+	<{/if}>
+
+	<{if ($action.reserve.start_date_view == $action.reserve.end_date_view) }>
+		<{$action.reserve.start_date_str}>
+		<{if ($action.reserve.start_time_view != "000000" && $action.reserve.start_time_view != "240000") }>
+			<br />
+			<{$lang.reservation_time_range|smarty:nodefaults|sprintf:"`$action.reserve.start_time_str`":"`$action.reserve.end_time_str`"}>
+		<{/if}>
+	<{else}>
+		<{$action.reserve.start_date_str}>&nbsp;<{$action.reserve.start_time_str}>
+		<{$lang.reservation_time_pause|smarty:nodefaults}>
+		<br />
+		<{$action.reserve.end_date_str}>&nbsp;<{$action.reserve.end_time_str}>
+	<{/if}>
+</td>
+
+<{/strip}>

@@ -1,0 +1,36 @@
+
+/* ダウンロードログモジュールCSS
+---------------------------------------*/
+div.downloadlog_list_control {
+	padding: 3px;
+}
+span.downloadlog_separator{
+	margin: 0 5px;
+}
+div.downloadlog_list {
+	padding: 3px 8px;
+}
+.downloadlog_list th {
+	border: 1px solid #d0d0d0;
+	padding: 3px;
+	background-color: #f0f0f0;
+	white-space: nowrap;
+}
+.downloadlog_list td {
+	border: 1px solid #d0d0d0;
+	padding: 6px;
+	text-align: left;
+}
+span.downloadlog_page_switch a {
+	margin:0px 4px;
+}
+span.downloadlog_page_switch a.current {
+	font-weight:bold;
+	color:#c90505;
+}
+
+/* CSVダウンロード用ボタン
+---------------------------------*/
+.downloadlog_button {
+	padding: 5px;
+}

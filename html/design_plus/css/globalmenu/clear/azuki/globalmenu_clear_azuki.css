@@ -1,0 +1,51 @@
+@charset "UTF-8";
+
+/* *** グローバルメニュー
+----------------------------------------------------------- */
+
+/* メニューの基本部分
+----------------------------------------------------------- */
+#globalmenu {
+	height: 43px;
+	font-size: small;
+	font-weight: bold;
+	background: transparent url(images/bg_off.gif) repeat-x top left;
+	border-top: 4px solid #a4a26b;
+	padding: 0px 0px;
+	margin: 0px 0px;
+}
+
+/* リスト ul
+----------------------------------------------------------- */
+#globalmenu ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	width: auto;
+}
+
+/* リスト li
+----------------------------------------------------------- */
+#globalmenu ul li {
+	float: left;
+	margin: 0;
+}
+
+/* リスト リンク
+----------------------------------------------------------- */
+#globalmenu ul li a {
+	display: block;
+	float: left;
+	color: #666;
+	text-decoration: none;
+	padding: 8px 28px 2px 28px;
+	height: 27px;
+	background: transparent url(images/bg_separator.gif) no-repeat top right;
+}
+
+/* リスト リンク：カレント
+----------------------------------------------------------- */
+#globalmenu ul li a:hover,#globalmenu ul li a.current {
+	color: #ffffff;
+	background: #941e2a url(images/bgON1.gif) no-repeat top right;
+}

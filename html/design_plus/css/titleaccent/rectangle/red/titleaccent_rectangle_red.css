@@ -1,0 +1,42 @@
+@charset "UTF-8";
+
+/* *** NetCommons スタイル上書き タイトルアクセント
+----------------------------------------------------------- */
+
+/* スタイル(default)
+----------------------------------------------------------- */
+.th_classic_default {
+    border: 0px;
+}
+
+.th_classic_default_header {
+    padding: 1px;
+    background:transparent url(./images/th_classic_default_header_bg.gif) repeat-x scroll left bottom;
+    border-top: 1px solid #dbdbdb;
+    border-right: 1px solid #dbdbdb;
+    border-bottom: 1px solid #dbdbdb;
+    border-left: 1px solid #dbdbdb;
+}
+
+.th_classic_default h2.nc_block_title {
+    margin: 1px 1px 1px 1px;
+    padding: 4px 10px 8px 10px;
+    font-size: 90%;
+    font-weight: bold;
+    line-height: 1.5;
+    border-left: 5px solid #c50050;
+}
+
+/* 標準テンプレートのクラシック
+----------------------------------------------------------- */
+
+/* 余白を取り除く */
+.th_classic_default .th_classic_content {
+    padding-left: 0px;
+}
+.th_classic_default .th_classic_content .outerdiv {
+    padding-top: 0px;
+    padding-right: 6px;
+    padding-left: 0px;
+}
+

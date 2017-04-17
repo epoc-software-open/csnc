@@ -1,0 +1,529 @@
+<{strip}>
+	<div class="outerdiv">
+		<form action="" id="mdb_addmetadata_form<{$id}>" onsubmit="return false;">
+			<input name="testee_id" type="hidden" value="<{$action.testee_id}>" />
+			<input name="metadata_id" type="hidden" value="<{$action.metadata.metadata_id}>" />
+			<input id="metadata_type<{$id}>" type="hidden" value="<{$action.metadata.type}>">
+			<input id="mdb_title_flag<{$id}>" type="hidden" value="<{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id}><{$smarty.const._ON}><{else}><{$smarty.const._OFF}><{/if}>">
+			<table class="outer" summary="<{$smarty.const._SUMMARY_SETTINGFORM}>" cellspacing="0" cellpadding="2">
+				<{*変数名*}>
+				<tr>
+					<th class="nowrap valign-top align-left" scope="row"><{$lang.mdb_head_varb_name|smarty:nodefaults}></th>
+					<td class="nowrap">
+						<input name="varb_name" type="text" value="<{if $action.metadata.varb_name != ""}><{$action.metadata.varb_name}><{else}><{$lang.mdb_default_varb_name|smarty:nodefaults}><{/if}>" />
+						<{* 改行を追加　不要 EddyK <br /> *}>
+						<span class="highlight mdb_def_metadata_name"><{$action.metadata.verb_name}></span>
+					</td>
+				</tr>
+				<{*項目名*}>
+				<tr>
+					<th class="nowrap valign-top align-left" scope="row"><{$lang.mdb_head_metadata_name|smarty:nodefaults}></th>
+					<td class="nowrap">
+						<{* 項目名エリアを広げる EddyK *}>
+						<input name="name" type="text" value="<{if $action.metadata.name != ""}><{$action.metadata.name}><{else}><{$lang.mdb_default_item_name|smarty:nodefaults}><{/if}>" size="80" />
+						<br />
+						<span class="highlight mdb_def_metadata_name"><{$action.metadata.name}></span><br />
+
+						<{* 装飾 *}>
+						<{if $action.metadata.type != TESTEE_META_TYPE_N_COMMENT}>
+							<label><input type="checkbox" name="decoration_bold" value="1"<{if $action.metadata.decoration_bold == _ON || $action.metadata.decoration_bold == ""}> checked="checked"<{/if}>>太字</label>&nbsp;
+							<label><input type="checkbox" name="decoration_underline" value="1"<{if $action.metadata.decoration_underline == _ON}> checked="checked"<{/if}>>下線</label>&nbsp;
+							<label><input type="checkbox" name="decoration_red" value="1"<{if $action.metadata.decoration_red == _ON}> checked="checked"<{/if}>>赤字</label>
+						<{/if}>
+
+						<div>
+							<{* タイトルにする *}>
+							<div id="mdb_metadata_title_metadata_flag_div<{$id}>">
+								<label for="mdb_metadata_title_metadata_flag<{$id}>"<{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id}> class="disable_lbl"<{/if}>>
+									
+									<input name="title_metadata_flag" id="mdb_metadata_title_metadata_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" 
+									onclick="mdbCls['<{$id}>'].changeTitle(this);"<{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id}> 
+									checked="checked" disabled="disabled"<{/if}>/>
+									
+									<{$lang.mdb_title_metadata|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* <div class="hr"></div>  線は不要 EddyK *}>
+
+							<{* 入力必須項目にする *}>
+							<div id="mdb_metadata_require_flag_div<{$id}>">
+								<label for="mdb_metadata_require_flag<{$id}>"<{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id || $action.metadata.type == TESTEE_META_TYPE_AUTONUM || $action.metadata.type == TESTEE_META_TYPE_INSERT_TIME || $action.metadata.type == TESTEE_META_TYPE_UPDATE_TIME}> class="disable_lbl"<{/if}>>
+									<input name="require_flag" id="mdb_metadata_require_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.require_flag == _ON}> checked="checked"<{/if}> <{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id || $action.metadata.type == TESTEE_META_TYPE_AUTONUM || $action.metadata.type == TESTEE_META_TYPE_INSERT_TIME || $action.metadata.type == TESTEE_META_TYPE_UPDATE_TIME || $action.metadata.type == TESTEE_META_TYPE_N_COMMENT}> disabled="disabled"<{/if}>/>
+									<{if $action.mdb_obj.title_metadata_id == $action.metadata.metadata_id}>
+										<input type="hidden" id="mdb_metadata_require_flag_hidden<{$id}>" name="require_flag" value="<{$smarty.const._ON}>">
+									<{/if}>
+									<{$lang.mdb_require|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* 一覧画面に表示する項目 *}>
+							<div id="mdb_metadata_list_flag_div<{$id}>">
+								<label for="mdb_metadata_list_flag<{$id}>">
+									<input name="list_flag" id="mdb_metadata_list_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.list_flag == _ON }> checked="checked"<{/if}> onclick="mdbCls['<{$id}>'].setList(this);"/>
+									<{$lang.mdb_list|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* 詳細画面に表示する項目 *}>
+							<div id="mdb_metadata_detail_flag_div<{$id}>">
+								<label for="mdb_metadata_detail_flag<{$id}>">
+									<input name="detail_flag" id="mdb_metadata_detail_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.detail_flag == _ON || $action.metadata.detail_flag == ""}> checked="checked"<{/if}> />
+									<{$lang.mdb_detail|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* 項目名を表示する *}>
+							<div id="mdb_metadata_name_flag_div<{$id}>">
+								<label for="mdb_metadata_name_flag<{$id}>"<{if $action.metadata.type == TESTEE_META_TYPE_IMAGE}> class="disable_lbl"<{/if}>>
+									<input name="name_flag" id="mdb_metadata_name_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.name_flag == _ON || $action.metadata.name_flag == ""}> checked="checked"<{/if}> <{if $action.metadata.type == TESTEE_META_TYPE_IMAGE}> disabled="disabled"<{/if}>/>
+									<{$lang.mdb_label|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* 検索の対象に含める *}>
+							<div id="mdb_metadata_search_flag_div<{$id}>">
+								<label for="mdb_metadata_search_flag<{$id}>"<{if $action.metadata.type == TESTEE_META_TYPE_FILE || $action.metadata.type == TESTEE_META_TYPE_IMAGE || $action.metadata.type == TESTEE_META_TYPE_DATE || $action.metadata.type == TESTEE_META_TYPE_INSERT_TIME || $action.metadata.type == TESTEE_META_TYPE_UPDATE_TIME || 
+
+$action.metadata.type == TESTEE_META_TYPE_N_DATE || $action.metadata.type == TESTEE_META_TYPE_N_BIRTHDAY 
+
+}>
+ class="disable_lbl"<{/if}>>
+									<input name="search_flag" id="mdb_metadata_search_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.search_flag == _ON}> checked="checked"<{/if}> <{if $action.metadata.type == TESTEE_META_TYPE_FILE || $action.metadata.type == TESTEE_META_TYPE_IMAGE || $action.metadata.type == TESTEE_META_TYPE_DATE || $action.metadata.type == TESTEE_META_TYPE_INSERT_TIME || $action.metadata.type == TESTEE_META_TYPE_UPDATE_TIME || 
+
+$action.metadata.type == TESTEE_META_TYPE_N_DATE || $action.metadata.type == TESTEE_META_TYPE_N_BIRTHDAY 
+
+}>
+ disabled="disabled"<{/if}>/>
+									<{$lang.mdb_search|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* ソートできる *}>
+							<div id="mdb_metadata_sort_flag_div<{$id}>" style="margin-left:20px;">
+								<label for="mdb_metadata_sort_flag<{$id}>"<{if $action.metadata.list_flag != _ON}> class="disable_lbl"<{/if}>>
+									<input name="sort_flag" id="mdb_metadata_sort_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.sort_flag == _ON}> checked="checked"<{/if}><{if $action.metadata.list_flag != _ON}> disabled="disabled"<{/if}>/>
+									<{$lang.mdb_sort|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* ファイルのダウンロードパスワード *}>
+							<div id="mdb_metadata_file_password_flag_div<{$id}>">
+								<label for="mdb_metadata_file_password_flag<{$id}>"<{if $action.metadata.type != TESTEE_META_TYPE_FILE}> class="disable_lbl"<{/if}>>
+									<input name="file_password_flag" id="mdb_metadata_file_password_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.file_password_flag == _ON}> checked="checked"<{/if}><{if $action.metadata.type != TESTEE_META_TYPE_FILE}> disabled="disabled"<{/if}> />
+									<input type="hidden" id="mdb_metadata_file_password_flag_hidden<{$id}>" name="file_password_flag_hidden" value="<{if $action.metadata.file_password_flag == _ON}><{$smarty.const._ON}><{else}><{$smarty.const._OFF}><{/if}>">
+									<{$lang.mdb_file_password|smarty:nodefaults}>
+								</label>
+							</div>
+
+							<{* ファイルのダウンロード回数を表示する *}>
+							<div id="mdb_metadata_file_count_flag_div<{$id}>">
+								<label for="mdb_metadata_file_count_flag<{$id}>"<{if $action.metadata.type != TESTEE_META_TYPE_FILE}> class="disable_lbl"<{/if}>>
+									<input name="file_count_flag" id="mdb_metadata_file_count_flag<{$id}>" type="checkbox" value="<{$smarty.const._ON}>" <{if $action.metadata.file_count_flag == _ON}> checked="checked"<{/if}><{if $action.metadata.type != TESTEE_META_TYPE_FILE}> disabled="disabled"<{/if}> />
+									<input type="hidden" id="mdb_metadata_file_count_flag_hidden<{$id}>" name="file_count_flag_hidden" value="<{if $action.metadata.file_count_flag == _ON}><{$smarty.const._ON}><{else}><{$smarty.const._OFF}><{/if}>">
+									<{$lang.mdb_file_count|smarty:nodefaults}>
+								</label>
+							</div>
+						</div>
+					</td>
+				</tr>
+
+				<{*グループ*}>
+				<tr id="mdb_group<{$id}>" class="row <{if !is_array($action.group) || ( 
+						$action.metadata.type == TESTEE_META_TYPE_N_GROUP || $action.metadata.type == TESTEE_META_TYPE_N_COMMENT || 
+						$action.metadata.type == TESTEE_META_TYPE_N_HOSPITAL || $action.metadata.type == TESTEE_META_TYPE_N_SEX || 
+						$action.metadata.type == TESTEE_META_TYPE_N_BIRTHDAY || $action.metadata.type == TESTEE_META_TYPE_N_STATURE || 
+						$action.metadata.type == TESTEE_META_TYPE_N_WEIGHT || $action.metadata.type == TESTEE_META_TYPE_N_CREATININE || 
+						$action.metadata.type == TESTEE_META_TYPE_N_BSA || $action.metadata.type == TESTEE_META_TYPE_N_CCR || 
+						$action.metadata.type == TESTEE_META_TYPE_INSERT_TIME || $action.metadata.type == TESTEE_META_TYPE_UPDATE_TIME || 
+						$action.metadata.type == TESTEE_META_TYPE_AUTONUM )}>
+						display-none
+					<{/if}>">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputgroup<{$id}>">
+							<{$lang.mdb_group|smarty:nodefaults}>
+						</label>
+					</th>
+					<td class="nowrap">
+						<select id="mdb_inputgroup<{$id}>" name="group">
+							<option value=""<{if $action.metadata.group_option == "" || $action.metadata.group_option == null}> selected="selected"<{/if}>></option>
+							<{foreach from=$action.group|smarty:nodefaults item=group}>
+								<option value="<{$group.code}>"<{if $action.metadata.group_option == $group.code}> selected="selected"<{/if}>><{$group.name}></option>
+							<{/foreach}>
+						</select>
+						<input type="hidden" value="<{$action.group_exist}>" id="mdb_group_exist<{$id}>">
+					</td>
+				</tr>
+				<{*データが既に登録されている場合のメッセージ*}>
+				<{if $action.contents_count > 0}>
+					<tr class="row">
+						<td colspan="2">
+							<div class="mdb_contents_exist_warning top_description">
+								<{$lang.mdb_contents_exist_warning2|smarty:nodefaults}>
+							</div>
+						</td>
+					</tr>
+				<{/if}>
+				<{*入力タイプ*}>
+				<tr class="row">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputtype<{$id}>">
+							<{$lang.mdb_head_type|smarty:nodefaults}>
+						</label>
+					</th>
+					<td class="nowrap">
+						<select id="mdb_inputtype<{$id}>" name="type" onchange="mdbCls['<{$id}>'].chgMetadataEditType(this);">
+							<option value="<{$smarty.const.TESTEE_META_TYPE_TEXT}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_TEXT}> selected="selected"<{/if}>><{$lang.mdb_type_text|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_TEXTAREA}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_TEXTAREA}> selected="selected"<{/if}>><{$lang.mdb_type_textarea|smarty:nodefaults}></option>
+
+<{* 独自メタタイプ１　開始 EddyK *}>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_NUMERIC}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_NUMERIC}> selected="selected"<{/if}>><{$lang.mdb_type_n_numeric|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_DATE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_DATE}> selected="selected"<{/if}>><{$lang.mdb_type_n_date|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_RADIO}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_RADIO}> selected="selected"<{/if}>><{$lang.mdb_type_n_radio|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_YESNO}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_YESNO}> selected="selected"<{/if}>><{$lang.mdb_type_n_yesno|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_APPLICABLE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_APPLICABLE}> selected="selected"<{/if}>><{$lang.mdb_type_n_applicable|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_GROUP}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_GROUP}> selected="selected"<{/if}>><{$lang.mdb_type_n_group|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_COMMENT}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_COMMENT}> selected="selected"<{/if}>><{$lang.mdb_type_n_comment|smarty:nodefaults}></option>
+<{* 独自メタタイプ１　終了 EddyK *}>
+
+							<option value="<{$smarty.const.TESTEE_META_TYPE_LINK}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_LINK}> selected="selected"<{/if}>><{$lang.mdb_type_link|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_SECTION}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_SECTION}> selected="selected"<{/if}>><{$lang.mdb_type_section|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_MULTIPLE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_MULTIPLE}> selected="selected"<{/if}>><{$lang.mdb_type_multiple|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_WYSIWYG}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_WYSIWYG}> selected="selected"<{/if}>><{$lang.mdb_type_wysiwyg|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_FILE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_FILE}> selected="selected"<{/if}>><{$lang.mdb_type_file|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_IMAGE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_IMAGE}> selected="selected"<{/if}>><{$lang.mdb_type_image|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_AUTONUM}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_AUTONUM}> selected="selected"<{/if}>><{$lang.mdb_type_autonum|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_MAIL}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_MAIL}> selected="selected"<{/if}>><{$lang.mdb_type_mail|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_DATE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_DATE}> selected="selected"<{/if}>><{$lang.mdb_type_date|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_INSERT_TIME}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_INSERT_TIME}> selected="selected"<{/if}>><{$lang.mdb_type_insert_time|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_UPDATE_TIME}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_UPDATE_TIME}> selected="selected"<{/if}>><{$lang.mdb_type_update_time|smarty:nodefaults}></option>
+
+<{* 独自メタタイプ２　開始 EddyK *}>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_HOSPITAL}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_HOSPITAL}> selected="selected"<{/if}>><{$lang.mdb_type_n_hospital|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_BIRTHDAY}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_BIRTHDAY}> selected="selected"<{/if}>><{$lang.mdb_type_n_birthday|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_SEX}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_SEX}> selected="selected"<{/if}>><{$lang.mdb_type_n_sex|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_STATURE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_STATURE}> selected="selected"<{/if}>><{$lang.mdb_type_n_stature|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_WEIGHT}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_WEIGHT}> selected="selected"<{/if}>><{$lang.mdb_type_n_weight|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_CREATININE}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_CREATININE}> selected="selected"<{/if}>><{$lang.mdb_type_n_creatinine|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_BSA}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_BSA}> selected="selected"<{/if}>><{$lang.mdb_type_n_bsa|smarty:nodefaults}></option>
+							<option value="<{$smarty.const.TESTEE_META_TYPE_N_CCR}>"<{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_CCR}> selected="selected"<{/if}>><{$lang.mdb_type_n_ccr|smarty:nodefaults}></option>
+<{* 独自メタタイプ２　終了 EddyK *}>
+
+						</select>
+					<{* 標準の選択式タイプの場合 *}>
+						<div id="mdb_option1<{$id}>" class="nowrap<{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_SECTION && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_MULTIPLE && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_RADIO && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_GROUP && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_HOSPITAL && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_SEX}> display-none<{/if}>">
+
+							<{* ルームに参加しているユーザの施設を取り込む *}>
+							<div id="mdb_option_select_room_hospital<{$id}>" class="mdb_option_select_room_hospital<{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_HOSPITAL}> display-none<{/if}>">
+								<input class="lined_btn mdb-btn-width-270" type="button" onclick="mdbCls['<{$id}>'].selectRoomHospital(this); return false;" value="ルームに参加しているユーザの施設を取り込む" /><br />
+							</div>
+
+							<{* 選択肢 *}>
+							<div class="align-right nowrap" style="width:300px;">
+								<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].addOption(this); return false;">
+									<img src="<{"add.gif"|get_themes_image}>" alt="<{$lang.mdb_add_list|smarty:nodefaults}>" title="<{$lang.mdb_add_list|smarty:nodefaults}>" />
+									&nbsp;
+									<{* 選択肢追加 *}>
+									<{$lang.mdb_add_list|smarty:nodefaults}>
+								</a>
+							</div>
+							<div id="mdb_metadata_options1<{$id}>" class="mdb_metadata_options"> <{* 幅を広げる（ style="width:350px;"）不要 EddyK *}>
+								<{* 選択肢のタイトル EddyK *}>
+								<table class="outer">
+									<tr>
+										<td class="mdb_metadata_option_width1">
+											<{$lang.mdb_list_value|smarty:nodefaults}>
+										</td>
+								<{* 正解 EddyK *}>
+										<td class="mdb_metadata_option_width2 <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_RADIO}>display-none<{/if}>">
+											正解
+										</td>
+								<{* 選択肢コード値 EddyK *}>
+										<td class="mdb_metadata_option_width3 <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_RADIO && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_HOSPITAL && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_SEX && $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_GROUP }>display-none<{/if}>">
+											コード値
+										</td>
+										<td class="mdb_metadata_option_width4">
+											削除
+										</td>
+									</tr>
+								</table>
+								<{assign var="type" value=$action.metadata.type}>	<{* detail_optionでタイプを判断するため追加　EddyK *}>
+								<{assign var="option_type" value="1"}>				<{* オプションのID名を区分けするため追加	 EddyK *}>
+								<{foreach name=loop1 from=$action.options1|smarty:nodefaults item=option}>
+									<{assign var="iteration" value=$smarty.foreach.loop1.iteration-1}>
+									<{assign var="correct" value=$action.correct1.$iteration}>
+									<{assign var="select_content_code" value=$action.select_content1_code.$iteration}>
+									<{include file="testee_view_edit_metadata_detail_option.html"}>
+								<{/foreach}>
+							</div>
+						</div>
+					<{* はい・いいえタイプ		EddyK *}>
+						<div id="mdb_option2<{$id}>" class="nowrap <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_YESNO}> display-none<{/if}>">
+							<{* 選択肢 *}>
+							<div class="align-right nowrap" style="width:300px;">
+								<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].addOption(this); return false;">
+									<img src="<{"add.gif"|get_themes_image}>" alt="<{$lang.mdb_add_list|smarty:nodefaults}>" title="<{$lang.mdb_add_list|smarty:nodefaults}>" />
+									&nbsp;
+									<{* 選択肢追加 *}>
+									<{$lang.mdb_add_list|smarty:nodefaults}>
+								</a>
+							</div>
+							<div id="mdb_metadata_options2<{$id}>" class="mdb_metadata_options"> <{* 幅を広げる（ style="width:350px;"）不要 EddyK *}>
+								<{* 選択肢のタイトル EddyK *}>
+								<table class="outer">
+									<tr>
+										<td class="mdb_metadata_option_width1">
+											<{$lang.mdb_list_value|smarty:nodefaults}>
+										</td>
+								<{* 正解 EddyK *}>
+										<td class="mdb_metadata_option_width2">
+											正解
+										</td>
+								<{* 選択肢コード値 EddyK *}>
+										<td class="mdb_metadata_option_width3">
+											コード値
+										</td>
+										<td class="mdb_metadata_option_width4">
+											削除
+										</td>
+									</tr>
+								</table>
+								<{assign var="type" value=$action.metadata.type}>
+								<{assign var="option_type" value="2"}>				<{* オプションのID名を区分けするため追加	 EddyK *}>
+								<{foreach name=loop2 from=$action.options2|smarty:nodefaults item=option}>
+									<{assign var="iteration" value=$smarty.foreach.loop2.iteration-1}>
+									<{assign var="correct" value=$action.correct2.$iteration}>
+									<{assign var="select_content_code" value=$action.select_content2_code.$iteration}>
+									<{include file="testee_view_edit_metadata_detail_option.html"}>
+								<{/foreach}>
+							</div>
+						</div>
+					<{* 該当せず・該当タイプ	EddyK *}>
+						<div id="mdb_option3<{$id}>" class="nowrap <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_APPLICABLE}> display-none<{/if}>">
+							<{* 選択肢 *}>
+							<div class="align-right nowrap" style="width:300px;">
+								<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].addOption(this); return false;">
+									<img src="<{"add.gif"|get_themes_image}>" alt="<{$lang.mdb_add_list|smarty:nodefaults}>" title="<{$lang.mdb_add_list|smarty:nodefaults}>" />
+									&nbsp;
+									<{* 選択肢追加 *}>
+									<{$lang.mdb_add_list|smarty:nodefaults}>
+								</a>
+							</div>
+							<div id="mdb_metadata_options3<{$id}>" class="mdb_metadata_options"> <{* 幅を広げる（ style="width:350px;"）不要 EddyK *}>
+								<{* 選択肢のタイトル EddyK *}>
+								<table class="outer">
+									<tr>
+										<td class="mdb_metadata_option_width1">
+											<{$lang.mdb_list_value|smarty:nodefaults}>
+										</td>
+								<{* 正解 EddyK *}>
+										<td class="mdb_metadata_option_width2">
+											正解
+										</td>
+								<{* 選択肢コード値 EddyK *}>
+										<td class="mdb_metadata_option_width3">
+											コード値
+										</td>
+										<td class="mdb_metadata_option_width4">
+											削除
+										</td>
+									</tr>
+								</table>
+								<{assign var="type" value=$action.metadata.type}>
+								<{assign var="option_type" value="3"}>				<{* オプションのID名を区分けするため追加	 EddyK *}>
+								<{foreach name=loop3 from=$action.options3|smarty:nodefaults item=option}>
+									<{assign var="iteration" value=$smarty.foreach.loop3.iteration-1}>
+									<{assign var="correct" value=$action.correct3.$iteration}>
+									<{assign var="select_content_code" value=$action.select_content3_code.$iteration}>
+									<{include file="testee_view_edit_metadata_detail_option.html"}>
+								<{/foreach}>
+							</div>
+						</div>
+						<input name="options_len" type="hidden" value="<{$action.options_len}>" />
+						<input name="options1_len" type="hidden" value="<{$action.options1_len}>" />	<{* 新規登録の場合の標準選択肢項目の選択肢数 *}>
+						<input name="options2_len" type="hidden" value="<{$action.options2_len}>" />	<{* 新規登録の場合のはい・いいえの選択肢数 *}>
+						<input name="options3_len" type="hidden" value="<{$action.options3_len}>" />	<{* 新規登録の場合の該当せず・該当の選択肢数 *}>
+					</td>
+				</tr>
+
+<{*エラーチェック用条件 EddyK *}>
+				<tr id="mdb_condition<{$id}>" class="row <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_NUMERIC && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_DATE && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_BIRTHDAY && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_STATURE && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_WEIGHT && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_CREATININE && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_BSA && 
+							$action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_CCR}>
+						 display-none
+					<{/if}>">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputtype<{$id}>">
+							条件式
+						</label>
+					</th>
+					<td class="nowrap">
+						<table>
+							<tr><td></td><td>E/W</td><td>不等号</td>
+                                                            <td>値<span id="mdb_unit1<{$id}>">
+                                                                <{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_DATE}>
+                                                                    （日数）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_BIRTHDAY}>
+                                                                    （歳）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_STATURE}>
+                                                                    （cm）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_WEIGHT}>
+                                                                    （kg）
+                                                                <{else}>
+                                                                <{/if}></span>
+                                                            </td>
+                                                            <td></td><td>不等号</td>
+                                                            <td>値<span id="mdb_unit2<{$id}>">
+                                                                <{if $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_DATE}>
+                                                                    （日数）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_BIRTHDAY}>
+                                                                    （歳）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_STATURE}>
+                                                                    （cm）
+                                                                <{elseif $action.metadata.type == $smarty.const.TESTEE_META_TYPE_N_WEIGHT}>
+                                                                    （kg）
+                                                                <{else}>
+                                                                <{/if}></span>
+                                                            </td>
+                                                        </tr>
+							<{*条件1*}>
+							<tr>
+								<td>1</td>
+								<td>
+								<{*エラー・ワーニング*}>
+									<select id="mdb_inputcond1_ew<{$id}>" name="cond1_ew">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_E}>"<{if $action.condition.cond1_ew == $smarty.const.TESTEE_META_EW_E}> selected="selected"<{/if}>><{$lang.mdb_ew_e|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_W}>"<{if $action.condition.cond1_ew == $smarty.const.TESTEE_META_EW_W}> selected="selected"<{/if}>><{$lang.mdb_ew_w|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*符号1*}>
+									<select id="mdb_inputcond1_fugo1<{$id}>" name="cond1_fugo1">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+<{*
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.condition.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+*}>
+									</select>
+								</td>
+								<td>
+								<{*値1*}>
+									<input name="cond1_value1" type="text" value="<{$action.condition.cond1_value1}>" size="6" />
+								</td>
+								<td>∩</td>
+								<td>
+								<{*符号2*}>
+									<select id="mdb_inputcond1_fugo2<{$id}>" name="cond1_fugo2">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+<{*
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.condition.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+*}>
+									</select>
+								</td>
+								<td>
+								<{*値2*}>
+									<input name="cond1_value2" type="text" value="<{$action.condition.cond1_value2}>" size="6" />
+								</td>
+							</tr>
+							<{*条件2*}>
+							<tr>
+								<td>2</td>
+								<td>
+								<{*エラー・ワーニング*}>
+									<select id="mdb_inputcond2_ew<{$id}>" name="cond2_ew">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_E}>"<{if $action.condition.cond2_ew == $smarty.const.TESTEE_META_EW_E}> selected="selected"<{/if}>><{$lang.mdb_ew_e|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_W}>"<{if $action.condition.cond2_ew == $smarty.const.TESTEE_META_EW_W}> selected="selected"<{/if}>><{$lang.mdb_ew_w|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*符号1*}>
+									<select id="mdb_inputcond2_fugo1<{$id}>" name="cond2_fugo1">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.condition.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*値1*}>
+									<input name="cond2_value1" type="text" value="<{$action.condition.cond2_value1}>" size="6" />
+								</td>
+								<td>∩</td>
+								<td>
+								<{*符号2*}>
+									<select id="mdb_inputcond2_fugo2<{$id}>" name="cond2_fugo2">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.condition.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*値2*}>
+									<input name="cond2_value2" type="text" value="<{$action.condition.cond2_value2}>" size="6" />
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+<{* 単位表記 *}>
+				<tr id="mdb_view_unit<{$id}>" class="row <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_NUMERIC}>display-none<{/if}>">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputtype<{$id}>">
+							表示単位
+						</label>
+					</th>
+					<td class="nowrap">
+						<input name="view_unit" id="view_unit<{$id}>" type="text" value="<{$action.metadata.view_unit}>" size="10" />
+					</td>
+				</tr>
+<{*コメント入力 EddyK *}>
+				<tr id="mdb_comment<{$id}>"  class="row <{if $action.metadata.type != $smarty.const.TESTEE_META_TYPE_N_COMMENT}>display-none<{/if}>">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputtype<{$id}>">
+							コメント
+						</label>
+					</th>
+					<td class="nowrap">
+						<textarea name="comment" id="mdb_inputcomment<{$id}>" cols=<{$smarty.const.TESTEE_INPUT_TEXTAREA_COLS}> rows=<{$smarty.const.TESTEE_INPUT_TEXTAREA_ROWS}>><{$action.comment}></textarea>
+						<{* 装飾 *}>
+						<br />
+						<{if $action.metadata.type == TESTEE_META_TYPE_N_COMMENT}>
+							<label><input type="checkbox" name="decoration_bold" value="1"<{if $action.metadata.decoration_bold == _ON || $action.metadata.decoration_bold == ""}> checked="checked"<{/if}>>太字</label>&nbsp;
+							<label><input type="checkbox" name="decoration_underline" value="1"<{if $action.metadata.decoration_underline == _ON}> checked="checked"<{/if}>>下線</label>&nbsp;
+							<label><input type="checkbox" name="decoration_red" value="1"<{if $action.metadata.decoration_red == _ON}> checked="checked"<{/if}>>赤字</label>
+						<{/if}>
+					</td>
+				</tr>
+
+			</table>
+			<div class="btn-bottom align-center">
+				<input class="lined_btn btn-width" type="button" onclick="mdbCls['<{$id}>'].addMetadata(this, <{$block_id}>, <{$action.alert_on}>); return false;" value="<{$lang._regist|smarty:nodefaults}>" />
+				<input class="lined_btn btn-width" type="button" onclick="commonCls.removeBlock('<{$id}>');return false;" value="<{$lang._cancel|smarty:nodefaults}>" />
+			</div>
+		</form>
+	</div>
+	<{include file="../testee_script.html"}>
+<{/strip}>

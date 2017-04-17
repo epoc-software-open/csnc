@@ -1,0 +1,104 @@
+@charset "UTF-8";
+
+/* *** NetCommons スタイル上書き
+----------------------------------------------------------- */
+
+/* 全体幅
+----------------------------------------------------------- */
+.container {
+    width: 960px;
+}
+
+/* 全体的な設定
+----------------------------------------------------------- */
+table {
+    font-size: 13px;
+}
+
+a:link,a:visited {
+    text-decoration: none;
+}
+
+a:hover,a:active {
+    text-decoration: underline;
+}
+
+/* ヘッダーメニューの下線
+----------------------------------------------------------- */
+#header_menu {
+    border-bottom: none;
+}
+
+/* フッター
+----------------------------------------------------------- */
+/* 標準スタイルの上書き */
+table#footerbar {
+    text-align: left;
+}
+table#footerbar .copyright {
+    text-align: left;
+    color: #494949;
+    font-weight: normal;
+    font-size: 100%;
+}
+/* 新規スタイルの定義 */
+table.footer_copyright {
+    width: 100%;
+}
+.copyright_body {
+    text-align: right;
+    color: #a3a3a3;
+    font-size: 80%;
+    font-weight: bold;
+}
+.copyright_center {
+    text-align: center;
+    color: #333333;
+    font-size: 100%;
+}
+.footer_hr {
+    border-width: 1px 0px 0px;
+    height: 1px;
+}
+.footer_table {
+    width: 100%;
+    margin-top: 10px;
+}
+.footer_left_td {
+    padding-left: 12px;
+}
+.footer_right_td {
+    text-align: right;
+    vertical-align: top;
+}
+
+/* 新着
+----------------------------------------------------------- */
+
+/* タイトルを改行アリ */
+.whatsnew_title {
+    white-space: normal;
+}
+
+/* 日誌
+----------------------------------------------------------- */
+
+/* タイトルを改行アリ */
+.journal_list_title_h {
+    white-space: normal;
+}
+
+/* RSS
+----------------------------------------------------------- */
+
+/* RSSリンク文字色 */
+.rss_item a:link, .rss_item a:visited {
+    color: #04419a;
+}
+
+/* ヘッドライン情報リンク文字色
+----------------------------------------------------------- */
+.th_titleround_maincontent a:link, .th_titleround_maincontent  a:visited {
+    color: #04419a;
+}
+

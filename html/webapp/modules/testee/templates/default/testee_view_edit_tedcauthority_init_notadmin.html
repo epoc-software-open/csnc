@@ -1,0 +1,27 @@
+<div class="outerdiv">
+	<table class="tedc_authority">
+		<tr>
+			<th>施設名</th>
+			<th>ハンドル名</th>
+			<th>NC権限</th>
+			<th>ベース権限</th>
+			<th>試験毎権限</th>
+		</tr>
+
+		<{foreach item=user from=$action.users name=users_loop}>
+			<{if $user.user_id == $smarty.session._user_id}>
+				<tr>
+					<td><{$user.hospital}></td>
+					<td><{$user.handle}></td>
+					<td><{$user.nc_authority_name}></td>
+					<td><{$user.item_tedc_authority_name|smarty:nodefaults}></td>
+					<td><{$user.tedc_authority_name}></td>
+				</tr>
+			<{/if}>
+		<{/foreach}>
+	</table>
+	<div class="btn-bottom">
+		<input class="btn-width lined_btn" type="button" value="<{$lang._list|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', 'testee_view_edit_list'); return false;" />
+	</div>
+</div>
+<{include file="../testee_script.html"}>

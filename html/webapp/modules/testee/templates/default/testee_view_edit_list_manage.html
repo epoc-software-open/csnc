@@ -1,0 +1,46 @@
+<{strip}>
+<{* 汎用データベース一覧（管理列）用テンプレート *}>
+<a class="syslink" href="#" title="<{$lang._ref_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="mdbCls['<{$id}>'].referenceMdb(event, '<{$mdb.testee_id}>');return false;">
+	<{$lang._ref|smarty:nodefaults}>
+</a>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang._edit_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_modify',testee_id:<{$mdb.testee_id}>}); return false;">
+	<{$lang._edit|smarty:nodefaults}>
+</a>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_metadata_edit_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_metadata_list',testee_id:<{$mdb.testee_id}>}); return false;">
+	<{$lang.mdb_metadata_edit|smarty:nodefaults}>
+</a>
+<{* 件数設定 Eddyk *}>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_counts_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="mdbCls['<{$id}>'].showPopupCounts(event, <{$mdb.testee_id}>); return false;">
+	<{$lang.mdb_counts|smarty:nodefaults}>
+</a>
+<{* 日付関連チェック項目設定 Eddyk *}>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_datecheck_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_datecheck_list',testee_id:<{$mdb.testee_id}>}); return false;">
+	<{$lang.mdb_datecheck|smarty:nodefaults}>
+</a>
+<{* 試験毎権限設定 Eddyk *}>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_datecheck_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_tedcauthority_init',testee_id:<{$mdb.testee_id}>}); return false;">
+	<{$lang.mdb_tedc_authority|smarty:nodefaults}>
+</a>
+<{* 割付設定 *}>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_datecheck_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_allocation_list',testee_id:<{$mdb.testee_id}>}); return false;">
+	割付設定
+</a>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang._del_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="mdbCls['<{$id}>'].delMdb('<{$mdb.testee_id}>', '<{$lang._del_confirm|sprintf:"`$mdb.testee_name`"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">
+	<{$lang._delete|smarty:nodefaults}>
+</a>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_import_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="mdbCls['<{$id}>'].showPopupImport(event, <{$mdb.testee_id}>); return false;">
+	<{$lang.mdb_import|smarty:nodefaults}>
+</a>
+<{$lang._separator|smarty:nodefaults}>
+<a href="#" class="syslink" title="<{$lang.mdb_export|smarty:nodefaults}>" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_edit_export&amp;testee_id=<{$mdb.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+	<{$lang.mdb_export|smarty:nodefaults}>
+</a>
+<{/strip}>

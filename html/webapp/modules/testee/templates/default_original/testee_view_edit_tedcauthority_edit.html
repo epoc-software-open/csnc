@@ -1,0 +1,62 @@
+<form action="post" onsubmit="return false;" id="tedcauthorityEditForm<{$id}>">
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>">
+	<input type="hidden" name="user_id" value="<{$action.user.0.user_id}>">
+	<table class="tedc_authority">
+		<tr>
+			<th>施設名</th>
+			<td>
+				<{$action.user.0.hospital}>
+			</td>
+		</tr>
+		<tr>
+			<th>ハンドル名</th>
+			<td>
+				<{$action.user.0.handle}>
+			</td>
+		</tr>
+		<tr>
+			<th>NC権限</th>
+			<td>
+				<{$action.user.0.nc_authority_name}>
+			</td>
+		</tr>
+		<tr>
+			<th>ベース権限</th>
+			<td>
+				<{$action.user.0.item_tedc_authority_name}>
+			</td>
+		</tr>
+		<tr>
+			<th>試験毎権限</th>
+			<td>
+				<select name="tedc_authority">
+					<option value="" > </option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_ADMIN}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_ADMIN}> selected="selected" <{/if}>>管理者</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_MONITOR}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_MONITOR}> selected="selected" <{/if}>>モニター</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_DM}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_DM}> selected="selected" <{/if}>>ＤＭ</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_SECRETARY}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_SECRETARY}> selected="selected" <{/if}>>研究事務局</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_READER}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_READER}> selected="selected" <{/if}>>施設研究責任者</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_SCHOLAR}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_SCHOLAR}> selected="selected" <{/if}>>研究者</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_CRC}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_CRC}> selected="selected" <{/if}>>CRC</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_ASSISTANT}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_ASSISTANT}> selected="selected" <{/if}>>作業補助者</option>
+					<option value="<{$smarty.const.TEDC_AUTHORITY_NOTWORK}>" 
+						<{if $action.user.0.tedc_authority == $smarty.const.TEDC_AUTHORITY_NOTWORK}> selected="selected" <{/if}>>利用不可</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<div class="btn-bottom">
+		<input type="button" class="btn btn-block btn-primary" style="width: 100px; height: 30px; margin: 10px 10px 10px 0; float:left;" value="登録" onclick="mdbCls['<{$id}>'].editAuthority(); return false;" />
+		<input type="button" class="btn btn-block btn-primary" style="width: 100px; height: 30px; margin: 10px 0; float:left;" value="<{$lang._cancel|smarty:nodefaults}>"  onclick="commonCls.removeBlock(<{$id}>); return false;"  />
+	</div>
+</form>
+
+<{include file="../testee_script.html"}>

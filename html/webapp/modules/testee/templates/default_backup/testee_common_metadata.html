@@ -1,0 +1,136 @@
+<{strip}>
+<{if $mode == "list"}>
+	<{assign var="mdb_detail_head" value="mdb_detail_head_list"}>
+<{else}>
+	<{assign var="mdb_detail_head" value="mdb_detail_head"}>
+<{/if}>
+
+<{* 選択値別件数設定にて予定件数に達しているかのチェック EddyK *}>
+<{if $mode == "regist"}>
+	<{if $action.counts_check.ALL.add_ok}>
+		<{assign var="init" value=false}>
+		<{foreach from=$action.counts_check item=counts_check key=key}>
+			<{if !$counts_check.add_ok}>
+				<{if !$init}>
+					<fieldset style="width: 300px; margin-top: 5px;">
+					<{assign var="init" value=true}>
+				<{/if}>
+					<div style="padding: 5px; color: blue;"><{$key|smarty:nodefaults}>は登録予定数に達しています。<br/></div>
+			<{/if}>
+		<{/foreach}>
+		<{if $init}>
+			</fieldset>
+		<{/if}>
+	<{/if}>
+	<{* データ登録日 EddyK *}>
+	<input type="hidden" name="content_insert_date" id="content_insert_date_<{$id}>" value="<{$action.content_insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults|substr:0:10}>">
+<{/if}>
+
+<span id="mdb_refresh_target<{$id}>"></span>
+<table class="mdb_layout_out_table" summary="">
+
+	<{* 登録者・登録番号・登録日を表示 EddyK *}>
+	<{if $mode == "regist"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#F2DDDC,;" reset=true}>
+		<{if $action.content_id}>
+			<{assign var="content_insert_user_name" value=$action.content_insert_user_name}>
+			<{assign var="content_insert_time" value=$action.content_insert_time}>
+		<{else}>
+			<{assign var="content_insert_user_name" value=$smarty.session._handle}>
+			<{assign var="content_insert_time" value=$action.content_insert_time}>
+		<{/if}>
+	<{elseif $mode == "list" || $mode == "detail"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values=",#F2DDDC;" reset=true}>
+		<{assign var="content_insert_user_name" value=$item.insert_user_name}>
+		<{assign var="content_insert_time" value=$item.insert_time}>
+	<{/if}>
+
+<{*		汎用DB標準では、ポジション2・3は横並びだが、順次縦並びに変更	EddyK *}>
+	<{if $data_pos_1 != null}>
+		<{assign var="position" value="1"}>
+		<{foreach item=metadata from=$data_pos_1 name="pos_1_loop"}>
+
+			<{* ヘッダー項目 *}>
+			<{if $smarty.foreach.pos_1_loop.first}>
+
+				<{if $metadata.type == TESTEE_META_TYPE_N_COMMENT}>
+
+					<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_1_loop.first bgcolor="#fff7a0;"}>
+
+					<{* ヘッダー項目 *}>
+					<{if $smarty.foreach.pos_1_loop.first}>
+						<{* 登録者などのヘッダー行 *}>
+						<{include file="testee_common_metadata_header.html"}>
+					<{/if}>
+				<{else}>
+
+					<{* ヘッダー項目 *}>
+					<{if $smarty.foreach.pos_1_loop.first}>
+						<{* 登録者などのヘッダー行 *}>
+						<{include file="testee_common_metadata_header.html"}>
+					<{/if}>
+
+					<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_1_loop.first bgcolor="#fff7a0;"}>
+				<{/if}>
+			<{else}>
+
+				<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_1_loop.first bgcolor="#fff7a0;"}>
+			<{/if}>
+		<{foreachelse}>
+
+			<{* 登録者などのヘッダー行 *}>
+			<{include file="testee_common_metadata_header.html"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_2 != null}>
+		<{assign var="position" value="2"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;," reset=true}>
+		<{foreach item=metadata from=$data_pos_2 name="pos_2_loop"}>
+
+			<{* ブロック区切り *}>
+			<{if $smarty.foreach.pos_2_loop.first}>
+				<tr class="title"><th class="mdb_detail_head mdb_detail_head_top_bottom mdb_decoration_bold" colspan="2"><br /></th></tr>
+			<{/if}>
+
+			<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_2_loop.first bgcolor="#F2DDDC;"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;,"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_3 != null}>
+		<{assign var="position" value="3"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;," reset=true}>
+		<{foreach item=metadata from=$data_pos_3 name="pos_3_loop"}>
+
+			<{* ブロック区切り *}>
+			<{if $smarty.foreach.pos_3_loop.first}>
+				<tr class="title"><th class="mdb_detail_head mdb_detail_head_top_bottom mdb_decoration_bold" colspan="2"><br /></th></tr>
+			<{/if}>
+
+			<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_3_loop.first bgcolor="#DBE5F1;"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;,"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_4 != null}>
+		<{assign var="position" value="4"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#EAF1DD;," reset=true}>
+		<{foreach item=metadata from=$data_pos_4 name="pos_4_loop"}>
+
+			<{* ブロック区切り *}>
+			<{if $smarty.foreach.pos_4_loop.first}>
+				<tr class="title"><th class="mdb_detail_head mdb_detail_head_top_bottom mdb_decoration_bold" colspan="2"><br /></th></tr>
+			<{/if}>
+
+			<{include file="testee_common_metadata_detail.html" loop_first=$smarty.foreach.pos_4_loop.first bgcolor="#EAF1DD;"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#EAF1DD;,"}>
+		<{/foreach}>
+	<{/if}>
+</table>
+<{/strip}>

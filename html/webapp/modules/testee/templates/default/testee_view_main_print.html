@@ -1,0 +1,58 @@
+<{*
+<style type="text/css">
+<!--
+@media print{
+	#_container{display:none;} 
+	._global_create_block{display:block;}
+}
+-->
+</style>
+*}>
+<{strip}>
+<{* 詳細画面 *}>
+<div class="outerdiv testee_print">
+	<{if $action.detail.metadata == ""}>
+		<br /><{$lang.mdb_noneexists_detail_metadata|smarty:nodefaults}>
+	<{else}>
+		<div class="align-right">
+			<a href="#" class="link" onclick="commonCls.print($('mdb_detail_print<{$id}>'));return false;">
+				<img src="<{"print.gif"|get_themes_image}>" title="<{$lang._print_icon|smarty:nodefaults}>" alt="<{$lang._print_icon|smarty:nodefaults}>" />
+			</a>
+<{*
+			<a href="javascript:window.print();" class="print_btn link">印刷</a>
+*}>
+		</div>
+		<div id="mdb_detail_print<{$id}>">
+
+<style type="text/css">
+<!--
+.mdb_detail_head {
+	padding: 3px 8px !important;
+}
+.mdb_edit_detail {
+	padding: 3px 8px !important;
+}
+-->
+</style>
+
+			<{if strpos($id, TESTEE_REFERENCE_PREFIX_NAME)}>
+				<a href="#" title="<{$lang.mdb_back_list|smarty:nodefaults|sprintf:$action.mdb_obj.testee_name}>" class="syslink" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_init', testee_id:<{$action.mdb_obj.testee_id}>}); return false;">
+			<{else}>
+				<a href="<{$smarty.const.BASE_URL}><{$smarty.const.INDEX_FILE_NAME}>?action=<{$smarty.const.DEFAULT_ACTION}>&amp;active_action=testee_view_main_init&amp;testee_id=<{$action.mdb_obj.testee_id}>&amp;block_id=<{$block_id}>#<{$smarty.session._id}>" title="<{$lang.mdb_back_list|smarty:nodefaults|sprintf:$action.mdb_obj.testee_name}>" class="syslink">
+			<{/if}>
+				<{$action.mdb_obj.testee_name}>
+			</a>
+
+			<{assign var="mode" value="detail"}>
+			<{assign var="data_pos_1" value=$action.detail.metadata.1}>
+			<{assign var="data_pos_2" value=$action.detail.metadata.2}>
+			<{assign var="data_pos_3" value=$action.detail.metadata.3}>
+			<{assign var="data_pos_4" value=$action.detail.metadata.4}>
+			<{assign var="item" value=$action.detail.value|smarty:nodefaults}>
+			<{* 詳細部 *}>
+			<{include file="testee_common_metadata_print.html"}>
+		</div>
+	<{/if}>
+</div>
+<{include file="../testee_script.html"}>
+<{/strip}>

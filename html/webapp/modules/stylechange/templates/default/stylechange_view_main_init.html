@@ -1,0 +1,130 @@
+<{* スタイルチェンジャー *}>
+
+<div class="outerdiv">
+
+<form id="stylechange_edit_form<{$id}>" action="#" onsubmit="return false;">
+<input name="action" type="hidden" value="" /><{* 遷移先はJavaScript の中で指定 *}>
+
+<table class="stylechange_layout_table" cellspacing="0" summary="">
+<tr>
+<td>
+    セットでの設定
+    <table class="stylechange_layout_table" cellspacing="0" summary="">
+    <tr>
+        <td>
+            <select name="new_set_style" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <option value="">選択してください。
+                <{foreach from=$action.select_list item=select_item}>
+                    <{if strpos($select_item, 'OPTGROUP') === 0}>
+                        <optgroup label="<{$select_item|substr:9}>">
+                    <{elseif strpos($select_item, '/OPTGROUP') === 0}>
+                        </optgroup>
+                    <{else}>
+                        <option value="<{$select_item}>"><{$select_item}>
+                    <{/if}>
+                <{/foreach}>
+            </select>
+            <fieldset class="stylechange_desc_field">
+                予め用意された組み合わせのスタイルを使用する場合は、こちらのセットでの設定を選択してください。<br />
+                セットでの設定を選択すると、右側の詳細設定の内容が変わります。
+            </fieldset>
+        </td>
+    </tr>
+    </table>
+</td>
+<td>
+
+    詳細設定　※ ( ) 内は現在の設定値です。
+    <table class="stylechange_edit_table" cellspacing="0" summary="">
+
+    <tr>
+        <th colspan="2">グローバルメニュー</th>
+    </tr>
+    <tr>
+        <td>型</td>
+        <td>
+            <select name="new_globalmenu_type" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.globalmenu_type_dir_list item=globalmenu_type_dir_item}>
+                <option value="<{$globalmenu_type_dir_item}>"<{if $action.new_globalmenu_type == $globalmenu_type_dir_item}> selected<{/if}><{if $action.current_style.globalmenu.style_type != $globalmenu_type_dir_item}> class="stylechange_change_option"<{/if}>><{$globalmenu_type_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.globalmenu.style_type}><{$action.current_style.globalmenu.style_type}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+    <tr>
+        <td>色</td>
+        <td>
+            <select name="new_globalmenu_color" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.globalmenu_color_dir_list item=globalmenu_color_dir_item}>
+                <option value="<{$globalmenu_color_dir_item}>"<{if $action.new_globalmenu_color == $globalmenu_color_dir_item}> selected<{/if}><{if $action.current_style.globalmenu.style_color != $globalmenu_color_dir_item}> class="stylechange_change_option"<{/if}>><{$globalmenu_color_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.globalmenu.style_color}><{$action.current_style.globalmenu.style_color}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+
+    <tr>
+        <th colspan="2">サブメニュー</th>
+    </tr>
+    <tr>
+        <td>型</td>
+        <td>
+            <select name="new_submenu_type" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.submenu_type_dir_list item=submenu_type_dir_item}>
+                <option value="<{$submenu_type_dir_item}>"<{if $action.new_submenu_type == $submenu_type_dir_item}> selected<{/if}><{if $action.current_style.submenu.style_type != $submenu_type_dir_item}> class="stylechange_change_option"<{/if}>><{$submenu_type_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.submenu.style_type}><{$action.current_style.submenu.style_type}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+    <tr>
+        <td>色</td>
+        <td>
+            <select name="new_submenu_color" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.submenu_color_dir_list item=submenu_color_dir_item}>
+                <option value="<{$submenu_color_dir_item}>"<{if $action.new_submenu_color == $submenu_color_dir_item}> selected<{/if}><{if $action.current_style.submenu.style_color != $submenu_color_dir_item}> class="stylechange_change_option"<{/if}>><{$submenu_color_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.submenu.style_color}><{$action.current_style.submenu.style_color}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+
+    <tr>
+        <th colspan="2">タイトルアクセント</th>
+    </tr>
+    <tr>
+        <td>型</td>
+        <td>
+            <select name="new_titleaccent_type" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.titleaccent_type_dir_list item=titleaccent_type_dir_item}>
+                <option value="<{$titleaccent_type_dir_item}>"<{if $action.new_titleaccent_type == $titleaccent_type_dir_item}> selected<{/if}><{if $action.current_style.titleaccent.style_type != $titleaccent_type_dir_item}> class="stylechange_change_option"<{/if}>><{$titleaccent_type_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.titleaccent.style_type}><{$action.current_style.titleaccent.style_type}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+    <tr>
+        <td>色</td>
+        <td>
+            <select name="new_titleaccent_color" onchange="stylechangeCls['<{$id}>'].changeStyle();">
+                <{foreach from=$action.titleaccent_color_dir_list item=titleaccent_color_dir_item}>
+                <option value="<{$titleaccent_color_dir_item}>"<{if $action.new_titleaccent_color == $titleaccent_color_dir_item}> selected<{/if}><{if $action.current_style.titleaccent.style_color != $titleaccent_color_dir_item}> class="stylechange_change_option"<{/if}>><{$titleaccent_color_dir_item}>
+                <{/foreach}>
+            </select>
+            (<{if $action.current_style.titleaccent.style_color}><{$action.current_style.titleaccent.style_color}><{else}>設定なし<{/if}>)
+        </td>
+    </tr>
+
+    </table>
+
+    <div class="stylechange_btn_bottom">
+        <input class="btn-width lined_btn" onclick="stylechangeCls['<{$id}>'].setStyle(); return false;" type="button" value="決定"/>
+    </div>
+</td>
+</tr>
+</table>
+
+</form>
+
+</div>
+<{include file="stylechange_script.html"}>

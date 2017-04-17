@@ -1,0 +1,45 @@
+/* Css定義ファイル                     */
+/* (/^moduledir_*./)の形式で記述すること */
+
+/* レイアウト用の表
+-------------------------------------------------*/
+.stylechange_layout_table td {
+    vertical-align: top;
+    padding: 0 5px 5px 0;
+}
+
+/* スタイル設定のコメント
+-------------------------------------------------*/
+.stylechange_desc_field {
+    width: 300px;
+    margin: 5px 0 0 0;
+    padding: 5px;
+}
+
+/* SELECTボックスの変更後背景色
+-------------------------------------------------*/
+.stylechange_change_option {
+    background-color: #ffc0c0;
+}
+
+/* 編集画面の表項目
+-------------------------------------------------*/
+/* 項目の表 */
+.stylechange_edit_table {
+    width: 300px;
+}
+.stylechange_edit_table td {
+    border: #c0c0c0 solid 1px;
+    padding: 5px;
+}
+.stylechange_edit_table th {
+    border: #c0c0c0 solid 1px;
+    padding: 5px;
+    background-color: #f0f0f0;
+}
+
+/* ボタン */
+.stylechange_btn_bottom {
+    margin-top: 5px;
+    margin-left: 100px;
+}

@@ -1,0 +1,6 @@
+<{strip}>
+<{* 汎用データベース一覧（カレント）用テンプレート *}>
+<label for="mdb_current<{$mdb.testee_id}><{$id}>">
+	<input id="mdb_current<{$mdb.testee_id}><{$id}>" type="radio" name="current" onclick="mdbCls['<{$id}>'].changeCurrent(<{$mdb.testee_id}>);" />
+</label>
+<{/strip}>

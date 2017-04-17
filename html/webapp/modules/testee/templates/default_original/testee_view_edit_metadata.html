@@ -1,0 +1,128 @@
+<tr id="mdb_chg_row<{$id}>_<{$metadata.metadata_id}>" class="mdb_chg_row">
+	<{* 表示順変更 *}>
+	<td class="mdb_chg_seq mdb_metadata_detail_td">
+		<a class="move_bar" href="#" onclick="return false;">
+			<img src="<{""|get_image_url}>/images/testee/move_bar.gif" alt="<{$smarty.const._DRAGANDDROP_MOVE}>" title="<{$smarty.const._DRAGANDDROP_MOVE}>" />
+		</a>
+	</td>
+	<{* <th class="nowrap align-left valign-middle mdb_metadata_detail_td" scope="row"> *}>
+	<th class="align-left valign-middle mdb_metadata_detail_td" scope="row">
+		<span class="<{if $metadata.decoration_bold == _ON}> mdb_decoration_bold<{else}> mdb_decoration_bold_normal<{/if}>
+				<{if $metadata.decoration_underline == _ON}> mdb_decoration_underline<{/if}>
+				<{if $metadata.decoration_red == _ON}> mdb_decoration_red<{/if}>">
+			<{$metadata.name}>
+		</span>
+		<{if $metadata.require_flag == _ON}>
+			<{$lang.mdb_require_flag|smarty:nodefaults}>
+		<{/if}>
+		&nbsp;
+		<{if $action.mdb_obj.title_metadata_id == $metadata.metadata_id}>
+			<span class="require">(<{$lang.mdb_type_key_metadata|smarty:nodefaults}>)</span>
+		<{/if}>
+		<span class="mdb_setting_type">(
+		<{if $metadata.type == $smarty.const.TESTEE_META_TYPE_TEXT}>
+			<{$lang.mdb_type_text|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_TEXTAREA}>
+			<{$lang.mdb_type_textarea|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_LINK}>
+			<{$lang.mdb_type_link|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_SECTION}>
+			<{$lang.mdb_type_section|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_MULTIPLE}>
+			<{$lang.mdb_type_multiple|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_FILE}>
+			<{$lang.mdb_type_file|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_IMAGE}>
+			<{$lang.mdb_type_image|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_WYSIWYG}>
+			<{$lang.mdb_type_wysiwyg|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_AUTONUM}>
+			<{$lang.mdb_type_autonum|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_MAIL}>
+			<{$lang.mdb_type_mail|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_DATE}>
+			<{$lang.mdb_type_date|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_INSERT_TIME}>
+			<{$lang.mdb_type_insert_time|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_UPDATE_TIME}>
+			<{$lang.mdb_type_update_time|smarty:nodefaults}>
+
+<{* 独自メタタイプ　開始 EddyK *}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_RADIO}>
+			<{$lang.mdb_type_n_radio|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_NUMERIC}>
+			<{$lang.mdb_type_n_numeric|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_DATE}>
+			<{$lang.mdb_type_n_date|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_COMMENT}>
+			<{$lang.mdb_type_n_comment|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_HOSPITAL}>
+			<{$lang.mdb_type_n_hospital|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_BIRTHDAY}>
+			<{$lang.mdb_type_n_birthday|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_SEX}>
+			<{$lang.mdb_type_n_sex|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_STATURE}>
+			<{$lang.mdb_type_n_stature|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_WEIGHT}>
+			<{$lang.mdb_type_n_weight|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_CREATININE}>
+			<{$lang.mdb_type_n_creatinine|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_BSA}>
+			<{$lang.mdb_type_n_bsa|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_CCR}>
+			<{$lang.mdb_type_n_ccr|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_GROUP}>
+			<{$lang.mdb_type_n_group|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_YESNO}>
+			<{$lang.mdb_type_n_yesno|smarty:nodefaults}>
+		<{elseif $metadata.type == $smarty.const.TESTEE_META_TYPE_N_APPLICABLE}>
+			<{$lang.mdb_type_n_applicable|smarty:nodefaults}>
+<{* 独自メタタイプ　終了 EddyK *}>
+
+		<{/if}>
+		)</span>
+	<{* 件数設定項目の表示 EddyK *}>
+		<{if $metadata.metadata_id == $action.counts_data.counts_id}>
+			<span>【件数】</span>
+		<{/if}>
+	<{* グル―プ指定の表示 EddyK *}>
+		<{if $metadata.group_option}>
+			<{assign var="code" value=$metadata.group_option}>
+			<span>グループ[<{$action.group.$code}>]</span>
+		<{/if}>
+	<{* 正解の表示 EddyK *}>
+		<{if $metadata.type == $smarty.const.TESTEE_META_TYPE_N_RADIO || $metadata.type == $smarty.const.TESTEE_META_TYPE_N_YESNO ||$metadata.type == $smarty.const.TESTEE_META_TYPE_N_APPLICABLE}>
+                    <{if $metadata.correct}>
+                            <{assign var="first" value=true}>
+                            <{assign var="correct_array" value="|"|explode:$metadata.correct}>
+                            <{assign var="select_content_array" value="|"|explode:$metadata.select_content}>
+                            <{assign var="select_content_code_array" value="|"|explode:$metadata.select_content_code}>
+                            <span>正解[
+                                <{foreach key=key item=correct from=$correct_array}>
+                                    <{if $correct}>
+                                        <{if $first }>
+                                            <{assign var="first" value=false}>
+                                        <{else}>
+                                            ,
+                                        <{/if}>
+                                        <{$select_content_array.$key}>(<{$select_content_code_array.$key}>)
+                                    <{/if}>
+                                <{/foreach}>
+                            ]</span>
+                    <{/if}>
+		<{/if}>
+	</th>
+	<td class="mdb_setting_manage mdb_metadata_detail_td">
+		<a class="syslink" href="#" title="<{$lang.mdb_head_metadata_name_edit_title|sprintf:$metadata.name|escape:"html"}>" onclick="mdbCls['<{$id}>'].showPopupMetadata(event, <{$metadata.metadata_id}>); return false;">
+			<{$lang._edit|smarty:nodefaults}>
+		</a>
+		<{if $action.mdb_obj.title_metadata_id != $metadata.metadata_id}>
+			<{$lang._separator}>
+			<a class="syslink" href="#" title="<{$lang.mdb_head_metadata_name_del_title|sprintf:$metadata.name|escape:"html"}>" onclick="mdbCls['<{$id}>'].delMetadata(<{$metadata.metadata_id}>, '<{$lang._del_confirm|sprintf:"`$metadata.name`"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">
+				<{$lang._delete|smarty:nodefaults}>
+			</a>
+		<{/if}>
+		&nbsp;
+	</td>
+</tr>

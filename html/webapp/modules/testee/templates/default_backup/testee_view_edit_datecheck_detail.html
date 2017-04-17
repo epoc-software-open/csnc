@@ -1,0 +1,146 @@
+<{strip}>
+	<div class="outerdiv">
+		<form action="" id="mdb_addcheckdate_form<{$id}>" onsubmit="return false;">
+			<input name="testee_id" type="hidden" value="<{$action.testee_id}>" />
+			<input name="condition_id" type="hidden" value="<{$action.current_check.condition_id}>" />
+			<table class="outer" summary="<{$smarty.const._SUMMARY_SETTINGFORM}>" cellspacing="0" cellpadding="2">
+				<{*日付項目１名*}>
+				<tr>
+					<th class="nowrap valign-top align-left" scope="row"><{$lang.mdb_head_checkdate_name1|smarty:nodefaults}></th>
+					<td class="nowrap">
+						<select id="mdb_inputdatecheck_date1<{$id}>" name="date1_id">
+							<{foreach from=$action.dates|smarty:nodefaults item=date}>
+								<option value="<{$date.metadata_id}>"<{if $action.current_check.date1_id == $date.metadata_id}> selected="selected"<{/if}>><{$date.name}></option>
+							<{/foreach}>
+						</select>
+					</td>
+				</tr>
+
+				<{*日付項目２名*}>
+				<tr>
+					<th class="nowrap valign-top align-left" scope="row"><{$lang.mdb_head_checkdate_name2|smarty:nodefaults}></th>
+					<td class="nowrap">
+						<select id="mdb_inputdatecheck_date2<{$id}>" name="date2_id">
+							<{foreach from=$action.dates|smarty:nodefaults item=date}>
+								<option value="<{$date.metadata_id}>"<{if $action.current_check.date2_id == $date.metadata_id}> selected="selected"<{/if}>><{$date.name}></option>
+							<{/foreach}>
+						</select>
+					</td>
+				</tr>
+
+<{*エラーチェック用条件 EddyK *}>
+				<tr id="mdb_condition<{$id}>" class="row">
+					<th class="nowrap valign-top" scope="row">
+						<label for="mdb_inputtype<{$id}>">
+							条件式
+						</label>
+					</th>
+					<td class="nowrap">
+						<table>
+							<tr><td></td><td>E/W</td><td>不等号</td><td>値（日数）</td><td></td><td>不等号</td><td>値（日数）</td></tr>
+							<{*条件1*}>
+							<tr>
+								<td>1</td>
+								<td>
+								<{*エラー・ワーニング*}>
+									<select id="mdb_inputcond1_ew<{$id}>" name="cond1_ew">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_E}>"<{if $action.current_check.cond1_ew == $smarty.const.TESTEE_META_EW_E}> selected="selected"<{/if}>><{$lang.mdb_ew_e|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_W}>"<{if $action.current_check.cond1_ew == $smarty.const.TESTEE_META_EW_W}> selected="selected"<{/if}>><{$lang.mdb_ew_w|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*符号1*}>
+									<select id="mdb_inputcond1_fugo1<{$id}>" name="cond1_fugo1">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+<{*
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.current_check.cond1_fugo1 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+*}>
+									</select>
+								</td>
+								<td>
+								<{*値1*}>
+									<input name="cond1_value1" type="text" value="<{$action.current_check.cond1_value1}>" size="6" />
+								</td>
+								<td>∩</td>
+								<td>
+								<{*符号2*}>
+									<select id="mdb_inputcond1_fugo2<{$id}>" name="cond1_fugo2">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+<{*
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.current_check.cond1_fugo2 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+*}>
+									</select>
+								</td>
+								<td>
+								<{*値2*}>
+									<input name="cond1_value2" type="text" value="<{$action.current_check.cond1_value2}>" size="6" />
+								</td>
+							</tr>
+							<{*条件2*}>
+							<tr>
+								<td>2</td>
+								<td>
+								<{*エラー・ワーニング*}>
+									<select id="mdb_inputcond2_ew<{$id}>" name="cond2_ew">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_E}>"<{if $action.current_check.cond2_ew == $smarty.const.TESTEE_META_EW_E}> selected="selected"<{/if}>><{$lang.mdb_ew_e|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_EW_W}>"<{if $action.current_check.cond2_ew == $smarty.const.TESTEE_META_EW_W}> selected="selected"<{/if}>><{$lang.mdb_ew_w|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*符号1*}>
+									<select id="mdb_inputcond2_fugo1<{$id}>" name="cond2_fugo1">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.current_check.cond2_fugo1 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*値1*}>
+									<input name="cond2_value1" type="text" value="<{$action.current_check.cond2_value1}>" size="6" />
+								</td>
+								<td>∩</td>
+								<td>
+								<{*符号2*}>
+									<select id="mdb_inputcond2_fugo2<{$id}>" name="cond2_fugo2">
+										<option value=""></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_GE}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_GE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ge|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_G}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_G}> selected="selected"<{/if}>><{$lang.mdb_fugo_g|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_LE}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_LE}> selected="selected"<{/if}>><{$lang.mdb_fugo_le|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_L}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_L}> selected="selected"<{/if}>><{$lang.mdb_fugo_l|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_EQ}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_EQ}> selected="selected"<{/if}>><{$lang.mdb_fugo_eq|smarty:nodefaults}></option>
+										<option value="<{$smarty.const.TESTEE_META_FUGO_NE}>"<{if $action.current_check.cond2_fugo2 == $smarty.const.TESTEE_META_FUGO_NE}> selected="selected"<{/if}>><{$lang.mdb_fugo_ne|smarty:nodefaults}></option>
+									</select>
+								</td>
+								<td>
+								<{*値2*}>
+									<input name="cond2_value2" type="text" value="<{$action.current_check.cond2_value2}>" size="6" />
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<div class="btn-bottom align-center">
+				<input class="lined_btn btn-width" type="button" onclick="mdbCls['<{$id}>'].addDatecheck(this, <{$block_id}>); return false;" value="<{$lang._regist|smarty:nodefaults}>" />
+				<input class="lined_btn btn-width" type="button" onclick="commonCls.removeBlock('<{$id}>');return false;" value="<{$lang._cancel|smarty:nodefaults}>" />
+			</div>
+		</form>
+	</div>
+	<{include file="../testee_script.html"}>
+<{/strip}>

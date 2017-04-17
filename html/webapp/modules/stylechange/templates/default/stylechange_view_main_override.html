@@ -1,0 +1,18 @@
+<{* スタイルチェンジャー 上書きCSS *}>
+
+<div class="outerdiv">
+
+ここに記述したCSS で標準CSS を上書きできます。<br />
+
+<form id="stylechange_override_form<{$id}>" action="#" onsubmit="return false;">
+	<input name="action" type="hidden" value="stylechange_action_edit_override" />
+
+	<textarea name="csstext" rows="20" cols="80" style="width:100%;"><{$action.css_text.override_css}></textarea>
+	<div class="btn-bottom">
+		<input class="lined_btn btn-width" name="regist" type="button" onclick="stylechangeCls['<{$id}>'].setCssText(); return false;" value="決定">
+	</div>
+
+</form>
+
+</div>
+<{include file="stylechange_script.html"}>

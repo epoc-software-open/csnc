@@ -1,0 +1,43 @@
+
+/* 施設情報モジュールCSS
+---------------------------------------*/
+div.hospitalinfo_list_control {
+	padding: 3px;
+}
+span.hospitalinfo_separator{
+	margin: 0 5px;
+}
+div.hospitalinfo_list {
+	padding: 3px 8px;
+}
+.hospitalinfo_list th {
+	border: 1px solid #d0d0d0;
+	padding: 3px;
+	background-color: #f0f0f0;
+	white-space: nowrap;
+}
+.hospitalinfo_list td {
+	border: 1px solid #d0d0d0;
+	padding: 6px;
+	text-align: left;
+}
+span.hospitalinfo_page_switch a {
+	margin:0px 4px;
+}
+span.hospitalinfo_page_switch a.current {
+	font-weight:bold;
+	color:#c90505;
+}
+
+/* 追加エリア
+---------------------------------------*/
+.hospitalinfo_list .hospital_name {
+	width: 200px;
+}
+.hospitalinfo_list .hospital_kana {
+	width: 200px;
+}
+.hospitalinfo_list .hospital_code {
+	width: 40px;
+}
+

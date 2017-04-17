@@ -1,0 +1,55 @@
+<{* 施設一覧 *}>
+
+<div class="hospitalinfo_list">
+
+	<form id="hospitalinfo_search_form<{$id}>" onsubmit="return false;" action="#" method="post">
+		キーワード：<input type="text" name="hospital_keyword" class="hospital_keyword" value="<{$action.hospital_keyword}>">
+		　ソート：<select name="hospital_sort">
+					<option value="1"<{if $action.hospital_sort == 1}> selected<{/if}>>施設コード順</option>
+					<option value="2"<{if $action.hospital_sort == 2}> selected<{/if}>>施設名順</option>
+					<option value="3"<{if $action.hospital_sort == 3}> selected<{/if}>>かな順</option>
+				</select>
+		<input type="button" value="検索" onclick="hospitalinfoCls['<{$id}>'].searchHospitalinfo(); return false;">
+	</form>
+	<br />
+
+	<form id="hospitalinfo_edit_form<{$id}>" onsubmit="return false;" action="#" method="post">
+		<input name="action" type="hidden" value="hospitalinfo_action_main_init" />
+
+		<table >
+			<tr>
+				<th>施設名</th>
+				<th>かな</th>
+				<th>施設コード</th>
+				<th>編集</th>
+			</tr>
+
+			<{foreach item=hospitalinfo from=$action.hospitalinfo}>
+				<tr>
+					<td><{$hospitalinfo.hospital_name}></td>
+					<td><{$hospitalinfo.hospital_kana}></td>
+					<td><{$hospitalinfo.hospital_code}></td>
+					<td>
+						<a href="#" onClick="hospitalinfoCls['<{$id}>'].popupHospitalinfo(event, '<{$hospitalinfo.hospitalinfo_id}>'); return false;">変更</a>,
+						<a href="#" onClick="hospitalinfoCls['<{$id}>'].deleteHospitalinfo('<{$hospitalinfo.hospitalinfo_id}>'); return false;">削除</a>
+					</td>
+				</tr>
+			<{/foreach}>
+
+			<tr>
+				<th>施設名</th>
+				<th>かな</th>
+				<th>施設コード</th>
+				<th><br /></th>
+			</tr>
+			<tr>
+				<td><input type="text" name="hospital_name" class="hospital_name"></td>
+				<td><input type="text" name="hospital_kana" class="hospital_kana"></td>
+				<td><input type="text" name="hospital_code" class="hospital_code"></td>
+				<td><input type="button" value="追加" onclick="hospitalinfoCls['<{$id}>'].setHospitalinfo(); return false;"></td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<{include file="hospitalinfo_script.html"}>

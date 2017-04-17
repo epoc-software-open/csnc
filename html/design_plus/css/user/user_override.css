@@ -1,0 +1,12 @@
+body {
+	background-color: #ffffff;
+}
+.container {
+	width: 1016px;
+}
+ul.menu_jq_gnavi_pldwn_green li {
+	width: 118px;
+}
+ul.menu_jq_gnavi_pldwn_green_sub li {
+	width: 142px;
+}

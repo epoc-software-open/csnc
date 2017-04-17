@@ -1,0 +1,16 @@
+<{strip}>
+<{assign var="menus" value=$action.menus.0.0}>
+<{assign var="thread_nest" value=0}>
+
+<{assign var="pldwn_sub_class_name" value="menu_jq_gnavi_pldwn_gray_sub"}>
+<{assign var="pldwn_btn_class_name" value="menu_jq_gnavi_pldwn_gray_btn"}>
+<{assign var="pldwn_highlight_class_name" value="menu_jq_gnavi_pldwn_gray_highlight"}>
+
+<ul class="menu_jq_gnavi_pldwn_gray">
+<{include file="menu_view_main_list.html"}>
+</ul>
+<{include file="../menu_script.html"}>
+<script class="nc_script" type="text/javascript">
+	Event.observe(window, "load", function() { menuCls['<{$id}>'].menuJqLoad("<{$id}>", "gray"); }, true);
+</script>
+<{/strip}>

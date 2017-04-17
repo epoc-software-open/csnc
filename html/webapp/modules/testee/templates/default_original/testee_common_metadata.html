@@ -1,0 +1,202 @@
+<{strip}>
+<{if $mode == "list"}>
+	<{assign var="mdb_detail_head" value="mdb_detail_head_list"}>
+<{else}>
+	<{assign var="mdb_detail_head" value="mdb_detail_head"}>
+<{/if}>
+
+<{* 選択値別件数設定にて予定件数に達しているかのチェック EddyK *}>
+<{if $mode == "regist"}>
+	<{if $action.counts_check.ALL.add_ok}>
+		<{assign var="init" value=false}>
+		<{foreach from=$action.counts_check item=counts_check key=key}>
+			<{if !$counts_check.add_ok}>
+				<{if !$init}>
+					<fieldset style="width: 300px; margin-top: 5px;">
+					<{assign var="init" value=true}>
+				<{/if}>
+					<div style="padding: 5px; color: blue;"><{$key|smarty:nodefaults}>は登録予定数に達しています。<br/></div>
+			<{/if}>
+		<{/foreach}>
+		<{if $init}>
+			</fieldset>
+		<{/if}>
+	<{/if}>
+	<{* データ登録日 EddyK *}>
+	<input type="hidden" name="content_insert_date" id="content_insert_date_<{$id}>" value="<{$action.content_insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults|substr:0:10}>">
+<{/if}>
+
+<span id="mdb_refresh_target<{$id}>"></span>
+<table class="mdb_layout_out_table" summary="">
+
+	<{* 登録者・登録番号・登録日を表示 EddyK *}>
+	<{if $mode == "regist"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#F2DDDC,;" reset=true}>
+		<{if $action.content_id}>
+			<{assign var="content_insert_user_name" value=$action.content_insert_user_name}>
+			<{assign var="content_insert_time" value=$action.content_insert_time}>
+		<{else}>
+			<{assign var="content_insert_user_name" value=$smarty.session._handle}>
+			<{assign var="content_insert_time" value=$action.content_insert_time}>
+		<{/if}>
+	<{elseif $mode == "list" || $mode == "detail"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values=",#F2DDDC;" reset=true}>
+		<{assign var="content_insert_user_name" value=$item.insert_user_name}>
+		<{assign var="content_insert_time" value=$item.insert_time}>
+	<{/if}>
+	<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0; background-color:#F2DDDC;">
+		<td class="<{$mdb_detail_head}> nowrap">登録者</td>
+		<td class="mdb_edit_detail"><{$content_insert_user_name}></td>
+	</tr>
+	<{if $mode == "list" || $mode == "detail"}>
+		<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0;">
+			<td class="<{$mdb_detail_head}> nowrap">登録番号</td>
+			<td class="mdb_edit_detail"><{$item.content_no}></td>
+		</tr>
+		<{if $action.allocation.allocation_result_flag == 1}>
+			<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0; background-color:#F2DDDC;">
+				<td class="<{$mdb_detail_head}> mdb_detail_allocate nowrap">割付</td>
+				<td class="mdb_edit_detail mdb_detail_allocate"><{$item.group_name}></td>
+			</tr>
+			<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0;">
+				<td class="<{$mdb_detail_head}> nowrap">介入</td>
+				<td class="mdb_edit_detail"><{$item.intervention}></td>
+			</tr>
+		<{/if}>
+	<{/if}>
+	<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0; <{if $mode == "list" || $mode == "detail"}>background-color:#F2DDDC;<{/if}>">
+		<td class="<{$mdb_detail_head}> nowrap">登録日時</td>
+		<td class="mdb_edit_detail"><{$content_insert_time|timezone_date_format:$lang._full_date_format|smarty:nodefaults}></td>
+	</tr>
+
+<{*		汎用DB標準では、ポジション2・3は横並びだが、順次縦並びに変更	EddyK *}>
+	<{if $data_pos_1 != null}>
+		<{assign var="position" value="1"}>
+		<{foreach item=metadata from=$data_pos_1}>
+			<{include file="testee_common_metadata_detail.html"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values=",#F2DDDC;"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_2 != null}>
+		<{assign var="position" value="2"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;," reset=true}>
+		<{foreach item=metadata from=$data_pos_2}>
+			<{include file="testee_common_metadata_detail.html"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;,"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_3 != null}>
+		<{assign var="position" value="3"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;," reset=true}>
+		<{foreach item=metadata from=$data_pos_3}>
+			<{include file="testee_common_metadata_detail.html"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#DBE5F1;,"}>
+		<{/foreach}>
+	<{/if}>
+	<{if $data_pos_4 != null}>
+		<{assign var="position" value="4"}>
+		<{* 行背景色対応 EddyK  *}>
+		<{cycle name="tr_backcolor" assign="tr_backcolor" values="#EAF1DD;," reset=true}>
+		<{foreach item=metadata from=$data_pos_4}>
+			<{include file="testee_common_metadata_detail.html"}>
+			<{* 行背景色対応 EddyK  *}>
+			<{cycle name="tr_backcolor" assign="tr_backcolor" values="#EAF1DD;,"}>
+		<{/foreach}>
+	<{/if}>
+</table>
+<div class="align-right">
+	<{if $item.temporary_flag == $smarty.const._OFF && $item.agree_flag == $smarty.const._OFF && $action.mdb_obj.new_period_time <= $item.insert_time && $action.mdb_obj.new_period > 0}>
+		<img class="icon" src="<{"new.gif"|get_modules_image}>" alt="<{$lang._new|smarty:nodefaults}>" title="<{$lang._new|smarty:nodefaults}>" />
+		<{if $mode == "detail" || $action.mdb_obj.vote_flag == $smarty.const._ON}>
+			<{$lang._separator|smarty:nodefaults}>
+		<{/if}>
+	<{/if}>
+	<{if $mode == "list" || $mode == "detail"}>
+		<{if $item.temporary_flag != $smarty.const._OFF}>
+			<span class="deadline"><{$lang._temporary_state|smarty:nodefaults}></span>
+			<{if $mode == "detail"}>
+				<{$lang._separator|smarty:nodefaults}>
+			<{/if}>
+		<{elseif $item.agree_flag == $smarty.const._ON}>
+			<span class="deadline"><{$lang.mdb_wait_agree|smarty:nodefaults}></span>
+			<{if $mode == "detail"}>
+				<{$lang._separator|smarty:nodefaults}>
+			<{/if}>
+		<{/if}>
+	<{/if}>
+	<{if $action.mdb_obj.active_flag == $smarty.const._ON}>
+
+<{* 主坦以上＆システム管理者のみ、編集機能を表示 by EddyK *}>
+<{if ( $smarty.session._auth_id >= $smarty.const._AUTH_CHIEF && $smarty.session._role_auth_id == $smarty.const._SYSTEM_ROLE_AUTH_ID) }>
+
+		<{if $mode == "detail"}>
+			<{$lang.mdb_detail_writer|smarty:nodefaults}>
+			<a class="syslink" href="#" title="<{if $smarty.session._login_id == ''}><{$lang.mdb_detail_writer_title|smarty:nodefaults|sprintf:$item.insert_user_name}><{else}><{$lang._user_title|smarty:nodefaults|sprintf:$item.insert_user_name}><{/if}>" onclick="commonCls.showUserDetail(event, '<{$item.insert_user_id}>'); return false;">
+				<{$item.insert_user_name}>
+			</a>
+			<{if $item.has_edit_auth}>
+				<{$lang._separator|smarty:nodefaults}>
+				<a href="#" title="<{$lang.mdb_detail_edit_title|smarty:nodefaults}>" class="syslink" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_content_init', content_id:<{$item.content_id}>, testee_id:<{$action.testee_id}>}); return false;">
+					<{$lang._edit|smarty:nodefaults}>
+				</a>
+				<{$lang._separator|smarty:nodefaults}>
+				<a href="#" title="<{$lang.mdb_detail_delete_title|smarty:nodefaults}>" class="syslink" onclick="mdbCls['<{$id}>'].delContent('<{$action.testee_id}>', '<{$item.content_id}>', '<{$lang.mdb_content_del_confirm|smarty:nodefaults}>'); return false;">
+					<{$lang._delete|smarty:nodefaults}>
+				</a>
+			<{/if}>
+			<{if $item.agree_flag == $smarty.const._OFF && $item.temporary_flag == $smarty.const._OFF && $action.mdb_obj.vote_flag == $smarty.const._ON}>
+				<{$lang._separator|smarty:nodefaults}>
+			<{/if}>
+		<{/if}>
+
+<{/if}>
+<{* 主坦以上＆システム管理者のみ、編集機能を表示 by EddyK *}>
+
+		<{if $item.agree_flag == $smarty.const._OFF && $item.temporary_flag == $smarty.const._OFF}>
+			<{if $action.mdb_obj.vote_flag == $smarty.const._ON}>
+				<span class="mdb_detail_block">
+					<{if $item.voted}>
+						<{$lang.mdb_detail_voted|smarty:nodefaults}>
+					<{else}>
+						<a href="#" title="<{$lang.mdb_detail_vote_title|smarty:nodefaults}>" class="syslink" onclick="mdbCls['<{$id}>'].vote('<{$action.testee_id}>', '<{$item.content_id}>'); return false;"><{$lang.mdb_detail_vote|smarty:nodefaults}></a>
+					<{/if}>
+				</span>
+				<{$lang._separator|smarty:nodefaults}>
+				<{$lang.mdb_vote_number|smarty:nodefaults}>(<{$item.vote_count}>)
+			<{/if}>
+			<{if $action.mdb_obj.comment_flag == $smarty.const._ON && $mode == "detail"}>
+				<{$lang._separator|smarty:nodefaults}>
+				<a href="#" title="<{$lang.mdb_detail_comment_title|smarty:nodefaults}>" class="syslink" onclick="commonCls.displayChange('mdb_comment<{$id}>'); return false;"><{$lang.mdb_detail_comment|smarty:nodefaults}>(<{$item.comment_count}>)</a>
+			<{/if}>
+		<{/if}>
+		<{if $item.has_confirm_auth && $item.agree_flag == $smarty.const._ON && $mode == "detail"}>
+			<{$lang._separator|smarty:nodefaults}>
+			<a href="#" title="<{$lang.mdb_detail_confirm_title|smarty:nodefaults}>" class="syslink" onclick="mdbCls['<{$id}>'].confirmContent('<{$action.testee_id}>', '<{$item.content_id}>', '<{$lang.mdb_content_confirm_confirm|smarty:nodefaults}>'); return false;"><{$lang.mdb_detail_confirm|smarty:nodefaults}></a>
+		<{/if}>
+	<{/if}>
+	<{if $mode == "list"}>
+		<{$lang._separator|smarty:nodefaults}>
+
+		<{if strpos($id, TESTEE_REFERENCE_PREFIX_NAME)}>
+			<a href="#" title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" class="syslink" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$item.content_id}>, testee_id:<{$action.testee_id}>}, {'loading_el':this}); return false;">
+		<{else}>
+			<{if ($item.short_url != "") }>
+				<{include file="../../../../templates/main/abbreviate_url.html" short_url=$item.short_url assign=short_url}>
+				<a class="syslink"  title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" href="<{$short_url}>" onclick="if (_nc_current_url.match('<{$item.short_url}>')) {location.reload(); return false;}">
+			<{else}>
+				<{assign var="short_url" value="`$smarty.const.BASE_URL``$smarty.const.INDEX_FILE_NAME`?active_action=testee_view_main_detail&content_id=`$item.content_id`&testee_id=`$action.testee_id`&block_id=`$block_id`#`$smarty.session._id`"}>
+				<a class="syslink"  title="<{$lang.mdb_detail_link_title|smarty:nodefaults}>" href="<{$short_url}>" onclick="if (_nc_current_url.match('content_id=<{$item.content_id}>') && _nc_current_url.match('block_id=<{$block_id}>')) {location.reload(); return false;}">
+			<{/if}>
+		<{/if}>
+			<{$lang.mdb_detail_link|smarty:nodefaults}>
+		</a>
+	<{/if}>
+</div>
+<{/strip}>

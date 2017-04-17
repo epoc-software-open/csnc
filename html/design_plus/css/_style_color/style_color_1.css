@@ -1,0 +1,117 @@
+@charset "UTF-8";
+
+/* *** NetCommons スタイル上書き
+----------------------------------------------------------- */
+
+/* 全体的な設定
+----------------------------------------------------------- */
+body {
+    color: white;
+    background-color: black;
+}
+a, a:link, a:visited {
+    color: yellow;
+}
+a.syslink, a.syslink:link {
+    color: yellow;
+}
+.responsive_area table, .responsive_area td {
+	color: #ffffff !important;
+}
+.responsive_area table, .responsive_area td {
+	background-color: #000000 !important;
+}
+
+
+/* ヘッダー
+----------------------------------------------------------- */
+.headercolumn_menu {
+    background-color: black;
+}
+
+table#header_menu a.menulink, table#header_menu a.menulink:link, table#header_menu a.menulink:visited, table#header_menu a.menulink:active, table#header_menu a.menulink:hover {
+    color: yellow !important;
+}
+
+/* フッター
+----------------------------------------------------------- */
+.copyright {
+    color: white;
+}
+table#footerbar .copyright, .copyright_center {
+    color: white;
+}
+/* カラム
+----------------------------------------------------------- */
+.headercolumn {
+    background-color: black;
+}
+.leftcolumn {
+    background-color: black;
+}
+.centercolumn {
+    background-color: black;
+}
+.footercolumn {
+    background-color: black;
+}
+div.headercolumn_menu {
+    background-color: black;
+}
+
+/* 新着
+----------------------------------------------------------- */
+tr.whatsnew_unread td a {
+    color: yellow !important;
+}
+.whatsnew_time {
+	color: #ffffff;
+}
+
+/* メニュー
+----------------------------------------------------------- */
+a.menulink, a.menulink:link, a.menulink:visited {
+    /* color: yellow; */
+}
+
+/* グローバルメニュー
+----------------------------------------------------------- */
+#globalmenu {
+    background-color: black;
+}
+
+/* 日誌
+----------------------------------------------------------- */
+.journal_list_date {
+	color: #ffffff;
+}
+
+/* 汎用データベース
+----------------------------------------------------------- */
+.mdb_detail_block {
+	background-color: #000000;
+}
+
+/* テンプレート
+----------------------------------------------------------- */
+.th_classic_default {
+    background-color: black;
+}
+.th_dotround_content {
+    background-color: black;
+}
+
+/* スタイルビューア
+----------------------------------------------------------- */
+.styleviewer_select {
+    color: #494949;
+}
+
+#smp_tab_menu_home a, #smp_tab_menu_home a:link, #smp_tab_menu_home a:visited {
+    color: #494949;
+}
+#smp_tab_menu .category_current a, #smp_tab_menu .category_current a:link, #smp_tab_menu .category_current a:visited {
+    color: #494949;
+}
+
+

@@ -1,0 +1,162 @@
+@charset "utf-8";
+
+/*
+	--- 必要な設定
+	システム管理 ＞ ページスタイル ＞ 行揃え ＞ 中央
+	背景色の設定：ページスタイル ＞ 配色 で白などに統一しておく
+*/
+
+
+/* 全体の画面幅を100％にして最大化する。
+---------------------------------------*/
+/*
+#_container {
+	width: 100% !important;
+}
+*/
+
+/* コンテンツ(ヘッダーカラム)の画面幅を1000pxにして、中央寄せにする。
+---------------------------------------*/
+/*
+#__headercolumn {
+	width: 1000px;
+	margin: 0 auto;
+}
+*/
+
+/* コンテンツ(メインカラム)の画面幅を1000pxにして、中央寄せにする。
+   .maincolumn はカスタマイズで追加したセレクタ
+---------------------------------------*/
+/*
+.maincolumn {
+	width: 1000px;
+	margin: 0 auto;
+}
+
+table#header_menu {
+	width: 1000px;
+	margin: 0 auto;
+}
+*/
+
+/* NetCommonsのヘッダーメニューの調整
+---------------------------------------*/
+/*
+#header_menu {
+	border-bottom: none;
+}
+#_headercolumn {
+	border-top: 1px solid #dfe4e7;
+}
+*/
+
+/* フッター(NC ＆ フッターエディタ)
+---------------------------------------*/
+table#footerbar {
+	font-size: 100%;
+}
+table#footerbar .copyright {
+	text-align: left;
+	font-size: 100%;
+	font-weight: normal;
+	color: #494949;
+}
+.footer_hr {
+	border-width: 1px 0 0;
+}
+.copyright_body {
+	font-size: 80%;
+	text-align: right;
+	width: 1000px;
+}
+.footer_copyright {
+	margin: 0 auto;
+}
+#footer_area .footer_copyright {
+	text-align: center;
+	width: 100%;
+}
+#footer_link_box {
+	float: right;
+}
+#footer_area {
+	width: 1000px;
+	margin: 0 auto;
+}
+#footer_hr_smp {
+	border-width: 1px 0 0;
+	display: none;
+}
+table#footerbar .copyright {
+	padding: 0;
+}
+
+/* ヘッダーエリアのデザインを有効にするため、既存のCSS があればクリアしておく。
+---------------------------------------*/
+/*
+div.headercolumn_menu {
+	background-color: transparent;
+}
+.headercolumn {
+	background-color: transparent;
+}
+*/
+
+/* ヘッダーエリアのデザイン
+   .header_area はカスタマイズで追加したセレクタ
+---------------------------------------*/
+/*
+.header_area {
+	border-bottom: 3px solid #d02828;
+	background: url("../images/header_background.png") repeat-x scroll 0 0
+}
+*/
+
+/*
+#_headercolumn {
+	background: transparent url("/images/menu/headerflat/header_btnback.gif") repeat-x scroll left 8px;
+}
+ul.menu_headerflat {
+	padding: 0;
+}
+*/
+
+/* フッター(HTML埋め込み例)
+---------------------------------------*/
+.footer_add {
+	width:100%;
+	background:url(../images/footer_background.png) repeat-x;
+}
+
+.footer_add_cont {
+	max-width: 1000px;
+}
+
+.footer_add .footer_add_cont {
+	margin:0 auto;
+	padding:20px 0 10px 0;
+}
+
+.footer_add .footer_add_cont h3 {
+	font-size:18px;
+	font-weight:normal;
+	color:#fff;
+}
+
+.footer_add .footer_add_cont p {
+	color:#fff;
+	font-size:12px;
+}
+
+.footer_add .footer_add_cont p.ja_copy {
+	text-align:right;
+}
+
+/* フッター(フッターエディタCSS 導入後にデフォルトデザインを維持するため)
+---------------------------------------*/
+#footer_default {
+	font-size: 80%;
+	margin: 0 auto;
+	text-align: right;
+	width: 1000px;
+}

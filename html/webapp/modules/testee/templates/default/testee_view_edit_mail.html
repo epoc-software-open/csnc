@@ -1,0 +1,38 @@
+<{strip}>
+	<div class="outerdiv" style="width: 100%;">
+
+		<form id="testeeMailForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+			<input type="hidden" name="action" value="testee_action_edit_mail">
+			<input type="hidden" name="metadata_id" value="<{$action.metadata_id}>">
+
+		<{* div style="height:100px; overflow-y:scroll;" *}>
+			<table class="testee_edit_mail" style="margin: 10px;">
+				<tr>
+					<th>選択</th>
+					<th>ハンドル</th>
+					<th>施設情報</th>
+				</tr>
+				<{foreach from=$action.users item=user}>
+				<tr>
+					<td><input type="checkbox" name="mail_users[]" value="<{$user.user_id}>"<{if $user.testee_mail_users_id}> checked<{/if}>></td>
+					<td><{$user.handle}></td>
+					<td><{$user.user_item_hospital|rtrim:"|"}></td>
+				</tr>
+				<{/foreach}>
+			</table>
+		<{* /div *}>
+
+		<table style="width: 100%;">
+			<tr>
+				<td align="center" style="text-align: center; border: none;">
+					<input type="button" value="更新" onclick="mdbCls['<{$id}>'].updateMailUser(event,<{$action.metadata_id}>); return false;">
+					　　　
+					<input type="button" onclick="commonCls.removeBlock('<{$id}>');" value="キャンセル">
+				</td>
+			</tr>
+		</table>
+		</form>
+
+	</div>
+	<{include file="../testee_script.html"}>
+<{/strip}>

@@ -1,0 +1,246 @@
+<{strip}>
+<{* 検体進捗機能 *}>
+
+	<form id="statusForm<{$id}>" action="#" onsubmit="return false;">
+		<input type="hidden" name="action" value="testee_action_main_status" />
+		<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+		<input type="hidden" name="content_id" value="<{$action.detail.value.content_id}>" />
+
+<{*
+		<fieldset>
+			<legend>進捗</legend>
+
+			現在の進捗：<{$action.status_str}><br />
+			進捗の登録：<label><input name="status_id" type="radio" value="1"<{if !$action.tedc_auth_param.status_1}> disabled<{/if}>>採血</label>
+						<label><input name="status_id" type="radio" value="2"<{if !$action.tedc_auth_param.status_2}> disabled<{/if}>>提出</label>
+						<label><input name="status_id" type="radio" value="3"<{if !$action.tedc_auth_param.status_3}> disabled<{/if}>>受け取り</label><br />
+			<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus();" class="btn-width"><br />
+
+		</fieldset>
+*}>
+
+		<{* ---------------------------- *}>
+		<{* *** 資材・伝票の送付(Ａ) *** *}>
+		<{* ---------------------------- *}>
+		<{* 新規で登録するか、変更か。他が変更の場合は、新規登録もしない。 *}>
+		<{if $action.status_show_list[1] == 2 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>資材・伝票の送付</legend>
+
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr>
+							<td>施設患者番号　</td>
+							<td>
+								<{if $action.mod_status_id == "1"}>
+									<input name="unique_patient_cd" type="text" value="<{$action.statuses.1.1.unique_patient_cd}>">
+								<{else}>
+									<input name="unique_patient_cd" type="text" value="<{$action.base_unique_patient_cd}>">
+								<{/if}>
+							</td>
+						</tr>
+						<tr><td>資材・伝票送付日　</td><td><input id="mdb_metadatas_kentai_a1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.1.1.content_data}>" size="13" maxlength="10" /></td></tr>
+						<tr><td>送付者氏名　</td><td><input name="content_data[2]" type="text" value="<{$action.statuses.1.2.content_data}>"></td></tr>
+					</table>
+
+					<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(1); return false;" class="btn-width">　
+					<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{if $action.status_show_list[1] == 1 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>資材・伝票の送付</legend>
+
+					<table class="testee_kentai_view_table">
+						<tr>
+						<td>
+							<table class="testee_kentai_table">
+								<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+								<tr><td>施設患者番号　</td><td><{$action.statuses.1.1.unique_patient_cd}></td></tr>
+								<tr><td>資材・伝票送付日　</td><td><{$action.statuses.1.1.content_data}></td></tr>
+								<tr><td>送付者氏名　</td><td><{$action.statuses.1.2.content_data}></td></tr>
+							</table>
+						</td>
+						<td align="right" valign="bottom">
+							<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:1}); return false;">変更</a>
+						</tr>
+					</table>
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{* ------------------------ *}>
+		<{* *** 検体登録(Ｂ)      *** *}>
+		<{* ------------------------ *}>
+		<{if $action.status_show_list[2] == 2 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>検体登録</legend>
+
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr>
+							<td>施設患者番号　</td>
+							<td>
+								<{if $action.mod_status_id == "2"}>
+									<{$action.statuses.2.1.unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.statuses.2.1.unique_patient_cd}>">
+								<{else}>
+									<{$action.last_unique_patient_cd}><input name="unique_patient_cd" type="hidden" value="<{$action.last_unique_patient_cd}>">
+								<{/if}>
+							</td>
+						</tr>
+						<tr><td>参加施設での検体採取日　</td><td><input id="mdb_metadatas_kentai_b1<{$id}>" name="content_data[1]" type="text" value="<{$action.statuses.2.1.content_data}>" size="13" maxlength="10" /></td></tr>
+						<tr><td>検体受領日　</td><td><input id="mdb_metadatas_kentai_b2<{$id}>" name="content_data[2]" type="text" value="<{$action.statuses.2.2.content_data}>" size="13" maxlength="10" /></td></tr>
+						<tr><td>受領した血清検体の本数　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.2.3.content_data}>"></td></tr>
+						<tr><td>受領者氏名　</td><td><input name="content_data[4]" type="text" value="<{$action.statuses.2.4.content_data}>"></td></tr>
+					</table>
+					<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(2); return false;" class="btn-width">　
+					<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{if $action.status_show_list[2] == 1 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>検体登録</legend>
+
+					<table class="testee_kentai_view_table">
+						<tr>
+						<td>
+							<table class="testee_kentai_table">
+								<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+								<tr><td>施設患者番号　</td><td><{$action.statuses.2.1.unique_patient_cd}></td></tr>
+								<tr><td>参加施設での検体採取日　</td><td><{$action.statuses.2.1.content_data}></td></tr>
+								<tr><td>検体受領日　</td><td><{$action.statuses.2.2.content_data}></td></tr>
+								<tr><td>受領した血清検体の本数　</td><td><{$action.statuses.2.3.content_data}></td></tr>
+								<tr><td>受領者氏名　</td><td><{$action.statuses.2.4.content_data}></td></tr>
+							</table>
+						</td>
+						<td align="right" valign="bottom">
+							<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:2}); return false;">変更</a>
+						</tr>
+					</table>
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{* ------------------------------------ *}>
+		<{* *** 治療後の資材・伝票の送付(Ｃ) *** *}>
+		<{* ------------------------------------ *}>
+		<{if $action.status_show_list[3] == 2 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>治療後の資材・伝票の送付</legend>
+
+					<table class="testee_kentai_table">
+						<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+						<tr>
+							<td>施設患者番号　</td>
+							<td>
+								<{if $action.mod_status_id == "3"}>
+									<input name="unique_patient_cd" type="text" value="<{$action.statuses.3.1.unique_patient_cd}>">
+								<{else}>
+									<input name="unique_patient_cd" type="text" value="<{$action.last_unique_patient_cd}>">
+								<{/if}>
+							</td>
+						</tr>
+						<tr><td>確定診断病名　</td>
+							<td>
+								<select name="content_data[1]">
+									<option value="1" <{if $action.statuses.3.1.content_data == "1"}>selected<{/if}> onclick="commonCls.displayVisible($('<{$id}>_content_3_2'));commonCls.displayVisible($('<{$id}>_content_3_3'));">膵・胆道癌</option>
+									<option value="2" <{if $action.statuses.3.1.content_data == "2"}>selected<{/if}> onclick="commonCls.displayNone($('<{$id}>_content_3_2'));commonCls.displayNone($('<{$id}>_content_3_3'));">炎症性膵・胆道疾患</option>
+									<option value="3" <{if $action.statuses.3.1.content_data == "3"}>selected<{/if}> onclick="commonCls.displayNone($('<{$id}>_content_3_2'));commonCls.displayNone($('<{$id}>_content_3_3'));">健常人</option>
+									<option value="4" <{if $action.statuses.3.1.content_data == "4"}>selected<{/if}> onclick="commonCls.displayNone($('<{$id}>_content_3_2'));commonCls.displayNone($('<{$id}>_content_3_3'));">その他</option>
+									<option value="5" <{if $action.statuses.3.1.content_data == "5"}>selected<{/if}> onclick="commonCls.displayNone($('<{$id}>_content_3_2'));commonCls.displayNone($('<{$id}>_content_3_3'));">診断が確定していない</option>
+								</select>
+							</td>
+						</tr>
+						<tr id="<{$id}>_content_3_2"<{if $action.statuses.3.1.content_data == "2" || $action.statuses.3.1.content_data == "3"}> style="display: none;"<{/if}>><td>資材・伝票送付日　</td><td><input id="mdb_metadatas_kentai_c1<{$id}>" name="content_data[2]" type="text" value="<{$action.statuses.3.2.content_data}>" size="13" maxlength="10" /></td></tr>
+						<tr id="<{$id}>_content_3_3"<{if $action.statuses.3.1.content_data == "2" || $action.statuses.3.1.content_data == "3"}> style="display: none;"<{/if}>><td>送付者氏名　</td><td><input name="content_data[3]" type="text" value="<{$action.statuses.3.3.content_data}>"></td></tr>
+					</table>
+					<input name="status_button" type="button" value="決定" onclick="mdbCls['<{$id}>'].setStatus(3); return false;" class="btn-width">　
+					<input name="status_button" type="button" value="キャンセル" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>}); return false;" class="btn-width"><br />
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{if $action.status_show_list[3] == 1 }>
+			<div>
+				<fieldset class="testee_kentai_fieldset">
+					<legend>治療後の資材・伝票の送付</legend>
+
+					<table class="testee_kentai_view_table">
+						<tr>
+						<td>
+							<table class="testee_kentai_table">
+								<tr><td>登録番号　</td><td><{$action.detail.value.content_no}></td></tr>
+								<tr><td>施設患者番号　</td><td><{$action.statuses.3.1.unique_patient_cd}></td></tr>
+								<tr><td>確定診断病名　</td><td><{if $action.statuses.3.1.content_data == "1"}>膵・胆道癌<{elseif $action.statuses.3.1.content_data == "2"}>炎症性膵・胆道疾患<{elseif $action.statuses.3.1.content_data == "3"}>健常人<{elseif $action.statuses.3.1.content_data == "4"}>その他<{elseif $action.statuses.3.1.content_data == "5"}>診断が確定していない<{else}><{/if}></td></tr>
+
+								<{if $action.statuses.3.1.content_data == "1"}>
+									<tr><td>資材・伝票送付日　</td><td><{$action.statuses.3.2.content_data}></td></tr>
+									<tr><td>送付者氏名　</td><td><{$action.statuses.3.3.content_data}></td></tr>
+								<{/if}>
+							</table>
+						</td>
+						<td align="right" valign="bottom">
+							<a href="#" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.detail.value.content_id}>, testee_id:<{$action.testee_id}>, mod_status_id:3}); return false;">変更</a>
+						</tr>
+					</table>
+
+				</fieldset>
+				<br />
+			</div>
+		<{/if}>
+
+		<{* 検体進捗機能 治療後の検体登録(Ｄ) 以降 *}>
+		<{include file="testee_view_main_detail_kentai_d.html"}>
+
+	</form>
+
+</div>
+
+<{/strip}>
+<script class="nc_script" type="text/javascript">
+	<{if $action.status_show_list[1] == 2 }>
+		var a1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_a1" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[2] == 2 }>
+		var b1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_b1" + '<{$id}>');
+		var b2 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_b2" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[3] == 2 }>
+		var c1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_c1" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[4] == 2 }>
+		var d1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_d1" + '<{$id}>');
+		var d2 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_d2" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[5] == 2 }>
+		var e1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_e1" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[6] == 2 }>
+		var f1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_f1" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[7] == 2 }>
+		var g1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_g1" + '<{$id}>');
+	<{/if}>
+	<{if $action.status_show_list[8] == 2 }>
+		var h1 = new compCalendar('<{$id}>', "mdb_metadatas_kentai_h1" + '<{$id}>');
+	<{/if}>
+</script>

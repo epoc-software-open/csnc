@@ -1,0 +1,61 @@
+<div class="downloadlog_list_control">
+	<form id="pageControlForm<{$id}>" action="#" onsubmit="return false;">
+		<{include file = "downloadlog_view_main_init_control.html" position="top"}>
+		<{if $action.pager.total_page > 1}>
+			<{include file="downloadlog_view_main_init_page.html"}>
+		<{/if}>
+	</form>
+</div>
+
+<{if $action.logs_count == 0}>
+	<{$lang.downloadlog_none_log|smarty:nodefaults}>
+<{else}>
+	<div class="downloadlog_list">
+		<table >
+			<tr>
+				<th><{$lang.downloadlog_list_download_time|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_filename|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_module_name|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_room_name|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_user|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_exist|smarty:nodefaults}></th>
+				<th><{$lang.downloadlog_list_upload_id|smarty:nodefaults}></th>
+			</tr>
+			<{foreach item=downloadlog from=$action.downloadlogs}>
+				<tr>
+					<td><{$downloadlog.insert_time|timezone_date_format:$lang._full_date_format}></td>
+					<td><{$downloadlog.file_name}></td>
+					<td><{$downloadlog.module_name}></td>
+					<td><{$downloadlog.room_name}></td>
+					<td><{$downloadlog.download_user_name}></td>
+					<td><{if $downloadlog.uploads_upload_id}>有<{else}>無<{/if}></td>
+					<td><{$downloadlog.upload_id}></td>
+				</tr>
+			<{/foreach}>
+		</table>
+	</div>
+	<div class="downloadlog_list_control">
+		<table class="downloadlog_head_table">
+			<tr>
+				<td class="nowrap"/>
+				<td class="nowrap align-right">
+					<form id="pageControlForm_bottom<{$id}>" action="#" onsubmit="return false;">
+					<{include file = "downloadlog_view_main_init_control.html" position="bottom"}>
+					<{if $action.pager.total_page > 1}>
+						<{include file="downloadlog_view_main_init_page.html"}>
+					<{/if}>
+					</form>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<{if $action.ym_select != 0}>
+		<form name="searchDownloadlogForm<{$id}>" id="searchDownloadlogForm<{$id}>" onsubmit="return false;">
+			<center>
+				<input type="button" value="表示月CSVダウンロード" class="downloadlog_button" onclick="downloadlogCls['<{$id}>'].csvOutput(this.form, <{$action.ym_select}> ); return false;">
+			</center>
+		</form>
+	<{/if}>
+<{/if}>
+
+<{include file="downloadlog_script.html"}>

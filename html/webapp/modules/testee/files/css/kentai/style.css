@@ -1,0 +1,381 @@
+.mdb_metadata_detail_main {
+	border:0px;
+}
+.mdb_metadata_detail_pos_1 {
+	background:#dbe9ea;
+}
+.mdb_metadata_detail_pos_2 {
+	background:#e9f2fb;
+}
+.mdb_metadata_detail_pos_3 {
+	background:#fff7de;
+}
+.mdb_metadata_detail_pos_4 {
+	background:#eee7de;
+}
+.mdb_metadata_detail {
+	border:1px solid #cccccc;
+	/* width:276px; */
+}
+.mdb_metadata_detail_top_bottom {
+	border:1px solid #cccccc;
+	/* width:552px; */
+}
+/*
+.mdb_chg_col {
+	width:276px;
+}
+*/
+.mdb_chg_row {
+	width:276px;
+}
+.mdb_metadata_detail td.mdb_metadata_detail_td,.mdb_metadata_detail th.mdb_metadata_detail_td,.mdb_metadata_detail_top_bottom td.mdb_metadata_detail_td,.mdb_metadata_detail_top_bottom th.mdb_metadata_detail_td,.mdb_metadata_table td.mdb_metadata_detail_td,.mdb_metadata_table th.mdb_metadata_detail_td{
+	padding:2px;
+	border-top:1px solid #cccccc !important;
+	font-weight:normal;
+}
+.mdb_drop_event {
+	height:10px;
+}
+.mdb_chg_seq {
+	white-space:nowrap;
+	width:15px;
+}
+.mdb_setting_manage {
+	text-align:right;
+	white-space:nowrap;
+}
+.mdb_metadata_add_btn {
+	padding:5px;
+	text-align:right;
+	white-space:nowrap;
+}
+
+/* .mdb_grid_table {width:780px;}	EddyK */
+.mdb_grid_table {}
+/* .mdb_grid_manage {width:350px;}	EddyK */
+.mdb_grid_manage {width:670px;}
+
+.mdb_metadata_options {
+	border:1px solid #cccccc;
+	height:140px;
+	margin:5px;
+	overflow:auto;
+	width:300px; 
+}
+.mdb_detail_head {
+	text-align:left;
+	vertical-align:top;
+	padding: 5px 8px !important;
+	width: 80%;
+}
+.mdb_detail_head_list {
+	text-align:left;
+	vertical-align:top;
+	padding: 5px 8px !important;
+	width: 30%;
+}
+.mdb_detail_head_top_bottom {
+	width: 20%;
+}
+.mdb_edit_detail {
+	vertical-align:top;
+	padding: 5px 8px !important;
+	white-space: nowrap;
+}
+.mdb_metadata_table {
+	border:1px solid #cccccc;
+	border-bottom-style:none;
+	border-right-style:none;
+	border-left-style:none;
+	border-collapse:collapse;
+	width:100%;
+}
+.mdb_setting_type {
+	color:#c0c0c0;
+}
+.mdb_metadata_image {
+	height:127px;
+}
+.mdb_mdblist_table {
+	width:100%;
+}
+.mdb_detail_block {
+	background-color:#ffffff;
+	border:1px solid #3865b7;
+	color:#3865b7;
+	font-size:85%;
+	font-weight:normal;
+	text-align:center;
+}
+.mdb_comment {
+	margin-left:20px;
+}
+.mdb_comment_content {
+	padding:2px 10px 20px;
+}
+.mdb_comment_list {
+	width:100%;
+}
+.mdb_comment_title {
+	font-weight:bold;
+	margin-top:15px;
+	margin-bottom:2px;
+}
+.mdb_comment_separator {
+	margin:0 5px;
+}
+.mdb_comment_head {
+	background-color:#E6E6E6;
+	padding:2px;
+}
+.mdb_comment_submit {
+	margin-top:10px;
+	padding-bottom:5px;
+	text-align:center;
+	width:450px;
+}
+.mdb_search_result_content {
+	padding:0px 5px 10px 15px;
+}
+.mdb_search_time {
+	color:#008000;
+	font-size:80%;
+}
+.mdb_separator {
+	margin-right:5px;
+}
+.mdb_layout_out_table {
+	margin-top:10px;
+	margin-bottom:5px;
+	/* border:1px solid #cccccc; */
+	border:none;
+	border-collapse:collapse;
+	width:100%;
+}
+.mdb_layout_out_table_td {
+	border-top: 0px;
+	border-left: 1px #cccccc;
+	border-right: 1px solid #cccccc;
+}
+.mdb_sequence {
+	padding : 2px 0px 2px 3px;
+	border-top : 1px solid #e0e0e0;
+	border-bottom : 1px solid #e0e0e0;
+	border-right : 1px solid #e0e0e0;
+	height : 22px;
+	overflow : hidden;
+}
+.mdb_sequence_title {
+	width:300px;
+}
+span.mdb_page_switch a {
+	margin:0px 4px;
+}
+.mdb_chgseq {
+	padding:5px 0px;
+}
+.mdb_search_page_count {
+	font-size:80%;
+}
+.mdb_search_user_name {
+	font-size:90%;
+}
+.mdb_search_result_prev {
+	padding-bottom:10px;
+	text-align:left;
+}
+.mdb_search_result_next {
+	padding-bottom:10px;
+	text-align:right;
+}
+.mdb_search_result_contents {
+	padding:5px 0px;
+}
+.mdb_right_space {
+	padding-right: 50px;
+}
+.mdb_comment_input_title {
+	font-weight:bold;
+	margin-bottom:2px;
+	margin-top:15px;
+}
+a.mdb_fixed_link {
+	font-size:80%;
+	margin-right:5px;
+}
+span.mdb_page_switch a.current {
+	font-weight:bold;
+	color:#c90505;
+}
+.testee_filepassword_popup_title{
+	margin-bottom: 5px;
+	width: 190px;
+}
+.mdb_password_popup_input_block {
+	margin-bottom: 5px;
+	width: 180px;
+	border:1px solid #cccccc;
+	border-right:1px solid #ebebeb;
+	border-bottom:1px solid #ebebeb;
+}
+.mdb_file_password_display {
+	font-size:80%;
+	margin-left:5px;
+}
+.mdb_file_download_count_font {
+	font-size:0.9em;
+	padding-left:4px;
+}
+.mdb_datecheck_tr {
+	border: 1px solid #ebebeb;
+}
+.mdb_datecheck_tr th, .mdb_datecheck_tr td {
+	border: 1px solid #ebebeb;
+	padding: 5px 10px;
+}
+td.mdb_count_option_td {
+	padding: 0;
+}
+div.mdb_contents_exist_warning {
+	color: #ff0000;
+}
+td.mdb_metadata_option_width1 {
+	width: 135px;
+}
+td.mdb_metadata_option_width2 {
+	width: 36px;
+}
+td.mdb_metadata_option_width3 {
+	width: 80px;
+}
+td.mdb_metadata_option_width4 {
+	width: 25px;
+}
+
+/* TEDC権限設定用 */
+table.tedc_authority, table.tedc_authority th, table.tedc_authority td {
+	border: 1px solid #494949;
+	padding: 5px 15px;
+}
+table.tedc_authority {
+}
+table.tedc_authority th {
+	background: none repeat scroll 0 0 #cccccc;
+}
+table.tedc_authority td {
+}
+
+/* ルームに参加しているユーザの施設を取り込む */
+.mdb-btn-width-270 {
+	padding: 0.2em;
+	width: 300px;
+}
+.mdb_option_select_room_hospital {
+	margin: 5px 0;
+}
+
+/* タイトル文字の装飾 */
+.mdb_decoration_bold_normal {
+	font-weight: normal;
+}
+.mdb_decoration_bold {
+	font-weight: bold;
+}
+.mdb_decoration_underline {
+	text-decoration: underline;
+}
+.mdb_decoration_red {
+	color: red;
+}
+
+/* 割付タイトル */
+.mdb_detail_allocate {
+	font-weight: bold;
+	font-size: 120%;
+}
+
+/* 詳細のテーブル */
+.mdb_layout_out_table {
+	border-bottom: 1px solid #c0c0c0;
+}
+
+/* 詳細のテーブル 行 */
+.mdb_layout_out_table tr {
+	border-top: 1px solid #c0c0c0;
+	border-left: 1px solid #c0c0c0;
+	border-right: 1px solid #c0c0c0;
+}
+
+.mdb_layout_out_table tr.title {
+	border-left: none;
+	border-right: none;
+}
+
+/* 詳細のテーブル セル */
+.mdb_layout_out_table td {
+	border-left: 1px solid #c0c0c0;
+}
+
+/* 印刷画面 */
+.testee_print {
+	width: 800px;
+}
+
+.testee_print .mdb_detail_head {
+	padding: 3px 8px !important;
+}
+.testee_print .mdb_edit_detail {
+	padding: 3px 8px !important;
+}
+
+/* 登録ボタン */
+.testee_btn {
+	background-color: #007799;
+	background: -moz-linear-gradient(top,#0099CC 0%,#006699);
+	background: -webkit-gradient(linear, left top, left bottom, from(#0099CC), to(#006699));
+	border: 1px solid #DDD;
+	color:#FFF !important;
+	width: 100px;
+	padding: 10px 12px;
+	margin: 0;
+}
+
+/* リマインドメール */
+.mail_user {
+	border: 1px solid #c0c0c0;
+	width: 100%;
+}
+.mail_user td {
+	padding: 0 !important;
+}
+.mail_list_hospital {
+	width: 100%;
+}
+.mail_list_hospital div {
+	padding-left: 10px;
+}
+
+/* メール送信設定 */
+.testee_edit_mail td {
+	padding: 3px !important;
+	border: 1px solid #c0c0c0 !important;
+}
+.testee_edit_mail th {
+	padding: 3px !important;
+	border: 1px solid #c0c0c0 !important;
+	background-color: #f0f0f0 !important;
+}
+
+.testee_kentai_fieldset {
+	padding-left: 30px;
+}
+.testee_kentai_fieldset legend {
+	margin-left: -20px;
+}
+.testee_kentai_table {
+	margin-bottom: 5px;
+}
+.testee_kentai_view_table {
+	width: 100%;
+}

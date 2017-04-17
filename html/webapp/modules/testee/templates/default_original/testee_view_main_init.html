@@ -1,0 +1,177 @@
+<{strip}>
+<{* <font color="red">【テスト】現在のコンテンツの件数：<{$action.contents|@count}></font><br> *}>
+<{if $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_ADMIN }>
+<{* TEDC権限が管理者のみ、管理者メニューを表示　 EddyK *}>
+	<fieldset style="margin: 5px;">
+		<legend style="margin-left: 5px;">管理者メニュー</legend>
+		<ul style="padding-top: 5px; padding-bottom: 5px; margin: 0px;">
+			<li>
+				<a href="#" class="syslink" title="メタデータ仕様書出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_metadataexcel&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					メタデータ仕様書出力
+				</a>
+			</li>
+			<li>試験ID：<{$action.testee_id}></li>
+			<li>
+				<a href="#" class="syslink" title="データCSV出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_export&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					データCSV出力
+				</a>
+			</li>
+			<li>
+				現在の登録番号：<{$action.content_no}>&nbsp;&nbsp;&nbsp;&nbsp;
+				(
+				<{if $action.contents}>
+					登録番号クリアはデータをすべて削除した場合に実行できます。
+				<{else}>
+					<a href="#" class="syslink" title="登録番号クリア実行" onclick="mdbCls['<{$id}>'].clearContentNo('<{$action.testee_id}>', '<{"「`$action.mdb_obj.testee_name`」の登録番号をクリアしてよろしいですか？"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">
+						登録番号クリア実行
+					</a>
+				<{/if}>
+				)
+			</li>
+		</ul>
+	</fieldset>
+	<br />
+<{elseif $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_DM}>
+<{* TEDC権限がDM以上、管理者メニュー（CSVダウンロード）を表示　 EddyK *}>
+	<fieldset style="margin: 5px;">
+		<legend style="margin-left: 5px;">管理者メニュー</legend>
+		<ul style="padding-top: 5px; padding-bottom: 5px; margin: 0px;">
+			<li>試験ID：<{$action.testee_id}></li>
+			<li>
+				<a href="#" class="syslink" title="データCSV出力" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_main_export&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+					データCSV出力
+				</a>
+			</li>
+		</ul>
+	</fieldset>
+	<br />
+<{/if}>
+<{* 一覧画面 *}>
+<div class="outerdiv">
+<{* ***********************テスト用に表示***************************<font color="red"><{$action.my_hospital}>:<{$action.tedc_authority}></font> *}>
+	<{if !$action.metadata_exists}>
+		<{$lang.mdb_noneexists_metadata|smarty:nodefaults}>
+	<{else}>
+		<div class="bold">
+			<{$action.mdb_obj.testee_name}>
+		</div>
+		<table class="outer">
+			<tr>
+				<td class="nowrap mdb_right_space">
+					<{if $action.mdb_obj.post_auth && $action.mdb_obj.active_flag == $smarty.const._ON}>
+
+					<{* 予定件数に達しているかのチェック EddyK *}>
+						<{if $action.counts_check}>
+							<{if $action.counts_check.ALL.add_ok}>
+								<{* 　TEDC権限による登録可否を判断　 EddyK *}>
+								<{if $action.tedc_authority > $smarty.const.TEDC_AUTHORITY_ASSISTANT && 
+									($action.tedc_authority != $smarty.const.TEDC_AUTHORITY_MONITOR && $action.tedc_authority != $smarty.const.TEDC_AUTHORITY_DM)
+								}>
+
+<style type="text/css">
+<!--
+.testee_btn {
+	background: -moz-linear-gradient(top,#0099CC 0%,#006699);
+	background: -webkit-gradient(linear, left top, left bottom, from(#0099CC), to(#006699));
+	border: 1px solid #DDD;
+	color:#FFF !important;
+	width: 100px;
+	padding: 10px 12px;
+	margin: 0;
+}
+-->
+</style>
+<div style="margin-top: 10px;">
+									<a class="syslink testee_btn" href="#" title="<{$lang.mdb_new_content_title|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_content_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+										<img class="icon" alt="" src="<{"edit.gif"|get_themes_image}>"/>
+										<{$lang.mdb_new_content|smarty:nodefaults}>
+									</a>
+</div>
+								<{/if}>
+							<{else}>
+								登録予定数に達しました。<br />
+							<{/if}>
+						<{else}>
+							<{* 　権限による登録可否を判断　（CRC以上、モニター・DMを除く権限のみ登録可） EddyK *}>
+							<{if $action.tedc_authority >= $smarty.const.TEDC_AUTHORITY_CRC && 
+								($action.tedc_authority != $smarty.const.TEDC_AUTHORITY_MONITOR && $action.tedc_authority != $smarty.const.TEDC_AUTHORITY_DM)
+							}>
+								<a class="syslink" href="#" title="<{$lang.mdb_new_content_title|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_content_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+									<img class="icon" alt="" src="<{"edit.gif"|get_themes_image}>"/>
+									<{$lang.mdb_new_content|smarty:nodefaults}>
+								</a>
+							<{/if}>
+						<{/if}>
+					<{* 表示順変更は使用しない EddyK *}>
+					<{* 表示順変更 *}>
+					<{*
+						<{if $smarty.session._auth_id >= $smarty.const._AUTH_CHIEF}>
+							<{if $action.counts_check}>
+								<{if $action.counts_check.ALL.add_ok}>
+									<{$lang._separator|smarty:nodefaults}>
+								<{/if}>
+							<{else}>
+								<{$lang._separator|smarty:nodefaults}>
+							<{/if}>
+							<a class="syslink" href="#" title="" onclick="mdbCls['<{$id}>'].showDataSeqPop(event, '<{$action.testee_id}>'); return false;">
+								<{$lang.mdb_sequence|smarty:nodefaults}>
+							</a>
+						<{/if}>
+					*}>
+						<br>
+					<{* 選択値別件数設定にて予定件数に達しているかのチェック EddyK *}>
+						<{if $action.counts_check && $action.counts_check.ALL.add_ok}>
+							<{assign var="init" value=false}>
+							<{foreach from=$action.counts_check item=counts_check key=key}>
+								<{if !$counts_check.add_ok}>
+									<{if !$init}>
+										<fieldset style="width: 300px; margin-top: 5px;">
+										<{assign var="init" value=true}>
+									<{/if}>
+										<div style="padding: 5px; color: blue;"><{$key|smarty:nodefaults}>は登録予定数に達しています。<br/></div>
+								<{/if}>
+							<{/foreach}>
+							<{if $init}>
+								</fieldset>
+							<{/if}>
+						<{/if}>
+					<{/if}>
+				</td>
+				<{* TEDC権限が管理者のみ、検索機能を表示　 EddyK *}>
+				<{if $action.tedc_authority == $smarty.const.TEDC_AUTHORITY_ADMIN }>
+					<td class="align-right nowrap">
+						<a class="syslink" href="#" title="<{$lang.mdb_search_title|smarty:nodefaults|sprintf:$action.mdb_obj.testee_name}>" onclick="commonCls.sendView('<{$id}>', {'action':'testee_view_main_search_init', 'testee_id':'<{$action.testee_id}>'}, {'loading_el':this}); return false;">
+							<img class="icon" src="<{"search.gif"|get_themes_image}>" alt="<{$lang.mdb_search|smarty:nodefaults}>" title="<{$lang.mdb_search|smarty:nodefaults}>" />
+							<{$lang.mdb_search|smarty:nodefaults}>
+						</a>
+					</td>
+				<{/if}>
+			</tr>
+		</table>
+		<{include file = "testee_view_main_init_control.html" position="top"}>
+		<{if !$action.exists}>
+			<br /><{$lang.mdb_noneexists_data|smarty:nodefaults}>
+		<{else}>
+			<{if $action.mdblist.metadata == ""}>
+				<br /><{$lang.mdb_noneexists_list_metadata|smarty:nodefaults}>
+			<{else}>
+				<{assign var="mode" value="list"}>
+				<{assign var="data_pos_1" value=$action.mdblist.metadata.1}>
+				<{assign var="data_pos_2" value=$action.mdblist.metadata.2}>
+				<{assign var="data_pos_3" value=$action.mdblist.metadata.3}>
+				<{assign var="data_pos_4" value=$action.mdblist.metadata.4}>
+				<{foreach item=item key=key from=$action.mdblist.value}>
+					<{* 詳細部 *}>
+<{* ***********************テスト用に表示***************************<font color="red"><{$item.content}></font> *}>
+					<{include file="testee_common_metadata.html"}>
+					<br />
+				<{/foreach}>
+			<{* 下部のページャー他抽出などのコントロールは不要　EddyK
+				<{include file = "testee_view_main_init_control.html" position="bottom"}>
+			*}>
+			<{/if}>
+		<{/if}>
+	<{/if}>
+</div>
+<{include file="../testee_script.html"}>
+<{/strip}>
