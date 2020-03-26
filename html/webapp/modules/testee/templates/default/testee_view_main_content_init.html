@@ -19,14 +19,14 @@
 				<input class="tempbtn-width" type="button" value="<{$lang._temporary|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].contentSubmit(this.form, 1); return false;" />
 			*}>
 			<{* 警告用バリデータを通すため引数追加　contentSubmit(this.form, 0, 0)　EddyK *}>
-				<input class="lined_btn btn-width" type="button" value="<{$lang._regist|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].contentSubmit(this.form, 0, 0); return false;" />
+				<input class="lined_btn btn-width" type="button" value="<{$lang._regist|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].checkAllocation(this.form, 0, 0); return false;" />
 				<input class="lined_btn btn-width" type="button" value="<{$lang._cancel|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_detail', content_id:<{$action.content_id}>, testee_id:<{$action.testee_id}>}); return false;" />
 			<{else}>
 			<{* 一時保存は不要　 EddyK
 				<input class="tempbtn-width" type="button" value="<{$lang._temporary|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].contentSubmit(this.form, 1); return false;" />
 			*}>
 			<{* 警告用バリデータを通すため引数追加　contentSubmit(this.form, 0, 0)　EddyK *}>
-				<input class="lined_btn btn-width" type="button" value="<{$lang._regist|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].contentSubmit(this.form, 0, 0); return false;" />
+				<input class="lined_btn btn-width" type="button" value="<{$lang._regist|smarty:nodefaults}>" onclick="mdbCls['<{$id}>'].checkAllocation(this.form, 0, 0); return false;" />
 				<input class="lined_btn btn-width" type="button" value="<{$lang._cancel|smarty:nodefaults}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_main_init', testee_id:<{$action.testee_id}>}); return false;" />
 			<{/if}>
 		</div>

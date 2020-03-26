@@ -242,7 +242,7 @@
 	<{*********************** 追加メタタイプを反映 start EddyK ***********************}>
 				<{elseif $metadata.type == TESTEE_META_TYPE_N_NUMERIC }>
 					<{* チェック付数値 *}>
-					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>" /> <{$metadata.view_unit}>
+					<input name="datas[<{$metadata.metadata_id}>]" id="mdb_metadatas_<{$metadata.metadata_id}><{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>" />　<{$metadata.view_unit}>
 				<{elseif $metadata.type == TESTEE_META_TYPE_N_STATURE }>
 					<{* 身長 *}>
 					<input name="datas[<{$metadata.metadata_id}>]" id="stature_<{$id}>" type="text" style="width:100px; ime-mode: disabled;" value="<{$content}>"/>　cm

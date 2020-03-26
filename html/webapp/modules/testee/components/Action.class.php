@@ -28,6 +28,13 @@ class Testee_Components_Action
 	var $_container = null;
 
 	/**
+	 * @var 当モジュールView
+	 *
+	 * @access	private
+	 */
+	var $_mdbView = null;
+
+	/**
 	 * コンストラクター
 	 *
 	 * @access	public
@@ -38,6 +45,7 @@ class Testee_Components_Action
 		$this->_db =& $this->_container->getComponent("DbObject");
 		$commonMain =& $this->_container->getComponent("commonMain");
 		$this->_uploads =& $commonMain->registerClass(WEBAPP_DIR.'/components/uploads/Action.class.php', "Uploads_Action", "uploadsAction");
+		$this->_mdbView = $this->_container->getComponent("mdbView");		// 18.10.05 add by makino@opensource-workshop.jp
 	}
 
 	function fgetcsv_reg (&$handle, $length = null, $d = ',', $e = '"') {
@@ -95,6 +103,60 @@ class Testee_Components_Action
     			}
     		}
 
+		// 割付層テーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_conbination", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付ブロックデータテーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_block", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付シードテーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_seed", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付情報参照ユーザーテーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_viewuser", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付可変ブロックテーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_variable_block", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付因子テーブルの削除
+			$testee_adjustments = $this->_mdbView->getSelectedAllocationItem( $testee_id );
+			if( $testee_adjustments !== false && count( $testee_adjustments ) > 0 )
+			{
+				foreach( $testee_adjustments as $record )
+				{
+					$result = $this->delAllocation( $record[ "metadata_id" ] );
+					if( $result === false ) return false;
+				}
+			}
+		// 割付情報テーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocate", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付群テーブルの削除
+			$result = $this->_db->deleteExecute("testee_allocation_group", $params);
+			if($result === false) {
+				return false;
+			}
+		// 割付シミュレーション結果テーブルの削除
+			$result = $this->deleteAllocationSimResult( $testee_id );
+			if( $result === false ) return false;
+		// 割付シミュレーション設定テーブルの削除
+			$result = $this->deleteAllocationSimsetting( $testee_id );
+			if( $result === false ) return false;
+		// 
+
+
 		// 日付関連チェックの削除	EddyK
     		$result = $this->_db->deleteExecute("testee_date_condition", $params);
 	    	if($result === false) {
@@ -134,7 +196,7 @@ class Testee_Components_Action
 	    			}
     			}
     		}
-
+    	
 		// メタデータの削除
     		$result = $this->_db->deleteExecute("testee_metadata", $params);
 	    	if($result === false) {
@@ -827,6 +889,25 @@ class Testee_Components_Action
 
 
 	/**
+	 * 割付因子情報：シミュレーション時の自動生成時の比率の設定
+	 * @access	public
+	 */
+	public function updateAdjustmentFactorRatio( $metadata_id, $factor_ratio )
+	{
+		$where_params  = array( "metadata_id"  => $metadata_id );
+		$update_params = array( "factor_ratio" => $factor_ratio );
+		
+		$result = $this->_db->updateExecute("testee_adjustment", $update_params, $where_params, true);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+
+
+	/**
 	 * 均等比率の登録
 	 *
      * 
@@ -940,6 +1021,33 @@ class Testee_Components_Action
 	
 
 	/**
+	 * 割付群　置換ブロック法用比率のUPDATE処理
+	 *
+	 * @params	allocation_group_id		割付群ID
+	 * @params	ratio_block				置換ブロック法用比率
+	 * @return	false or array [record rows][testee_allocation_group columns]
+	 * @access	public
+	 */
+	public function updateGroupRatioBlock( $allocation_group_id, $ratio_block )
+	{
+		// update項目設定
+		$update_params = array( "ratio_block" => $ratio_block );
+		
+		// 条件項目設定
+		$where_params = array( "allocation_group_id" => $allocation_group_id );
+		
+		// SQL実施
+		$result = $this->_db->updateExecute('testee_allocation_group', $update_params, $where_params, true );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+
+
+	/**
 	 * @群の設定項目変更
 	 * @access	public
 	 */
@@ -1039,18 +1147,51 @@ class Testee_Components_Action
 	 */
 	function setContentAllocation( $testee_id, $content_id, $datas )
 	{
-		$mdbView = $this->_container->getComponent("mdbView");
 
 		// 割付設定の取得
-		$allocation = $mdbView->getAllocationContent( $testee_id );
+		$allocation = $this->_mdbView->getAllocationContent( $testee_id );
 		//print_r( $allocation );
 
 		// 割付設定を使用するに設定されているかのチェック
-		if ( empty( $allocation ) || ( count( $allocation ) < 1 ) || $allocation["allocation_flag"] != 1 ) {
+		if ( empty( $allocation ) || ( count( $allocation ) < 1 ) ) {
 			return true;
 		}
+		else if( $allocation["allocation_flag"] == 1 )
+		{
+			// 最小化法
+			$result = $this->setContentAllocationMinimization( $allocation, $testee_id, $content_id, $datas );
+			return $result;
+		}
+		else if( $allocation["allocation_flag"] == 2 )
+		{
+			// 置換ブロック法
+			$result = $this->setContentAllocationBlock( $allocation, $testee_id, $content_id, $datas );
+			return $result;
+		}
+		else
+		{
+			// 上記以外
+			return true;
+		}
+		
+	}
 
+	/**
+	 * 割付データ登録：最小化法用
+	 *
+	 * @params	allocation	array[testee_allocate]		割付情報
+	 * @params	testee_id								臨床試験支援DBのID（行ID）
+	 * @params	datas		array[???]					登録データ
+	 * @return	boolean		false:異常終了 / true:正常終了
+	 * @access	public
+	 */
+	private function setContentAllocationMinimization( $allocation, $testee_id, $content_id, $datas )
+	{
 		// 群の設定の取得
+		// $group_content│比率
+		// ───────┼──
+		// A群のgroup_id │60
+		// B群のgroup_id │40
 		$group_content = $this->getGroupContent( $testee_id, $allocation );
 		//print_r( $group_content );
 		//test_log( $group_content );
@@ -1059,7 +1200,14 @@ class Testee_Components_Action
 		if ( empty( $group_content ) || count( $group_content ) == 0 ) {
 			return true;
 		}
-
+		
+		// 割付シード値取得
+		$allocate_seed = $this->_mdbView->getAllocationSeed();
+		
+		// シードをもとに乱数初期化
+		mt_srand( $allocate_seed );
+		
+		
 		// 割付確率
 		$force_probability_flag = false;            // 強制割付する確率
 		$allocation["allocation_probability"];      // 割付確率
@@ -1080,18 +1228,8 @@ class Testee_Components_Action
 			//print_r( $ans );
 
 			// 群テーブルに登録
-			$params = array (
-						"content_id" => $content_id,
-						"testee_id" => $testee_id,
-						"allocation_group_id" => $ans
-					);
-			//print_r($params);
-			$result = $this->_db->insertExecute('testee_content_group',
-												$params,
-												true,
-												'testee_content_group_id');
+			$result = $this->insertContentGroup( $content_id, $testee_id, $ans, $allocate_seed );
 			if ($result === false) {
-				$this->_db->addError();
 				return $result;
 			}
 
@@ -1100,34 +1238,18 @@ class Testee_Components_Action
 
 		// --- 以下は強制割付
 
-		// 割付調整因子毎のデータを取得
-		$alloc_table = $this->getAllocTable( $testee_id, $datas, $group_content );
-		//print_r( $alloc_table );
 
-		// 割付可能なグループの算出
-		$can_group = $this->getAllocCanGroup( $alloc_table, $allocation["group_differences"], $group_content );
-		//print_r( $can_group );
-		//test_log("--- can_group");
-		//test_log( $can_group );
-		//test_log("--- alloc_table");
-		//test_log( $alloc_table );
-		//test_log("--- group_differences");
-		//test_log( $allocation["group_differences"] );
-		//test_log("--- group_content");
-		//test_log( $group_content );
+		// 登録データと同じ設定値を持つデータの各割付群の件数をカウントする
+		$group_alloc_counts = $this->getGroupCountByAdjustment( $testee_id, $datas, $group_content );
+		if( $group_alloc_counts === false || count( $group_alloc_counts ) <= 0 ) return false;
+//		test_log("--- group_alloc_counts");
+//		test_log($group_alloc_counts);
+		
+		// 割付可能な群を特定する
+		$can_group = $this->getAllocCanGroup( $group_alloc_counts, $allocation["group_differences"], $group_content );
+//		test_log("--- can_group");
+//		test_log( $can_group );
 
-		// 条件を満たす群がなかった場合(全て、許容できない群間差になるなど)
-		if ( empty( $can_group ) ) {
-
-			// 群間差が一番大きい割付調整因子を特定
-			$max_differences_metadata_id = $this->getMaxDifferences( $alloc_table );
-			//print_r( $max_differences_metadata_id );
-
-			// 割付可能なグループの算出
-			$max_alloc_table = array( $max_differences_metadata_id => $alloc_table[$max_differences_metadata_id] );
-			$can_group = $this->getAllocCanGroup( $max_alloc_table, $allocation["group_differences"], $group_content );
-			//print_r( $can_group );
-		}
 
 		// 群を決定
 		$allocation_group_id = $this->rndAnswer( $can_group );
@@ -1137,16 +1259,7 @@ class Testee_Components_Action
 		//$this->loopTest( $can_group );
 
 		// 群テーブルに登録
-		$params = array (
-					"content_id" => $content_id,
-					"testee_id" => $testee_id,
-					"allocation_group_id" => $allocation_group_id
-				);
-		//print_r($params);
-		$result = $this->_db->insertExecute('testee_content_group',
-											$params,
-											true,
-											'testee_content_group_id');
+		$result = $this->insertContentGroup( $content_id, $testee_id, $allocation_group_id, $allocate_seed );
 		if ($result === false) {
 			//test_log($this->_db->ErrorMsg());
 			$this->_db->addError();
@@ -1156,19 +1269,333 @@ class Testee_Components_Action
 
 		return true;
 	}
-
+	
+	
+	/**
+	 * 割付データ登録：置換ブロック法
+	 *
+	 * @params	allocation	array[testee_allocate]		割付情報
+	 * @params	testee_id								臨床試験支援DBのID（行ID）
+	 * @params	datas		array[???]					登録データ
+	 * @return	boolean		false:異常終了 / true:正常終了
+	 * @access	public
+	 */
+	private function setContentAllocationBlock( $allocation, $testee_id, $content_id, $datas )
+	{
+//test_log(date('Y/m/d H:i:s') . ":setContentAllocationBlock:start");
+		// +++++ 割り付けるかどうかの事前チェック ++++++++++++++++++++++++++++++++++++++++++++++++++
+		
+		// 割付群が存在しない場合は割付ないので正常終了
+		$group_contents = $this->_mdbView->getGroupContent( $testee_id );
+		if( $group_contents === false || count( $group_contents ) <= 0 ) return true;
+//test_log("割付群");
+//test_log($group_contents);
+		
+		// 割付群が変更になっている場合は割付しないので正常終了
+		if( $this->_mdbView->changeAllocateGroupContents( $group_contents ) === false ) return true;
+		
+		// 割付因子の各内容取得。取得できない場合は割付ないので正常終了
+		$allocate_factors = $this->_mdbView->getSelectedAllocationFactors( $testee_id );
+		if( $allocate_factors === false || count( $allocate_factors ) <= 0 ) return true;
+//test_log("割付因子の各内容");
+//test_log($allocate_factors);
+		
+		// 割付層情報取得。取得できない場合は割付ないので正常終了
+		$allocation_conbinations = $this->_mdbView->getAllocationcConbination( $testee_id );
+		if( $allocation_conbinations === false || count( $allocation_conbinations ) <= 0 ) return true;
+//test_log("割付層情報");
+//test_log($allocation_conbinations);
+		
+		// 取得した割付因子項目を組み替え
+		$factor_list = $this->_mdbView->getAllocationItemList( $allocate_factors );
+//test_log("割付因子項目組み換え後");
+//test_log($factor_list);
+		
+		// 現在の割付因子の項目で、組合せパタン作成
+		$now_pattern = $this->_mdbView->getConbinationPattern( $factor_list );
+//test_log("現在の割付因子での組合せパタン");
+//test_log($now_pattern);
+		
+		// 現在の組み合わせパターンと、既存層のパターンを比較し、一致しなければ割付ないので正常終了
+		if( $this->_mdbView->matchAllocationFactors( $now_pattern, $allocation_conbinations ) === false ) return true;
+		
+		// 比率の合計値取得
+		$total_ratio = $this->_mdbView->getTotalRatio( $group_contents );
+		
+		// 比率合計値と割付層のブロック数の比較
+		if( $this->_mdbView->checkRatioBlockCount( $allocation_conbinations, $total_ratio ) === false ) return true;
+		
+		// 可変ブロック情報取得。取得失敗時には可変なしとして処理続行
+		$variable_block = $this->_mdbView->getAllocateVariableBlock( $testee_id );
+//test_log("可変ブロック情報");
+//test_log($variable_block);
+		
+		// 現在登録数を取得（※この件数には、今割付をしようとしている症例数も含まれている）
+		$content_count = $this->_mdbView->getContentCount( $testee_id );
+//test_log("現在患者情報[" . $content_count . "]");
+		
+		
+		if( $variable_block === false || count( $variable_block ) <= 0 || empty( $variable_block[ "case_count" ] ) === true )
+		{
+			// 可変ブロック情報取得失敗、データがない、基準症例数が空、の場合は、ブロック数を変更しないので何もしない
+//test_log("可変ブロック情報取得失敗、データがない、基準症例数が空、の場合は、ブロック数を変更しないので何もしない");
+		}
+		else
+		{
+			// 上記以外の場合は、ブロック数を変更させる可能性あり
+//test_log("ブロック数を変更させる可能性あり");
+			
+			// 現在登録数÷基準症例数の余り＝0…ブロック数変更
+			$surplus = $content_count % intval( $variable_block[ "case_count" ] );
+			
+			// 余りが0の時
+			if( $surplus == 0 )
+			{
+//test_log("ブロック数をランダムで変更する");
+//test_log("変更前割付層");
+//test_log($allocation_conbinations);
+				
+				// シード値取得して初期値として設定
+				$variable_seed = $this->_mdbView->getAllocationSeed();
+				mt_srand( $variable_seed );
+				
+				// シードを利用したかどうかのフラグ
+				$use_seed = false;
+				
+				
+				// 割付層情報ループ
+				foreach( $allocation_conbinations as &$list )
+				{
+					// 分解
+					$block_count_list = explode( ",", $list[ "next_block_count" ] );
+					
+					if( count( $block_count_list ) <= 1 )
+					{
+						// 単一定義なので何もしない
+					}
+					else
+					{
+						// 複数定義なので、使用するブロック数をランダムで決定する
+						$index = $this->_mdbView->randBlockCountIndex( $list[ "next_block_count" ] );
+						
+						$use_seed = true;		// 18.10.05 add by makino@opensource-workshop.jp
+						
+						// 決定したブロック数で「現在ブロック数」を更新する
+						$list[ "now_block_count" ] = $block_count_list[ $index ];
+						$result = $this->updateAllocationConbinationNowBlockCount( $list[ "conbination_id" ], $list[ "now_block_count" ] );
+					}
+				}
+//test_log("変更後割付層");
+//test_log($allocation_conbinations);
+				
+				// 割付シードを利用した場合は、そのシード値を登録する
+				if( $use_seed === true )
+				{
+					$result = $this->insertAllocationSeed( $testee_id, 0, $variable_seed, 0, $content_count );
+				}
+				
+				
+			}
+		}
+		
+		
+		
+		// +++++ 割付処理実施 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		// 割付因子をもとにコンテンツ登録情報から組合せ情報を取得する
+		$content_factors = array();
+		foreach( $allocate_factors as $metadata )
+		{
+			if( isset( $datas[ $metadata[ 'metadata_id' ] ] ) === true )
+			{
+				$content_factors[] = $datas[ $metadata[ 'metadata_id' ] ];
+			}
+		}
+		$content_factors_string = implode( '|', $content_factors );
+//test_log("患者情報をもとに因子組み合わせ文字列作成[" . $content_factors_string . "]");
+		
+		// 一致する割付層を取得する
+		$allocation_conbination = "";
+		foreach( $allocation_conbinations as $value )
+		{
+			if( $value[ 'factor_contents' ] == $content_factors_string )
+			{
+				$allocation_conbination = $value;
+				break;
+			}
+		}
+		// 一致する層を取得できなかった場合、次回ブロック数が0の場合は割付ないので正常終了
+		if( empty( $allocation_conbination ) === true || $allocation_conbination[ 'next_block_count' ] == 0 ) return true;
+		
+		$conbination_id   = $allocation_conbination[ 'conbination_id' ];
+		$next_block_count = $allocation_conbination[ 'next_block_count' ];
+		$now_block_count  = $allocation_conbination[ 'now_block_count' ];
+		$exclude_count    = $allocation_conbination[ 'exclude_count' ];
+//test_log("割付層ID:" . $conbination_id);
+//test_log("次回ブロック数:" . $next_block_count);
+//test_log("現在ブロック数:" . $now_block_count);
+//test_log("除外連続数:" . $exclude_count);
+		
+		// 層IDをもとに紐づくブロックデータを取得する（※まだ割り付けていないデータ）
+		$blockdata_list = $this->_mdbView->getAllocationBlockUnused( $testee_id, $conbination_id );
+		if( $blockdata_list === false ) return false;
+//test_log("層IDをもとに取得した紐づくブロックデータ（未使用分）");
+//test_log($blockdata_list);
+		
+		// 層IDをもとに紐づくブロックデータの連番最大値を取得する
+		$result = $this->_mdbView->getAllocationBlockMaxSeqNo( $testee_id, $conbination_id );
+		if( $result === false ) return false;
+//test_log("層IDをもとに取得した紐づくブロックデータの最大連番");
+//test_log($result);
+		
+		// 最大連番取得
+		$max_seq_no = ( count( $result ) <= 0 ) ? 0 : $result[0][ 'sequence_no' ];
+//test_log("使用する最大連番:" . $max_seq_no);
+		
+		
+		if( count( $blockdata_list ) <= 0 )
+		{
+//test_log("まだ１件もブロックデータがないので新規作成して割り当て");
+			// ----- 1件もない場合、新しいブロックデータを作成して割り当てる -----------------------
+			
+			// 現在ブロック数が空の場合は、次回ブロック数から取得して設定/更新する
+			// ※可変ブロック処理実装前の試験データの為の処理
+			if( empty( $now_block_count ) === true )
+			{
+//test_log("現在ブロック数が空なのでランダムで現在ブロック数を決める。");
+				$block_count_list = explode( ",", $next_block_count );
+				if( count( $block_count_list ) <= 1 )
+				{
+					$now_block_count = $next_block_count;
+				}
+				else
+				{
+					// シード値取得して初期値として設定
+					$variable_seed = $this->_mdbView->getAllocationSeed();
+					mt_srand( $variable_seed );
+					
+					// 使用するシード値を登録しておく
+					$result = $this->insertAllocationSeed( $testee_id, 0, $variable_seed, 0, $content_count );
+					
+					$index = $this->_mdbView->randBlockCountIndex( $next_block_count );
+					$now_block_count = $block_count_list[ $index ];
+				}
+//test_log("決定した現在ブロック数[" . $now_block_count . "]");
+				
+				// 割付層に現在ブロック数をUPDATEする
+				$result = $this->updateAllocationConbinationNowBlockCount( $conbination_id, $now_block_count );
+			}
+			
+			// 除外連続数をリストから取得しておく
+			$set_exclude_count = 0;
+			if( empty( $exclude_count ) === false )
+			{
+//test_log("除外連続数に値あり");
+				$exclude_count_list = explode( ",", $exclude_count );
+				if( count( $exclude_count_list ) <= 1 )
+				{
+//test_log("単一定義の為、設定された値をそのまま使う");
+					// 単一定義の場合
+					$set_exclude_count = intval( $exclude_count );
+				}
+				else
+				{
+					// 複数定義あり
+					$index = $this->_mdbView->getBlockCountIndex( $next_block_count, $now_block_count );
+					if( $index < 0 )
+					{
+						// 正しく取得できなかった場合は何も設定しない
+					}
+					else
+					{
+						if( empty( $exclude_count_list[ $index ] ) === false )
+						{
+							$set_exclude_count = intval( $exclude_count_list[ $index ] );
+						}
+						else
+						{
+							// 空の場合は何も設定しない
+						}
+					}
+				}
+			}
+//test_log("設定除外連続数[" . $set_exclude_count . "]");
+			
+			
+			// 新しく割付パタン作成
+			$allocate_block_patterns = $this->_mdbView->getAllocateBlockPattern( $group_contents, $now_block_count, $set_exclude_count );
+			if( $allocate_block_patterns === false ) return true;
+//test_log("新しく作成した割付パタン");
+//test_log($allocate_block_patterns);
+			
+			// 割付シードを生成してデータを登録する
+			$seed = $this->_mdbView->getAllocationSeed();
+			$allocation_seed_id = $this->insertAllocationSeed( $testee_id, $conbination_id, $seed, $now_block_count );
+			if( $allocation_seed_id === false ) return true;
+//test_log("シード:" . $seed);
+//test_log("割付シードID" . $allocation_seed_id);
+			
+			// シードをもとに乱数初期化
+			mt_srand( $seed );
+			
+			// 乱数取得
+			$allocate_block_pattern_index = mt_rand( 0, ( count( $allocate_block_patterns ) -1 ) );
+//test_log("乱数設定INDEX:" . $allocate_block_pattern_index);
+			
+			// 使用する割付パタン取得
+			$use_allocate_block_pattern = $allocate_block_patterns[ $allocate_block_pattern_index ];
+//test_log("使用する割付パタン");
+//test_log($use_allocate_block_pattern);
+			
+			// 1件目のブロックデータを登録
+			$result = $this->insertAllocationBlock( $testee_id, $conbination_id, $allocation_seed_id, $max_seq_no +1, $use_allocate_block_pattern[ 0 ], 1 );
+			if( $result === false ) return false;
+//test_log("新しく登録したブロックデータID:" . $result);
+			
+			// 1件目を行群テーブルに登録
+			$result = $this->insertContentGroup( $content_id, $testee_id, $use_allocate_block_pattern[ 0 ] );
+			if( $result === false ) return false;
+//test_log("1件目の行群テーブルID:" . $result);
+			
+			// 2件目以降の未使用ブロックデータを登録
+			for( $i = 2; $i <= $now_block_count; $i++ )
+			{
+				$result = $this->insertAllocationBlock( $testee_id, $conbination_id, $allocation_seed_id, $max_seq_no +$i, $use_allocate_block_pattern[ ($i-1) ], 0 );
+				if( $result === false ) return false;
+//test_log($i . "件目のブロックテーブルID:" . $result);
+			}
+		}
+		else
+		{
+//test_log("１件以上あるので取得したブロックデータを割り付ける");
+			// ----- 1件以上ある場合、取得したデータを割り当てる -----------------------------------
+			
+			// ブロックデータを使用済みに変更する
+			$result = $this->updateAllocationBlockUsed( $blockdata_list[ 0 ][ 'allocation_block_id' ] );
+			if( $result === false ) return false;
+			
+			// 割付行群データに登録する
+			$result = $this->insertContentGroup( $content_id, $testee_id, $blockdata_list[ 0 ][ 'allocation_group_id' ] );
+			if( $result === false ) return false;
+//test_log("登録した行群ID:" . $result);
+		}
+		
+		// 正常終了
+//test_log("setContentAllocationBlock:end");
+		return true;
+	}
+	
+	
 	/**
 	 * 群の設定の取得
 	 * 
 	 * @access	public
+	 * @return	array 組み替えた群情報を返却する（array[ 群ID ] = 比率）
 	 */
 	function getGroupContent( $testee_id, $allocation )
 	{
 
-		$mdbView = $this->_container->getComponent("mdbView");
-
 		// 群の設定(各グループ)の取得
-		$group_content = $mdbView->getGroupContent( $testee_id );
+		$group_content = $this->_mdbView->getGroupContent( $testee_id );
 		//print_r( $group_content );
 
 		// 均等比率の場合は各グループの比率を強制的に均等にする。
@@ -1243,171 +1670,117 @@ class Testee_Components_Action
 		}
 	}
 
+
 	/**
-	 * 割付調整因子毎のデータ取得
+	 * 登録データと同じ調整因子の組み合わせ毎の件数を取得する
 	 * 
 	 * @access	public
+	 * @return	array[ allocation_group_id ] = count
 	 */
-	 // 
-	function getAllocTable( $testee_id, $datas, $group_content )
+	public function getGroupCountByAdjustment( $testee_id, $datas, $group_content )
 	{
+		// 割付因子の各項目取得
+		$allocate_factors = $this->_mdbView->getSelectedAllocationFactors( $testee_id );
+		if( $allocate_factors === false || count( $allocate_factors ) <= 0 )
+		{
+			return false;
+		}
+		
+		// 登録情報から各因子に設定された値を取得する
+		$entry_values = array();
+		foreach( $allocate_factors as $allocate_factor )
+		{
+			$metadata_id = $allocate_factor["metadata_id"];
+			$entry_values[ $metadata_id ] = $datas[ $metadata_id ];
+		}
+		
+		// 取得した登録値を条件として、割付済み群の数を取得する
+		// 【SQL構文】
+		// SELECT tmc1.metadata_id as tmc1_id, 
+		//        tmc2.metadata_id as tmc2_id, 
+		//        ……（因子数分）
+		//        tcg.allocation_group_id, count( tc.content_id ) as count
+		// FROM testee_content tc 
+		// INNER JOIN testee_content_group    tcg  ON tcg.content_id   = tc.content_id 
+		// INNER JOIN testee_metadata_content tmc1 ON tmc1.metadata_id = '因子1のmetadata_id' AND tmc1.content_id = tc.content_id AND tmc1.content = '値1'
+		// INNER JOIN testee_metadata_content tmc2 ON tmc2.metadata_id = '因子2のmetadata_id' AND tmc2.content_id = tc.content_id AND tmc2.content = '値2'
+		// ……（因子数分）
+		// WHERE tc.testee_id = '試験のID'
+		// GROUP BY tmc1.metadata_id, tmc2.metadata_id, ……（因子数分）, tcg.allocation_group_id
 
-		// 割付グループの取得
-		$params = array( "testee_id" => $testee_id );
-		$sql =  "SELECT a.metadata_id, m.name " .
-				"FROM {testee_adjustment} a " .
-				" INNER JOIN {testee_metadata} m ON m.metadata_id = a.metadata_id AND m.testee_id = ? " .
-				"ORDER BY a.desplay_seq";
-
-		$result_metadatas = $this->_db->execute( $sql, $params );
-
-		/*
-			-- 割付調整因子として設定されている項目の取得
-			SELECT a.metadata_id, m.name
-			FROM netcommons2_testee_adjustment a
-			  INNER JOIN netcommons2_testee_metadata m ON m.metadata_id = a.metadata_id AND m.testee_id = 1001
-			ORDER BY a.desplay_seq
-
-			metadata_id	name
-			1017		病期
-			1018		分化度
-
-			-- 割付調整因子毎の登録されている群の取得
-			SELECT alloc_group.allocation_group_id, COUNT(alloc_group.content_id) AS record_count
-			FROM (
-				SELECT mc.content_id, cg.allocation_group_id
-				FROM netcommons2_testee_metadata_content mc
-				  LEFT JOIN netcommons2_testee_content_group cg ON cg.content_id = mc.content_id
-				WHERE mc.metadata_id = 1018 AND content = "高分化"
-			) alloc_group
-			GROUP BY alloc_group.allocation_group_id
-			ORDER BY alloc_group.allocation_group_id
-		*/
-
-		// 割付調整因子として設定されている項目の取得
-		$params = array( "testee_id" => $testee_id );
-		$sql =  "SELECT a.metadata_id, m.name " .
-				"FROM {testee_adjustment} a " .
-				" INNER JOIN {testee_metadata} m ON m.metadata_id = a.metadata_id AND m.testee_id = ? " .
-				"ORDER BY a.desplay_seq";
-
-		$result_adjustment = $this->_db->execute( $sql, $params );
-
-		if ($result_adjustment === false) {
+		// SQLの構築
+		$select_array  = array();
+		$groupby_array = array();
+		$where_array   = array();
+		$where_params  = array();
+		$index = 1;
+		foreach( $entry_values as $metadata_id => $value )
+		{
+			$table_name = "tmc" . $index;
+			$select_array[]  = $table_name . ".metadata_id";
+			$groupby_array[] = $table_name . ".metadata_id";
+			$where_array[]   = "INNER JOIN {testee_metadata_content} " . $table_name . " ON " . $table_name . ".metadata_id = ? AND " . $table_name . ".content_id = tc.content_id AND " . $table_name . ".content = ? ";
+			$where_params[]  = $metadata_id;
+			$where_params[]  = $value;
+			
+			$index++;
+		}
+		
+		// SQL文の作成
+		$sql  = "SELECT " . implode( ",", $select_array ) . ", tcg.allocation_group_id, count( tc.content_id ) as count ";
+		$sql .= "FROM {testee_content} tc ";
+		$sql .= "INNER JOIN {testee_content_group} tcg ON tcg.content_id = tc.content_id ";
+		$sql .= implode( " ", $where_array );
+		$sql .= "WHERE tc.testee_id = ? ";
+		$sql .= "GROUP BY " . implode( ",", $groupby_array ) . ", tcg.allocation_group_id ";
+		
+		
+		// 条件値の追加
+		$where_params[] = $testee_id;
+		
+		// SQLの実施
+		$result = $this->_db->execute( $sql, $where_params );
+		if ($result === false) {
 			$this->_db->addError();
 			return false;
 		}
-
-		// 割付調整因子毎の登録されている群
-		$group_table = array();
-		foreach( $result_metadatas as $result_metadata ) {
-			foreach( $group_content as $group_key => $group_item ) {
-				$group_table[$result_metadata["metadata_id"]][$group_key] = 0;
-			}
+		
+		// 返却値の作成
+		$result_array = array();
+		foreach( $group_content as $key => $ratio )
+		{
+			$result_array[ $key ] = 0;
 		}
-		//print_r($group_table);
-
-		// 割付調整因子毎の登録されている群の取得
-		foreach( $result_adjustment as $result_item ) {
-
-			$params = array( "metadata_id" => $result_item["metadata_id"], $datas[$result_item["metadata_id"]] );
-			$sql =  "SELECT alloc_group.allocation_group_id, COUNT(alloc_group.content_id) AS record_count " .
-					"FROM ( " .
-					  "SELECT mc.content_id, cg.allocation_group_id " .
-					  "FROM {testee_metadata_content} mc " .
-					    "LEFT JOIN {testee_content_group} cg ON cg.content_id = mc.content_id " .
-					  "WHERE mc.metadata_id = ? AND content = ? " .
-					  ") alloc_group " .
-					"GROUP BY alloc_group.allocation_group_id " .
-					"ORDER BY alloc_group.allocation_group_id";
-
-			$result_alloc_group = $this->_db->execute( $sql, $params );
-			if ($result_alloc_group === false) {
-				$this->_db->addError();
-				return false;
-			}
-
-			//print_r($result_alloc_group);
-			foreach ( $result_alloc_group as $result_alloc_item ) {
-				// 通常の運用ではないかもしれないが、割付設定なしでデータ登録 -> 割付設定ありでデータ登録にした場合、空のグループを取得してしまい、
-				// データ登録時にエラーになるため、空のグループは使わないようにする。
-				if ( !empty( $result_alloc_item["allocation_group_id"] ) ) {
-					$group_table[$result_item["metadata_id"]][$result_alloc_item["allocation_group_id"]] = $result_alloc_item["record_count"];
-				}
-			}
-
+		foreach( $result as $record )
+		{
+			$result_array[ $record[ "allocation_group_id" ] ] = $record[ "count" ];
 		}
-		//print_r($group_table);
-
-		return $group_table;
+		
+		return $result_array;
 	}
 
-	/**
-	 * 連想配列中の最大値を返す
-	 * 
-	 * @access	public
-	 */
-	function getMax( $param_array ) {
-
-		$return_max = 0;
-		foreach ( $param_array as $param_item ) {
-			if ( $return_max < $param_item ) {
-				$return_max = $param_item;
-			}
-		}
-		return $return_max;
-	}
-
-
-	/**
-	 * 連想配列中の最小値を返す
-	 * 
-	 * @access	public
-	 */
-	function getMin( $param_array ) {
-
-		// 初期値は最大値で、それより小さいものを探す。
-		$return_min = $this->getMax( $param_array );
-		foreach ( $param_array as $param_item ) {
-			if ( $return_min > $param_item ) {
-				$return_min = $param_item;
-			}
-		}
-		return $return_min;
-	}
 
 	/**
 	 * 割付可能な群を返す
 	 * 
 	 * @access	public
 	 */
-	function getAllocCanGroup( $alloc_table, $group_differences, $group_content ) {
-		//test_log("--- getAllocCanGroup");
-		// 返す配列を作っておく。(最初はすべての割付けグループID を入れておく)
-		// 割付可能な群をmetadata_id でループし、割付けグループID があるか確認。なければ、返す配列から削除。
-		// これで、割付可能な群のみ残る
-
+	public function getAllocCanGroup( $group_alloc_counts, $group_differences, $group_content )
+	{
+		// 全群から、許容される群間差を超えた群を削っていき、残った群を割付可として返却する
 		$return_groups = $group_content;
 
-		foreach( $return_groups as $allocation_group_id => $ratio ) {
+		foreach( $return_groups as $allocation_group_id => $ratio )
+		{
+			// 最小値＋許容される群間差＝上限値
+			$max_count = $this->_mdbView->getMin( $group_alloc_counts ) + $group_differences;
 
-			foreach ( $alloc_table as $metadata_id => $alloc_table_record ) {
-
-				$max_count = $this->getMin( $alloc_table_record ) + $group_differences;
-
-				foreach ( $alloc_table_record as $alloc_key => $alloc_item ) {
-
-					// ここで +1 すると、許容する群間差が 1 で実際の差が 1 場合、全てが登録できるグループがなくなる
-					//if ( $alloc_key == $allocation_group_id && ( $alloc_item + 1 ) >= $max_count ) {
-					if ( $alloc_key == $allocation_group_id && ( $alloc_item ) >= $max_count ) {
-						//test_log("// allocation_group_id");
-						//test_log($allocation_group_id);
-						//test_log("// alloc_item");
-						//test_log($alloc_item);
-						//test_log("// max_count");
-						//test_log($max_count);
-						unset( $return_groups[$allocation_group_id] );
-					}
+			foreach ( $group_alloc_counts as $key => $count )
+			{
+				// 上限値以上の場合は、割付不可としてその群を削る
+				if ( $key == $allocation_group_id && $count >= $max_count )
+				{
+					unset( $return_groups[ $allocation_group_id ] );
 				}
 			}
 		}
@@ -1420,26 +1793,6 @@ class Testee_Components_Action
 		return $return_groups;
 	}
 
-	/**
-	 * 群間差が一番大きい割付調整因子を特定
-	 * 
-	 * @access	public
-	 */
-	function getMaxDifferences( $alloc_table ) {
-
-		$max_differences_metadata_id = null;
-		$max_differences = 0;
-
-		foreach ( $alloc_table as $metadata_id => $alloc_table_record ) {
-
-			if ( $max_differences < $this->getMax( $alloc_table_record ) - $this->getMin( $alloc_table_record ) ) {
-
-				$max_differences_metadata_id = $metadata_id;
-				$max_differences = $this->getMax( $alloc_table_record ) - $this->getMin( $alloc_table_record );
-			}
-		}
-		return $max_differences_metadata_id;
-	}
 
 	/**
 	 * metadata_id 毎のメール配信ユーザの登録
@@ -1502,5 +1855,487 @@ class Testee_Components_Action
 			return false;
 		}
 	}
+
+
+	/**
+	 * 割付行群テーブルへの登録
+	 * 
+	 * @params	content_id				患者ID（行ID）
+	 * @params	testee_id				臨床試験支援DBのID
+	 * @params	allocation_group_id		割付群ID
+	 * @params	allocate_seed			割付シード値
+	 * @return	false or testee_content_group_id
+	 * @access	public
+	 */
+	public function insertContentGroup( $content_id, $testee_id, $allocation_group_id, $allocate_seed = 0 )
+	{
+		// 登録値設定
+		$insert_params = array( "content_id"          => $content_id,
+								"testee_id"           => $testee_id,
+								"allocation_group_id" => $allocation_group_id,
+								"allocate_seed"       => $allocate_seed );
+		
+		// 登録
+		$result = $this->_db->insertExecute('testee_content_group', $insert_params, true, 'testee_content_group_id');
+		if ($result === false)
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付層テーブルへの登録
+	 * 
+	 * @params	testee_id				臨床試験支援DBのID
+	 * @params	factor_contents			割付因子組み合わせ（例：男|すい癌）
+	 * @params	next_block_count		次回ブロック数
+	 * @oarams	now_block_count			現在ブロック数
+	 * @return	false or conbination_id
+	 * @access	public
+	 */
+	public function insertAllocationConbination( $testee_id, $factor_contents, $next_block_count, $now_block_count )
+	{
+		// 登録値設定
+		$insert_params = array( "testee_id"        => $testee_id,
+								"factor_contents"  => $factor_contents,
+								"next_block_count" => $next_block_count,
+								"now_block_count"  => $now_block_count );
+		
+		// SQL実施
+		$result = $this->_db->insertExecute( 'testee_allocation_conbination', $insert_params, true, 'conbination_id' );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付層テーブルのデータ削除処理（※削除する時は、臨床試験支援DBのIDの条件で削除なので、複数行削除）
+	 * 
+	 * @params	testee_id				臨床試験支援DBのID
+	 * @return	false or deleteCount
+	 * @access	public
+	 */
+	public function deleteAllocationConbination( $testee_id )
+	{
+		// 条件項目作成
+		$where_params = array( "testee_id" => $testee_id );
+		
+		// SQL実施
+		$result = $this->_db->deleteExecute( 'testee_allocation_conbination', $where_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付層テーブルのデータ更新処理
+	 * 
+	 * @params	conbination_id			当TBLシーケンス値
+	 * @params	next_block_count		次回ブロック数
+	 * @params	exclude_count			除外連続数
+	 * @params	now_block_count			現在ブロック数
+	 * @return	false or updateCount
+	 * @access	public
+	 */
+	public function updateAllocationConbination( $conbination_id, $next_block_count, $exclude_count, $now_block_count )
+	{
+		// update項目作成
+		$update_params = array( "next_block_count" => $next_block_count,
+								"exclude_count"    => $exclude_count,
+								"now_block_count"  => $now_block_count );
+		
+		// 条件項目作成
+		$where_params = array( "conbination_id" => $conbination_id );
+		
+		$result = $this->_db->updateExecute( 'testee_allocation_conbination', $update_params, $where_params, true );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付層テーブルのデータ更新処理（現在ブロック数のみ）
+	 * 
+	 * @params	conbination_id		当TBLシーケンス値
+	 * @params	now_block_count		次回ブロック数
+	 * @return	false or updateCount
+	 * @access	public
+	 */
+	public function updateAllocationConbinationNowBlockCount( $conbination_id, $now_block_count )
+	{
+		// 条件値/更新値設定
+		$where_params  = array( "conbination_id"  => $conbination_id );
+		$update_params = array( "now_block_count" => $now_block_count );
+		
+		$result = $this->_db->updateExecute( 'testee_allocation_conbination', $update_params, $where_params, true );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シードデータ登録
+	 * 
+	 * @params	testee_id			臨床試験支援DBのID
+	 * @params	conbination_id		割付層ID
+	 * @params	seed				シード値
+	 * @params	block_count			ブロック数
+	 * @params	content_count		可変ブロック時症例数
+	 * @return	false or allocation_seed_id
+	 * @access	public
+	 */
+	public function insertAllocationSeed( $testee_id, $conbination_id, $seed, $block_count, $content_count = 0 )
+	{
+		// 登録値設定
+		$insert_params = array( "testee_id"      => $testee_id,
+								"conbination_id" => $conbination_id,
+								"seed"           => $seed,
+								"block_count"    => $block_count,
+								"content_count"  => $content_count );
+		
+		// SQL実施
+		$result = $this->_db->insertExecute( 'testee_allocation_seed', $insert_params, true, 'allocation_seed_id' );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付ブロックデータ登録
+	 * 
+	 * @params	testee_id			臨床試験支援DBのID
+	 * @params	conbination_id		割付層ID
+	 * @params	allocation_seed_id	割付シードID
+	 * @params	sequence_no			連番
+	 * @params	allocation_group_id	割付群ID
+	 * @params	allocation_flag		割付済みフラグ
+	 * @return	false or allocation_block_id
+	 * @access	public
+	 */
+	public function insertAllocationBlock( $testee_id, $conbination_id, $allocation_seed_id, $sequence_no, $allocation_group_id, $allocation_flag )
+	{
+		// 登録値設定
+		$insert_params = array( "testee_id"           => $testee_id,
+								"conbination_id"      => $conbination_id,
+								"allocation_seed_id"  => $allocation_seed_id,
+								"sequence_no"         => $sequence_no,
+								"allocation_group_id" => $allocation_group_id,
+								"allocation_flag"     => $allocation_flag );
+		
+		// SQL実施
+		$result = $this->_db->insertExecute( 'testee_allocation_block', $insert_params, true, 'allocation_block_id' );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付ブロックデータを使用済みに変更する処理
+	 * 
+	 * @params	allocation_block_id			割付ブロックID
+	 * @return	false or updateCount
+	 * @access	public
+	 */
+	public function updateAllocationBlockUsed( $allocation_block_id )
+	{
+		// 更新値設定
+		$update_params = array( "allocation_flag" => 1 );
+		
+		// 条件値設定
+		$where_params = array( "allocation_block_id" => $allocation_block_id );
+		
+		// SQL実施
+		$result = $this->_db->updateExecute( 'testee_allocation_block', $update_params, $where_params, true );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付参照権限削除処理
+	 * 
+	 * @params	viewuser_id			割付参照権限シーケンスID
+	 * @return	false or deleteCount
+	 * @access	public
+	 */
+	public function deleteAllocationViewUser( $viewuser_id )
+	{
+		$where_params = array( "viewuser_id" => $viewuser_id );
+		
+		$result = $this->_db->deleteExecute("testee_allocation_viewuser", $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 割付参照権限登録処理
+	 * 
+	 * @params	testee_id			臨床試験支援システムDBのID
+	 * @params	user_id				ユーザーID
+	 * @return	false or viewuser_id
+	 * @access	public
+	 */
+	public function insertAllocationViewUser( $testee_id, $user_id )
+	{
+		$insert_params = array( "testee_id" => $testee_id,
+								"user_id"   => $user_id );
+		
+		$result = $this->_db->insertExecute("testee_allocation_viewuser", $insert_params, true, "viewuser_id");
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付情報割付可変ブロックテーブル登録処理
+	 * 
+	 * @params	testee_id			臨床試験支援システムDBのID
+	 * @params	case_count			基準症例数
+	 * @return	false or allocation_variable_block_id
+	 * @access	public
+	 */
+	public function insertAllocationVariableBlock( $testee_id, $case_count )
+	{
+		$insert_params = array( "testee_id"  => $testee_id,
+								"case_count" => $case_count );
+		
+		$result = $this->_db->insertExecute("testee_allocation_variable_block", $insert_params, true, "allocation_variable_block_id");
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 割付情報割付可変ブロックテーブル削除処理
+	 * 
+	 * @params	allocation_variable_block_id	テーブルSEQID
+	 * @return	false or 削除件数
+	 * @access	public
+	 */
+	public function deleteAllocationVariableBlock( $allocation_variable_block_id )
+	{
+		$where_params = array( "allocation_variable_block_id" => $allocation_variable_block_id );
+		
+		$result = $this->_db->deleteExecute("testee_allocation_variable_block", $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 割付情報割付可変ブロックテーブル更新処理
+	 * 
+	 * @params	allocation_variable_block_id	テーブルSEQID
+	 * @params	case_count						基準症例数
+	 * @return	false or 更新件数
+	 * @access	public
+	 */
+	public function updateAllocationVariableBlock( $allocation_variable_block_id, $case_count )
+	{
+		$where_params = array( "allocation_variable_block_id"  => $allocation_variable_block_id );
+		
+		$update_params = array( "case_count" => $case_count );
+		
+		$result = $this->_db->updateExecute("testee_allocation_variable_block", $update_params, $where_params, true);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定登録
+	 * 
+	 * @params	testee_id		臨床試験支援ID
+	 * @params	input_type		入力症例種類
+	 * @params	case_cont		症例数
+	 * @params	upload_id		uploadID
+	 * @params	repeat_count	繰返し数
+	 * @params	allocate_seed	割付用シード値
+	 * @params	case_seed		症例用シード値
+	 * @return	false or simsetting_id
+	 * @access	public
+	 */
+	public function insertAllocationSimsetting( $testee_id, $input_type, $case_count, $upload_id, $repeat_count, $allocate_seed, $case_seed )
+	{
+		$insert_params = array( "testee_id"     => $testee_id,
+								"input_type"    => $input_type,
+								"case_count"    => $case_count,
+								"upload_id"     => $upload_id,
+								"repeat_count"  => $repeat_count,
+								"allocate_seed" => $allocate_seed,
+								"case_seed"     => $case_seed );
+		
+		$result = $this->_db->insertExecute('testee_allocation_simsetting', $insert_params, true, 'simsetting_id');
+		if($result === false)
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定削除
+	 * 
+	 * @params	testee_id		臨床試験支援ID
+	 * @return	false or 削除件数
+	 * @access	public
+	 */
+	public function deleteAllocationSimsetting( $testee_id )
+	{
+		$where_params = array( "testee_id"  => $testee_id );
+		
+		$result = $this->_db->deleteExecute("testee_allocation_simsetting", $where_params);
+		if($result === false)
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定：upload_id更新
+	 * 
+	 * @params	testee_id		臨床試験支援ID
+	 * @return	false or 削除件数
+	 * @access	public
+	 */
+	public function updateAllocationSimsettingUploadID( $testee_id, $upload_id )
+	{
+		$where_params = array( "testee_id"  => $testee_id );
+		
+		$update_params = array( "upload_id" => $upload_id );
+		
+		$result = $this->_db->updateExecute("testee_allocation_simsetting", $update_params, $where_params, true);
+    	if($result === false)
+    	{
+			$this->_db->addError();
+    	}
+    	
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定：output_csv更新
+	 * 
+	 * @params	testee_id		臨床試験支援ID
+	 * @return	false or 削除件数
+	 * @access	public
+	 */
+	public function updateAllocationSimsettingOutputCSV( $testee_id, $output_csv )
+	{
+		$where_params = array( "testee_id"  => $testee_id );
+		
+		$update_params = array( "output_csv" => $output_csv );
+		
+		$result = $this->_db->updateExecute("testee_allocation_simsetting", $update_params, $where_params, true);
+    	if($result === false)
+    	{
+			$this->_db->addError();
+    	}
+    	
+		return $result;
+	}
+	
+	
+	public function updateAllocationSimsettingResultFlag( $testee_id, $result_flag )
+	{
+		$where_params = array( "testee_id"  => $testee_id );
+		
+		$update_params = array( "result_flag" => $result_flag );
+		
+		$result = $this->_db->updateExecute("testee_allocation_simsetting", $update_params, $where_params, true);
+    	if($result === false)
+    	{
+			$this->_db->addError();
+    	}
+    	
+		return $result;
+	}
+	
+	
+	public function insertAllocationSimResult( $testee_id, $factor_key, $counts )
+	{
+		$insert_params = array( "testee_id"  => $testee_id,
+								"factor_key" => $factor_key,
+								"counts"     => $counts );
+	
+		$result = $this->_db->insertExecute('testee_allocation_simresult', $insert_params, true, 'simresult_id');
+		if($result === false)
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	public function deleteAllocationSimResult( $testee_id )
+	{
+		$where_params = array( "testee_id" => $testee_id );
+		
+		$result = $this->_db->deleteExecute("testee_allocation_simresult", $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
 }
 ?>

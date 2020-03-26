@@ -22,6 +22,7 @@ class Testee_Action_Edit_Tedcauthority extends Action
     var $testee_id = null;
     var $user_id = null;
     var $tedc_authority = null;
+    var $view_auth = null;
 
     // 使用コンポーネントを受け取るため
     var $mdbView = null;
@@ -63,6 +64,29 @@ class Testee_Action_Edit_Tedcauthority extends Action
 		if($result === false){
 			return 'error';
 		}
+		
+		// 割付参照権限情報変更
+		$now_info = $this->mdbView->getAllocationViewUser( $this->testee_id, $this->user_id );
+		if( $now_info === false ) return 'error';
+		if( empty( $this->view_auth ) === true )
+		{
+			// 空の場合は削除（※データがあれば）
+			if( count( $now_info ) > 0 && empty( $now_info[ 0 ]["viewuser_id"] ) === false )
+			{
+				$result = $this->mdbAction->deleteAllocationViewUser( $now_info[ 0 ]["viewuser_id"] );
+				if( $result === false ) return 'error';
+			}
+		}
+		else
+		{
+			// 値がある場合は登録（※データがなければ）
+			if( count( $now_info ) <= 0 )
+			{
+				$result = $this->mdbAction->insertAllocationViewUser( $this->testee_id, $this->user_id );
+				if( $result === false ) return 'error';
+			}
+		}
+		
         return 'success';
     }
 }

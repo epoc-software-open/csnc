@@ -2529,7 +2529,7 @@ class Testee_Components_View
 		$sql .= "LEFT JOIN {users_items_link} UIL ON U.user_id = UIL.user_id AND UIL.item_id = ? ";
 
 		// 施設情報の独立管理対応
-		$sql .= "LEFT JOIN {hospitalinfo} hospital ON CONCAT( hospital.hospital_name, '|' ) = UIL.content ";
+		$sql .= "INNER JOIN {hospitalinfo} hospital ON CONCAT( hospital.hospital_name, '|' ) = UIL.content ";
 
 		$params["hospiotal_item_id"] = intval($hospiotal_item_id);
 
@@ -2539,7 +2539,7 @@ class Testee_Components_View
 		} else {
 			 $sql .= "WHERE PUL.role_authority_id is NULL OR PUL.role_authority_id <> 0 ";
 		}
-		$sql .= "GROUP BY hospital ORDER BY hospital ";
+		$sql .= "GROUP BY hospital ORDER BY hospital_code ";
 
 		$result = $this->_db->execute($sql, $params);
 		if ($result === false) {
@@ -2555,7 +2555,7 @@ class Testee_Components_View
 
 		$sql = "SELECT allocation_flag, equal_ratio_flag, force_allocation_flag, group_differences, allocation_probability, allocation_result_flag ".
 				"FROM {testee_allocate} ".
-				"WHERE testee_id=? AND allocation_flag=1";
+				"WHERE testee_id=? AND allocation_flag in( 1, 2 )";
 		
 		$allocations = $this->_db->execute($sql, $params );
 		if ($allocations === false) {
@@ -2573,15 +2573,14 @@ class Testee_Components_View
 	{
 		$params = array($testee_id);
 
-		//type=4:選択式(択一) , type=30:選択式(ラジオボタン) , type=20:施設名
-		$sql = "SELECT tm.metadata_id, tm.name 
-				FROM {testee_metadata} tm
-				LEFT JOIN {testee_adjustment} ta 
-				ON tm.metadata_id = ta.metadata_id 
-				WHERE tm.testee_id=? 
-				AND ta.metadata_id IS NULL 
-				AND tm.type IN(4, 30, 20) 
-				ORDER BY tm.display_sequence ";
+		//type=4:選択式(択一) , type=30:選択式(ラジオボタン) , type=20:施設名 type=22:性別
+		$sql = "SELECT tm.metadata_id, tm.name "
+			.  "FROM {testee_metadata} tm "
+			.  "LEFT JOIN {testee_adjustment} ta ON tm.metadata_id = ta.metadata_id "
+			.  "WHERE tm.testee_id=? "
+			.    "AND ta.metadata_id IS NULL "
+			.    "AND tm.type IN(4, 30, 20, 22) "
+			.  "ORDER BY tm.display_sequence ";
 		
 		$metadatas = $this->_db->execute($sql, $params );
 		if ($metadatas === false) {
@@ -2617,14 +2616,21 @@ class Testee_Components_View
 	}
 	
 	
+	/**
+	 * 指定された試験の割付群の情報を取得する
+	 *
+	 * @param	testee_id	臨床試験支援DBのID
+     * @return array		割付群情報
+	 * @access	public
+	 */
 	function getGroupContent($testee_id)
 	{
 		$params = array($testee_id);
 
-		$sql = "SELECT tag.allocation_group_id, tag.group_name, tag.intervention ,tag.ratio 
-				FROM {testee_allocation_group} tag 
-				WHERE tag.testee_id =? 
-				ORDER BY tag.allocation_group_id ";
+		$sql = "SELECT tag.allocation_group_id, tag.group_name, tag.intervention ,tag.ratio, tag.ratio_block "
+			.  "FROM {testee_allocation_group} tag "
+			.  "WHERE tag.testee_id =? "
+			.  "ORDER BY tag.allocation_group_id ";
 				
 		$group_content = $this->_db->execute($sql, $params );
 		if ($group_content === false) {
@@ -2689,7 +2695,7 @@ class Testee_Components_View
 
 		return $users[0];
 	}
-
+	
 	// ルーム内ユーザの選択
 	function getRoomMailUser( $room_id, $metadata_id )
 	{
@@ -2949,8 +2955,16 @@ class Testee_Components_View
 
 		return $tedc_auth_param;
 	}
-
-	// コンテンツデータの取得
+	
+	
+	
+	/**
+	 * コンテンツデータの取得
+	 *
+	 * @param	content_id				患者ID（行ID）
+     * @return	array[testee_content]	行情報
+	 * @access	public
+	 */
 	function getContent( $content_id )
 	{
 
@@ -2974,10 +2988,17 @@ class Testee_Components_View
 		return $content[0];
 	}
 
-	// コンテンツデータの施設の取得
+
+	/**
+	 * コンテンツデータの施設の取得
+	 *
+	 * @param	testee_id				臨床試験支援DBのID
+	 * @param	content_id				患者ID（行ID）
+     * @return							施設名
+	 * @access	public
+	 */
 	function getContentHospital( $testee_id, $content_id )
 	{
-
 		/*
 			SELECT *
 			FROM epoc_testee_metadata_content
@@ -2987,7 +3008,6 @@ class Testee_Components_View
 				WHERE testee_id = 1 AND type = 20
 			)
 		*/
-
 
 		$params = array( $content_id, $testee_id, TESTEE_META_TYPE_N_HOSPITAL );
 
@@ -3012,6 +3032,868 @@ class Testee_Components_View
 
 		return $content_hospital[0]["content"];
 	}
+	
+	
+	/**
+	 * 選択済み割付因子の各項目リスト取得
+	 *
+	 * @param	testee_id						臨床試験支援DBのID
+     * @return	array[row index][割付因子情報]	割付因子情報
+	 * @access	public
+	 */
+	public function getSelectedAllocationFactors( $testee_id )
+	{
+		// 条件値設定
+		$where_params = array( "testee_id" => $testee_id );
+		
+		// SQL文作成
+		$sql = "SELECT ta. metadata_id, tm.name, tm.select_content, ta.factor_ratio "
+			.  "FROM {testee_adjustment} ta "
+			.  "INNER JOIN {testee_metadata} tm ON tm.metadata_id = ta.metadata_id "
+			.  "WHERE tm.testee_id = ? AND tm.select_content != '' "
+			.  "ORDER BY ta.metadata_id ";
+		
+		$result = $this->_db->execute( $sql, $where_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付層を取得する
+	 *
+	 * @param   int   $testee_id  臨床試験支援DBID
+	 * @return  array[row index][testee_allocation_conbination]		割付層情報
+	 * @access	public
+	 */
+	public function getAllocationcConbination( $testee_id )
+	{
+		// 条件値設定
+		$where_params = array( "testee_id" => $testee_id );
+		
+		// ソート条件設定
+		$order_params = array( "conbination_id" => "ASC" );
+		
+		// SQL実施
+		$result = $this->_db->selectExecute( "testee_allocation_conbination", $where_params, $order_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 未使用の割付ブロックデータを取得する
+	 *
+	 * @param   int   $testee_id       臨床試験支援DBのID
+	 * @param	int   $conbination_id  割付層ID
+	 * @return  array[row index][testee_allocation_block]	未使用の割付ブロックデータ
+	 * @access	public
+	 */
+	public function getAllocationBlockUnused( $testee_id, $conbination_id )
+	{
+		// 条件値設定
+		$where_params = array( "testee_id"       => $testee_id,
+							   "conbination_id"  => $conbination_id,
+							   "allocation_flag" => 0 );
+		
+		// ソート条件設定
+		$order_params = array( "sequence_no" => "ASC" );
+		
+		// SQL実施
+		$result = $this->_db->selectExecute( "testee_allocation_block", $where_params, $order_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 当該割付層の最大シーケンス番号を取得する
+	 *
+	 * @param   int   $testee_id       臨床試験支援DBのID
+	 * @param	int   $conbination_id  割付層ID
+	 * @return  array[0][sequence_no]	当該割付層のMAX連番
+	 * @access	public
+	 */
+	public function getAllocationBlockMaxSeqNo( $testee_id, $conbination_id )
+	{
+		// 条件値設定
+		$where_params = array( "testee_id"       => $testee_id,
+							   "conbination_id"  => $conbination_id );
+		
+		// SQL作成
+		$sql = "SELECT MAX( tab.sequence_no ) as sequence_no "
+			.  "FROM {testee_allocation_block} tab "
+			.  "WHERE tab.testee_id = ? AND "
+			.        "tab.conbination_id = ? "
+			.  "GROUP BY tab.testee_id, tab.conbination_id ";
+		
+		// SQL実施
+		$result = $this->_db->execute($sql, $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 対象患者の割付情報を取得する
+	 *
+	 * @param   int   $testee_id   臨床試験支援DBのID
+	 * @param	int   $content_id  行ID
+	 * @return  array[割付情報]    割付群情報
+	 * @access	public
+	 */
+	public function getContentAllocation( $testee_id, $content_id )
+	{
+		// 条件値設定
+		$where_params = array( "testee_id"  => $testee_id,
+							   "content_id" => $content_id );
+		
+		// SQL
+		$sql = "SELECT tag.group_name, tag.intervention "
+			.  "FROM {testee_content_group} tcg "
+			.  "LEFT JOIN {testee_allocation_group} tag ON tag.testee_id = tcg.testee_id AND tag.allocation_group_id = tcg.allocation_group_id "
+			.  "WHERE tcg.testee_id = ? "
+			.    "AND tcg.content_id = ? ";
+		
+		// 実施
+		$result = $this->_db->execute($sql, $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return $result;
+		}
+		
+		return $result[0];
+	}
+	
+	
+	/**
+	 * 置換ブロック法：可変ブロック情報取得
+	 *
+	 * @param   int   $testee_id   臨床試験支援DBのID
+	 * @return  array[可変情報]    可変情報
+	 * @access	public
+	 */
+	public function getAllocateVariableBlock( $testee_id )
+	{
+		// 条件値設定
+		$where_params = array("testee_id" => $testee_id);
+		
+		// 実施
+		$result = $this->_db->selectExecute("testee_allocation_variable_block", $where_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return $result;
+		}
+		
+		return $result[0];
+	}
+	
+	/**
+	 * 患者登録数取得
+	 *
+	 * @param   int   $testee_id   臨床試験支援DBのID
+	 * @return  false or int(患者登録数)
+	 * @access	public
+	 */
+	public function getContentCount( $testee_id )
+	{
+		$where_params = array( "testee_id" => $testee_id );
+		
+		$sql  = "SELECT COUNT( tc.content_id ) as count ";
+		$sql .= "FROM {testee_content} tc ";
+		$sql .= "WHERE tc.testee_id = ? ";
+		
+		// 実施
+		$result = $this->_db->execute($sql, $where_params);
+		if( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return 0;
+		}
+		
+		return intval( $result[0]["count"] );
+	}
+	
+	
+	/**
+	 * 割付因子 選択項目リスト取得処理（選択済み割付因子リストを組み替える）
+	 *
+	 * @param   array   $allocation_factors   割付因子情報
+	 * @return  array[metadata_id][割付因子]  選択済み割付因子情報
+	 * @access	public
+	 */
+	public function getAllocationItemList( $allocation_factors )
+	{
+		// 組み換え
+		$result_list = array();
+		foreach( $allocation_factors as $value )
+		{
+			$metadata_id = $value[ 'metadata_id' ];
+			
+			$result_list[ $metadata_id ][ 'item_name' ]      = $value[ 'name' ];
+			$result_list[ $metadata_id ][ 'select_content' ] = explode( '|', $value['select_content'] );
+			$result_list[ $metadata_id ][ 'factor_ratio' ]   = explode( '|', $value['factor_ratio'] );
+		}
+		
+		// ソート
+		ksort( $result_list );
+		
+		return $result_list;
+	}
+	
+	/**
+	 * 割付因子パターン取得処理
+	 *
+	 * @param   array  $allocation_item_list  割付因子項目リスト
+	 * @return  array  割付因子パターンリスト
+	 * @access	public
+	 */
+	public function getConbinationPattern( $allocation_item_list )
+	{
+		$result_list = array();
+		
+		$key_list = array_keys( $allocation_item_list );
+		
+		$this->setConbinationPattern( 0, $key_list, $allocation_item_list, array(), $result_list );
+		
+		return $result_list;
+	}
+	/**
+	 * 割付因子パターン取得処理（再帰呼び用）
+	 *
+	 * @param   int    $index                 割付因子リスト上の対象index
+	 * @param   array  $key_list              キーリスト
+	 * @param   array  $allocation_item_list  割付因子項目リスト
+	 * @param   array  $pattern_list          呼び元まで設定されているパターンリスト
+	 * @param   array  &$result_list          出力先：作成した割付因子パタンリスト
+	 * @access	private
+	 */
+	private function setConbinationPattern( $index, $key_list, $allocation_item_list, $pattern_list, &$result_list )
+	{
+		$key = $key_list[ $index ];
+		
+		$target_record = $allocation_item_list[ $key ][ 'select_content' ];
+		foreach( $target_record as $value )
+		{
+			$pattern_list[ $index ] = $value;
+			
+			if( $index +1 < count( $allocation_item_list ) )
+			{
+				// まだ因子リストが終わらない場合
+				$this->setConbinationPattern( $index +1, $key_list, $allocation_item_list, $pattern_list, $result_list );
+			}
+			else
+			{
+				// 後続の因子がない場合
+				$result_list[] = $pattern_list;
+			}
+		}
+	}
+	
+	/**
+	 * 渡された因子パターンが一致しているかどうかチェック
+	 *
+	 * @param   array  $new_pattern_list         新しく作成した割付因子パターンのリスト
+	 * @param   array  $allocation_conbinations  既存の割付因子パターンのリスト
+	 * @return  boolean true:一致 / false:不一致
+	 * @access	public
+	 */
+	public function matchAllocationFactors( $new_pattern_list, $allocation_conbinations )
+	{
+		if( count( $new_pattern_list ) != count( $allocation_conbinations ) ) return false;
+		
+		for( $i = 0; $i < count( $new_pattern_list ); $i++ )
+		{
+			$now_data = implode( '|', $new_pattern_list[ $i ] );
+			
+			if( $now_data != $allocation_conbinations[ $i ][ 'factor_contents' ] ) return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * 置換ブロック法用：割付群が変更されているかどうかチェックする処理
+	 *
+	 * @param   array  $group_contents   割付群情報
+	 * @return  boolean true:変更なし / false:変更あり
+	 * @access	public
+	 */
+	public function changeAllocateGroupContents( $group_contents )
+	{
+		$check_flag = true;
+		foreach( $group_contents as $value )
+		{
+			// "0"がある場合は非表示
+			if( $value['ratio_block'] == 0 )
+			{
+				$check_flag = false;
+				break;
+			}
+		}
+		
+		return $check_flag;
+	}
+	
+	/**
+	 * 割付ブロックパターン取得処理
+	 *
+	 * @param   array  $group_contents   割付群情報
+	 * @param   int    $now_block_count  現在ブロック数
+	 * @return  array  割付ブロックパターンのリスト
+	 * @access	public
+	 */
+	public function getAllocateBlockPattern( $group_contents, $now_block_count, $exclude_count )
+	{
+		// 比率の合計値取得
+		$total_ratio = 0;
+		foreach( $group_contents as $value )
+		{
+			$total_ratio += $value[ 'ratio_block' ];
+		}
+		
+		// 値チェック
+		if( $total_ratio     <= 0 ) return false;
+		if( $now_block_count <= 0 ) return false;
+		
+		// 倍数取得
+		if( $total_ratio >= $now_block_count )
+		{
+			// 現在ブロック数が比率合計値以上の場合は１
+			$multiple = 1;
+		}
+		else
+		{
+			// 現在ブロック数の方が大きい場合は、比率合計値÷次回ブロック数（※割り切れない場合はエラー）
+			if( ( $now_block_count % $total_ratio ) != 0 ) return false;
+			$multiple = $now_block_count / $total_ratio;
+		}
+		
+		// ブロックパターン作成
+		$result_list = array();
+		for( $i = 0; $i < count( $group_contents ); $i++ )
+		{
+			// 設定用群リスト作成
+			$setting_list = array();
+			foreach( $group_contents as $value )
+			{
+				$set_value               = array();
+				$set_value["name"]       = $value[ 'allocation_group_id' ];
+				$set_value["limitCount"] = intval( $value[ 'ratio_block' ] ) * $multiple;
+				$set_value["setCount"]   = 0;
+				
+				$setting_list[] = $set_value;
+			}
+		
+			// 最初の設定作成
+			$set_value = array();
+			$set_value[ 0 ] = $group_contents[ $i ]['allocation_group_id'];
+			$setting_list[ $i ]["setCount"] = 1;
+			
+			// パターン作成
+			$next_setting = $this->getAllocateBlockNextSetting( $setting_list );
+			if( count( $next_setting ) > 0 )
+			{
+				$this->createAllocateBlockPattern( $set_value, 1, $next_setting, $result_list );
+			}
+			else
+			{
+				$result_list[] = $set_value;
+			}
+		}
+		
+		// 除外連続数をもとに、同一群が連続してしまっているパターンは削除する
+		if( empty( $exclude_count ) === false )
+		{
+			$start_index = count( $result_list ) -1;
+			// 作成した配列を逆順に操作
+			for( $i = $start_index; 0 <= $i; $i-- )
+			{
+				$key_value = "";
+				$count = 0;
+				foreach( $result_list[$i] as $value )
+				{
+					if( $key_value == $value )
+					{
+						$count++;
+					}
+					else
+					{
+						$key_value = $value;
+						$count = 1;
+					}
+					
+					if( $count >= $exclude_count )
+					{
+						// 除外連続数以上になった場合、このパターンを削除する
+						$del_pattern = array_splice( $result_list, $i, 1 );
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		return $result_list;
+	}
+	/**
+	 * 割付ブロックパターンリスト作成用の処理次設定取得処理
+	 *
+	 * @param   array  $setting_list   設定リスト
+	 * @return  array  次回使用の設定リスト
+	 * @access	private
+	 */
+	private function getAllocateBlockNextSetting( $setting_list )
+	{
+		$result_list = array();
+		foreach( $setting_list as $value )
+		{
+			if( $value["limitCount"] > $value["setCount"] )
+			{
+				$result_list[] = $value;
+			}
+		}
+		
+		return $result_list;
+	}
+	
+	/**
+	 * 割付ブロックパターン作成処理（※再帰呼び用）
+	 *
+	 * @param   array  $set_value   値設定先リスト
+	 * @param   int    $set_index   値設定先リストに設定する時のINDEX
+	 * @param   array  $group_list  割付群リスト（設定用）
+	 * @param   array  $result_list 割付ブロックパターンリスト
+	 * @return  array  次回使用の設定リスト
+	 * @access	private
+	 */
+	private function createAllocateBlockPattern( &$set_value, $set_index, $group_list, &$result_list )
+	{
+		for( $i = 0; $i < count( $group_list ); $i++ )
+		{
+			$target_list = $group_list;
+			
+			if( $group_list[ $i ]["limitCount"] > $group_list[ $i ]["setCount"] )
+			{
+				$set_value[ $set_index ] = $group_list[ $i ]["name"];
+				$target_list[ $i ]["setCount"] = $target_list[ $i ]["setCount"] +1;
+			}
+			
+			$next_setting = $this->getAllocateBlockNextSetting( $target_list );
+			if( count( $next_setting ) > 0 )
+			{
+				$this->createAllocateBlockPattern( $set_value, ($set_index +1), $next_setting, $result_list );
+			}
+			else
+			{
+				$result_list[] = $set_value;
+			}
+		}
+	}
+	
+	/**
+	 * 割付群の比率の合計値取得
+	 *
+	 * @param   array  $group_contents   割付群情報
+	 * @return  int    割付群の比率の合計値
+	 * @access	public
+	 */
+	public function getTotalRatio( $group_contents )
+	{
+		$result = 0;
+		foreach( $group_contents as $value )
+		{
+			$result += $value[ 'ratio_block' ];
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 比率合計値と各層のブロック数のチェック
+	 *
+	 * @param   array  $allocation_conbinations   割付層情報
+	 * @param   int    $total_ratio               比率の合計値
+	 * @return  int    割付群の比率の合計値
+	 * @access	public
+	 */
+	public function checkRatioBlockCount( $allocation_conbinations, $total_ratio )
+	{
+		foreach( $allocation_conbinations as $allocation_conbination )
+		{
+			// 分解
+			$list = explode( ",", $allocation_conbination[ 'next_block_count' ] );
+			foreach( $list as $value )
+			{
+				if( $total_ratio > $value )
+				{
+					return false;
+				}
+				$mod_value = $value % $total_ratio;
+				if( $mod_value != 0 )
+				{
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	/**
+	 * 割付情報参照ユーザー情報リスト取得処理
+	 *
+	 * @param	testee_id						臨床試験支援DBのID
+     * @return	array[user_id]=user_id			参照権限を持つユーザーのIDリスト
+	 * @access	public
+	 */
+	public function getAllocationViewUsers( $testee_id )
+	{
+		// テーブルから情報取得
+		$where_params = array( "testee_id" => $testee_id );
+		
+		$result = $this->_db->selectExecute( "testee_allocation_viewuser", $where_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		// データを組み替えて array[user_id]=user_id にする
+		$result_array = array();
+		foreach( $result as $value )
+		{
+			$result_array[ $value["user_id"] ] = array( "user_id"     => $value["user_id"],
+														"viewuser_id" => $value["viewuser_id"] );
+		}
+		
+		return $result_array;
+	}
+	
+	/**
+	 * 割付情報参照ユーザー情報リスト取得処理
+	 *
+	 * @param	testee_id						臨床試験支援DBのID
+	 * @param	user_id							ユーザーID
+     * @return	array
+	 * @access	public
+	 */
+	public function getAllocationViewUser( $testee_id, $user_id )
+	{
+		// テーブルから情報取得
+		$where_params = array( "testee_id" => $testee_id,
+							   "user_id"   => $user_id );
+		
+		$result = $this->_db->selectExecute( "testee_allocation_viewuser", $where_params );
+		if( $result === false )
+		{
+			$this->_db->addError();
+		}
+		
+		return $result;
+	}
+	
+	
+	/**
+	 * 割付シード値取得
+	 *
+	 * @return	long	シート値
+	 * @access	public
+	 */
+	public function getAllocationSeed()
+	{
+		list( $usec, $sec ) = explode( " ", microtime() );
+		$result = ( ( (float)$usec * 1000000 ) + (float)$sec);
+		
+		return $result;
+	}
+
+	/**
+	 * 複数あるブロック数のうち、ランダムでどれかを返却する。
+	 * ただし、ここで返却するのはリスト中のindex
+	 * 
+	 * @params	block_count			ブロック数(例："2,4,6,8" )
+	 * @return	int					選択したブロック数のindex
+	 * @access	public
+	 */
+	public function randBlockCountIndex( $block_count )
+	{
+		// リストの件数取得し、１件しかない場合は0を返却して終了
+		// ※ここで取得できるのは[,]の個数なので、0で単一定義、1で2つ定義、2で3つ定義…と、実際の定義数-1の数となる
+		$count = substr_count( $block_count, "," );
+		if( $count <= 0 ) return 0;
+		
+		
+		// 乱数取得
+		$return_index = mt_rand( 0, $count );
+		
+		return $return_index;
+	}
+	
+	
+	// 指定された値が、次回ブロック数リストの中の何番目にあるかindex返却
+	public function getBlockCountIndex( $block_count, $key_value )
+	{
+		$list = explode( ",", $block_count );
+		
+		for( $i = 0; $i < count( $list ); $i++ )
+		{
+			if( intval( $key_value ) == intval( $list[$i] ) )
+			{
+				// 同じ場合
+				return $i;
+			}
+		}
+		
+		return -1;
+	}
+	
+	
+	/**
+	 * 渡されたファイル名の拡張子を小文字で返却する
+	 *
+	 * @access	public
+	 */
+	public function getExtension( $file_name )
+	{
+		$strlength = mb_strlen( $file_name );
+		
+		// 後ろからチェックする
+		for( $i = $strlength -1; $i >= 0; $i-- )
+		{
+			$checkChar = mb_substr( $file_name, $i, 1 );
+			if( $checkChar === "." ) break;
+		}
+		
+		if( $i < 0 ) return false;
+		
+		$extension = mb_substr( $file_name, $i+1 );
+		$extension = mb_strtolower( $extension );
+		
+		return $extension;
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定情報取得
+	 *
+	 * @access	public
+	 */
+	public function getAllocationSimsetting( $testee_id )
+	{
+		$where_params = array( "testee_id" => $testee_id );
+		
+		$result = $this->_db->selectExecute("testee_allocation_simsetting", $where_params );
+		if ( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return $result;
+		}
+		
+		return $result[0];
+	}
+	
+	
+	/**
+	 * 割付シミュレーション用：症例ファイル情報取得
+	 *
+	 * @access	public
+	 */
+	public function getCaseFileInfo( $upload_id )
+	{
+		$where_params = array( "upload_id" => $upload_id );
+		
+		$result = $this->_db->selectExecute("uploads", $where_params );
+		if ( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return $result;
+		}
+		
+		return $result[0];
+	}
+	
+	
+	/**
+	 * 割付シミュレーション設定情報取得
+	 *
+	 * @access	public
+	 */
+	public function getAllocationSimResult( $testee_id )
+	{
+		$where_params = array( "testee_id" => $testee_id );
+		
+		$order_params = array( "simresult_id" => "ASC" );
+		
+		$result = $this->_db->selectExecute("testee_allocation_simresult", $where_params, $order_params );
+		if ( $result === false )
+		{
+			$this->_db->addError();
+			return $result;
+		}
+		else if( count( $result ) <= 0 )
+		{
+			return $result;
+		}
+		
+		return $result;
+	}
+	
+	
+	// クライアントのエンコード値を取得する
+	public function getClientCharSet()
+	{
+		if ( empty($_SERVER) || !array_key_exists('HTTP_USER_AGENT', $_SERVER) ) {
+			$encode = 'UTF-8';
+		} else if (stristr($_SERVER['HTTP_USER_AGENT'], 'Mac')) {
+			// Macの場合
+			$encode = 'UTF-8';
+		} else if (stristr($_SERVER['HTTP_USER_AGENT'], 'Windows')) {
+			// Windowsの場合
+			$encode = 'SJIS-win';
+			if (!extension_loaded('mbstring') && !function_exists("mb_convert_encoding")) {
+				$encode = 'SJIS';
+			}
+		} else {
+			$encode = 'UTF-8';
+		}
+		
+		return $encode;
+	}
+	
+	// ファイルをOPENする
+	public function openFile( $file_path, &$handle, &$zip )
+	{
+		// 拡張子取得
+		$extension = $this->getExtension( $file_path );
+		if( $extension == "csv" )
+		{
+			// ----- CSVファイルの場合 -----------------------------------------
+			$handle = fopen($file_path, 'r');
+			if( $handle === false )
+			{
+				return -1;
+			}
+			
+			// 正常終了
+			return 0;
+		}
+		else
+		{
+			// ----- ZIPファイルの場合 -----------------------------------------
+			// zipのインスタンス生成
+			$zip = new ZipArchive();
+			$result = $zip->open( $file_path );
+			if( $result !== true )
+			{
+				// 異常終了
+				$zip = null;
+				return -10;
+			}
+			
+			$csv_filename = "";
+			$i = 0;
+			while( false !== ( $item = $zip->statIndex($i) ) )
+			{
+				// 拡張子のチェック
+				$target_extension = $this->getExtension( $item["name"] );
+				if( $target_extension == "csv" )
+				{
+					$csv_filename = $item["name"];
+					break;
+				}
+				
+				$i++;
+			}
+			if( empty( $csv_filename ) === true )
+			{
+				$zip->close();
+				$zip = null;
+				
+				// 異常終了
+				return -11;
+			}
+			
+			// zipファイル内のストリームを開く
+			$handle = $zip->getStream($csv_filename);
+			
+			// 正常終了
+			return 0;
+		}
+	}
+	
+	
+// 19.03.22 add start by makino@opensource-workshop.jp 関数の定義場所変更
+	/**
+	 * 連想配列中の最大値を返す
+	 * 
+	 * @access	public
+	 */
+	public function getMax( $param_array ) {
+
+		$return_max = 0;
+		foreach ( $param_array as $param_item ) {
+			if ( $return_max < $param_item ) {
+				$return_max = $param_item;
+			}
+		}
+		return $return_max;
+	}
+	
+	
+	/**
+	 * 連想配列中の最小値を返す
+	 * 
+	 * @access	public
+	 */
+	public function getMin( $param_array ) {
+
+		// 初期値は最大値で、それより小さいものを探す。
+		$return_min = $this->getMax( $param_array );
+		foreach ( $param_array as $param_item ) {
+			if ( $return_min > $param_item ) {
+				$return_min = $param_item;
+			}
+		}
+		return $return_min;
+	}
+// 19.03.22 add end
 
 }
 ?>

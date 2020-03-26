@@ -175,7 +175,7 @@
 						<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>登録番号</td>
 
 						<{* 割付 *}>
-						<{if $action.allocation.allocation_result_flag == 1}>
+						<{if $action.show_allocation_flag == 1 }>
 							<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" class="mdb_detail_allocate" nowrap>割付</td>
 							<td style="border: 1px solid gray; padding: 5px; margin: 5px; background-color: #f0f0f0;" nowrap>介入</td>
 						<{/if}>
@@ -288,7 +288,7 @@
 							</td>
 
 							<{* 割付 *}>
-							<{if $action.allocation.allocation_result_flag == 1}>
+							<{if $action.show_allocation_flag == 1 }>
 								<td style="border: 1px solid gray; padding: 5px; white-space: nowrap;" class="mdb_detail_allocate" nowrap><{$item.group_name}></td>
 								<td style="border: 1px solid gray; padding: 5px;"><{$item.intervention}></td>
 							<{/if}>

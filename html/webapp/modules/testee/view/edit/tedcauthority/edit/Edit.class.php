@@ -38,6 +38,14 @@ class Testee_View_Edit_Tedcauthority_Edit extends Action
     {
 		// 会員情報を取得する
 		$this->user = $this->mdbView->getUserINFO($this->room_id, $this->testee_id, $this->user_id);
+		
+		// 割付参照権限ユーザーリストを取得
+		$view_user = $this->mdbView->getAllocationViewUser( $this->testee_id, $this->user_id );
+		if( $view_user !== false && count( $view_user ) > 0 )
+		{
+			$this->user[ 0 ][ "allocation_view" ] = _ON;
+		}
+		
         return 'success';
     }
 }

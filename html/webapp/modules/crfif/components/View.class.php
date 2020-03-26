@@ -1139,7 +1139,7 @@ EOF;
 		}
 
 		$allocation_flag = 0;
-		if ( is_array($alloc_result) && count($alloc_result) > 0 && $alloc_result[0]["allocation_flag"] == 1 ) {
+		if ( is_array($alloc_result) && count($alloc_result) > 0 && $alloc_result[0]["allocation_flag"] != 0 ) {
 			$allocation_flag = 1;
 		}
 
@@ -1942,7 +1942,7 @@ EOF;
 		}
 
 		$allocation_flag = 0;
-		if ( is_array($alloc_result) && count($alloc_result) > 0 && $alloc_result[0]["allocation_flag"] == 1 ) {
+		if ( is_array($alloc_result) && count($alloc_result) > 0 && $alloc_result[0]["allocation_flag"] != 0 ) {
 			$allocation_flag = 1;
 		}
 

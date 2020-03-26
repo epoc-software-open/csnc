@@ -71,6 +71,9 @@ class Testee_Validator_Tedcauthorityimport extends Validator
 				if ( mb_convert_encoding($data[1], "UTF-8", "SJIS-win") != "試験毎権限" ) {
 					return 'CSV ファイルのヘッダーに"試験毎権限"が存在しません。\nCSV ファイルを見直してください。';
 				}
+				if ( mb_convert_encoding($data[2], "UTF-8", "SJIS-win") != "割付参照権限" ) {
+					return 'CSV ファイルのヘッダーに"割付参照権限"が存在しません。\nCSV ファイルを見直してください。';
+				}
 				$first_flag = false;
 			}
 			// データ部チェック
@@ -84,6 +87,7 @@ class Testee_Validator_Tedcauthorityimport extends Validator
 					"user_id" => $user["user_id"],
 					"tedc_authority" => $tedc_authority,
 					"tedcauthority_user_id" => $user["tedcauthority_user_id"],
+					"allocation_view" => $data[2],
 				);
 
 				if ( empty( $user ) ) {
@@ -95,6 +99,9 @@ class Testee_Validator_Tedcauthorityimport extends Validator
 			}
 		}
 		// test_log($row_datas);
+
+		// 現在登録中の割付参照ユーザー情報を取得する
+		$view_users = $mdbView->getAllocationViewUsers( $attributes["testee_id"] );
 
 		// データ更新
 		foreach( $row_datas as $row_data ) {
@@ -125,6 +132,34 @@ class Testee_Validator_Tedcauthorityimport extends Validator
 				// 権限レコードの更新
 				else {
 					$mdbAction->tedcauthorityUpdate( $params );
+				}
+			}
+			
+			// 割付参照権限の更新
+			if( array_key_exists( $row_data["user_id"], $view_users ) === true )
+			{
+				// 割付参照権限ありの場合
+				if( $row_data["allocation_view"] == "1" )
+				{
+					// 参照権限ありの場合は何もしない
+				}
+				else
+				{
+					// 参照権限なしの場合はデータを削除する
+					$result = $mdbAction->deleteAllocationViewUser( $view_users[ $row_data["user_id"] ][ "viewuser_id" ] );
+				}
+			}
+			else
+			{
+				// 割付参照権限なしの場合
+				if( $row_data["allocation_view"] == "1" )
+				{
+					// 参照権限ありの場合は新規登録
+					$result = $mdbAction->insertAllocationViewUser( $attributes["testee_id"], $row_data["user_id"] );
+				}
+				else
+				{
+					// 参照権限なしの場合は何もしない
 				}
 			}
 		}

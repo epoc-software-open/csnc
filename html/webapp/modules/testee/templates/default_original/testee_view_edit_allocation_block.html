@@ -1,0 +1,270 @@
+<{strip}>
+
+<form id="testeeBlockOutputForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="testee_action_edit_allocationresult" />
+<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">出力設定</div></legend>
+			割付の結果を表示する：
+			<input type="checkbox" name="allocation_result_flag" value="1" <{if $action.allocation.allocation_result_flag==1}> checked<{/if}>>
+			<{if $action.setting_history}>
+			&nbsp;&nbsp;(<{$action.setting_history.set_time}> 設定:<{if $action.setting_history.allocation_result_flag==1}>ON<{else}>OFF<{/if}>)<br />
+			<{else}>
+			&nbsp;&nbsp;( 設定:OFF )<br />
+			<{/if}>
+
+			<div class="btn-bottom" style="text-align: left; margin-left: 60px;">
+				<input type="button" onclick="mdbCls['<{$id}>'].selectAllocationresult('<{$action.allocation.allocation_flag}>');" value="更新">
+			</div>
+	</fieldset>
+</form>
+<br/>
+
+
+<form id="testeeBlockGroupForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+	<input type="hidden" name="action"    value="testee_action_edit_addgroup" />
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+	<input type="hidden" name="new_ratio" value="0" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">割付群の設定</div></legend>
+		
+		<{if $action.setting_blockcount_flag != 1}>
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<th>割付群名</th>
+					<th>介入</th>
+					<th>操作</th>
+				</tr>
+
+				<{foreach from=$action.group_content item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><input type="text" name="group_name<{$item.allocation_group_id}>"   size="20" value="<{$item.group_name}>"></td>
+						<td><input type="text" name="intervention<{$item.allocation_group_id}>" size="20" value="<{$item.intervention}>"></td>
+						<td>
+							<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].changeGroup('<{$item.allocation_group_id}>',
+																							   testeeBlockGroupForm<{$id}>.group_name<{$item.allocation_group_id}>.value,
+																							   testeeBlockGroupForm<{$id}>.intervention<{$item.allocation_group_id}>.value,
+																							   '0',
+																							   '<{$action.testee_id}>');return false" >変更</a>&nbsp;|&nbsp;
+							<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delGroup('<{$item.allocation_group_id}>', '<{$action.testee_id}>');return false" >削除</a>
+						</td>
+					</tr>
+				<{/foreach}>
+
+				<tr class="mdb_datecheck_tr">
+					<td><input type="text" name="new_group_name"   size="20" value=""></td>
+					<td><input type="text" name="new_intervention" size="20" value=""></td>
+					<td><input type="button" onclick="mdbCls['<{$id}>'].addGroup('<{$action.allocation.allocation_flag}>');" value="追加"></td>
+				</tr>
+			</tbody>
+			</table>
+			
+		<{else}>
+			
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<th>割付群名</th>
+					<th>介入</th>
+				</tr>
+				<{foreach from=$action.group_content item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item.group_name}></td>
+						<td><{$item.intervention}></td>
+					</tr>
+				<{/foreach}>
+			</tbody>
+			</table>
+			
+		<{/if}>
+
+	</fieldset>
+</form>
+<br/>
+
+
+<form id="testeeBlockItemForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+	<input type="hidden" name="action" value="testee_action_edit_addallocation" />
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">割付因子の設定</div></legend>
+
+		<{if $action.setting_blockcount_flag != 1}>
+		
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<th>割付因子</th>
+					<th>操作</th>
+				</tr>
+				
+				<{foreach from=$action.selected_allocation item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item.name|smarty:nodefaults}></td>
+						<td><a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delAllocationitem('<{$item.metadata_id}>', '<{$action.testee_id}>');return false" >削除</a></td>
+					</tr>
+				<{/foreach}>
+				
+				<tr class="mdb_datecheck_tr">
+					<td>
+						<select name="allocation_item_select">
+							<{foreach from=$action.adjust_metadata_item item=item}>
+								<option value="<{$item.metadata_id}>">
+									<{$item.name|smarty:nodefaults}>
+								</option>
+							<{/foreach}>
+						</select><br />
+					</td>
+					<td><input type="button" onclick="mdbCls['<{$id}>'].addAllocationitem('<{$action.allocation.allocation_flag}>');return false;" value="追加" <{if $action.adjust_metadata_item==NULL}> disabled="disabled"<{/if}>></td>
+				</tr>
+			</tbody>
+			</table>
+			
+		<{else}>
+			
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<th>割付因子</th>
+				</tr>
+				<{foreach from=$action.selected_allocation item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item.name|smarty:nodefaults}></td>
+					</tr>
+				<{/foreach}>
+			</tbody>
+			</table>
+			
+		<{/if}>
+		
+	</fieldset>
+</form>
+
+<form id="testeeBlockSettingForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+	<input type="hidden" name="action" value="testee_action_edit_createconbination" />
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+	<{if $action.setting_blockcount_flag != 1}>
+		<div class="btn-bottom" style="text-align: center; margin-left: 20px;">
+			<input type="button" onclick="mdbCls['<{$id}>'].createAllocationConbination();" value="上記内容で層を作成する">
+			<input type="button" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_allocation_list',testee_id:<{$action.testee_id}>}); return false;" value="キャンセル">
+		</div>
+	<{else}>
+		<div class="btn-bottom" style="text-align: right; margin-right: 20px;">
+			<a onclick="mdbCls['<{$id}>'].changeAllocationBlockSetting( '<{$action.testee_id}>' );">変更</a>
+		</div>
+	<{/if}>
+</form>
+
+<{if $action.setting_blockcount_flag == 1}>
+<br/>
+<form id="testeeBlockRatioForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+	<input type="hidden" name="action" value="testee_action_edit_changeblockcount" />
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">割付群の比率と各層のブロック数の設定</div></legend>
+
+		<table style="width: 100%;">
+		 <tr>
+		 	<td>
+				<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" id="testee_allocation_ratio_table<{$id}>">
+				<tbody>
+					<tr class="mdb_datecheck_tr">
+						<th>割付群名</th>
+						<th>比率</th>
+					</tr>
+					<{foreach from=$action.group_content item=item}>
+						<tr class="mdb_datecheck_tr">
+							<td><{$item.group_name}></td>
+<{* 18.08.01 change start by makino@opensource-workshop.jp *}>
+<{*							<td><input type="text" name="ratio_list[<{$item.allocation_group_id}>]" size="4" value="<{$item.ratio_block}>"></td> *}>
+							<td><input type="text" name="ratio_list[<{$item.allocation_group_id}>]" size="4" maxlength="4" value="<{$item.ratio_block}>"></td>
+<{* 18.08.01 change end by makino@opensource-workshop.jp *}>
+						</tr>
+					<{/foreach}>
+				</tbody>
+				</table>
+<{* 18.08.01 add start by makino@opensource-workshop.jp *}>
+				<br/>
+				<input type="radio" name="variable_block_flag" value="0" id="testee_radio_variable_block_none" onChange="mdbCls['<{$id}>'].changeVariableBlock(); return false;" <{if $action.variable_block_flag==0}>checked<{/if}>><label for="testee_radio_variable_block_none">可変ブロックを使用しない</label><br/>
+				<input type="radio" name="variable_block_flag" value="1" id="testee_radio_variable_block_use"  onChange="mdbCls['<{$id}>'].changeVariableBlock(); return false;" <{if $action.variable_block_flag==1}>checked<{/if}>><label for="testee_radio_variable_block_use">可変ブロックを使用する</label><br/>
+				<div id="testee_variable_block<{$id}>" <{if $action.variable_block_flag==0}>class="display-none"<{/if}>>
+					<table style="margin-left: 20px;">
+						<tr class="mdb_datecheck_tr">
+							<td>可変させる症例数</td>
+							<td>
+								<input type="text" name="variable_block" size="6" maxlength="4" value="<{$action.variable_block.case_count}>">
+							</td>
+						</tr>
+<{* 18.08.01 add start by makino@opensource-workshop.jp *}>
+						<tr>
+							<td colspan=2 style="font-size: smaller;">
+								※症例登録した時の数が、<br/>
+								　可変させる症例数に指定した数の倍数の時に<br/>
+								　ブロック数変更処理が実施されます。<br/>
+								　例：10と指定した場合、症例の登録数が10, 20, 30…の時<br/>
+							</td>
+						</tr>
+<{* 18.08.01 add end by makino@opensource-workshop.jp *}>
+					</table>
+				</div>
+<{* 18.08.01 add end by makino@opensource-workshop.jp *}>
+		 	</td>
+		 	<td>
+				<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" id="testee_allocation_block_table<{$id}>">
+				<tbody>
+					<tr class="mdb_datecheck_tr">
+						<{foreach from=$action.conbination_header item=item}>
+							<th><{$item}></th>
+						<{/foreach}>
+						<th>ブロック数</th>
+<{* 18.08.01 add start by makino@opensource-workshop.jp *}>
+						<th>除外連続数</th>
+<{* 18.08.01 add end by makino@opensource-workshop.jp *}>
+					</tr>
+					<{foreach from=$action.conbination_list item=record}>
+						<tr class="mdb_datecheck_tr">
+							<{foreach from=$record.factors item=item}>
+								<td><{$item}></td>
+							<{/foreach}>
+<{* 18.08.01 change start by makino@opensource-workshop.jp *}>
+<{*							<td><input type="text" name="block_count_list[<{$record.conbination_id}>]" size="20" value="<{$record.block_count}>"></td> *}>
+							<td><input type="text" name="block_count_list[<{$record.conbination_id}>]" size="10" maxlength="14" value="<{$record.block_count}>"></td>
+							<td><input type="text" name="exclude_count_list[<{$record.conbination_id}>]" size="10" maxlength="14" value="<{$record.exclude_count}>"></td>
+<{* 18.08.01 change end by makino@opensource-workshop.jp *}>
+						</tr>
+					<{/foreach}>
+				</tbody>
+				</table>
+<{* 18.08.01 add start by makino@opensource-workshop.jp *}>
+				※除外連続数には、ブロック数÷群数以下の値を指定してください。<br/>
+<{* 18.08.01 add end by makino@opensource-workshop.jp *}>
+		 	</td>
+		 </tr>
+		</table>
+<{* 18.08.01 change start by makino@opensource-workshop.jp *}>
+<{*		<div class="btn-bottom" style="text-align: left; margin-left: 20px;"> *}>
+		<div class="btn-bottom" style="text-align: left; margin-left: 20px; padding-top: 10px;">
+<{* 18.08.01 change end by makino@opensource-workshop.jp *}>
+			<input type="button" value="更新" onclick="mdbCls['<{$id}>'].changeAllocationBlockCount();">
+		</div>
+	</fieldset>
+	<br />
+</form>
+<{* 18.08.23 add start by makino@opensource-workshop.jp *}>
+<fieldset>
+	<legend><div class="nowrap bold">割付シミュレーション</div></legend>
+	<div class="btn-bottom" style="text-align: left; margin-left: 20px;">
+		<input type="button" value="割付シミュレーション" onclick="mdbCls['<{$id}>'].showAllocSimulate(event, '<{$action.testee_id}>');" style="padding-top: 5px; padding-bottom: 5px;">
+	</div>
+</fieldset>
+<br />
+<{* 18.08.23 add end by makino@opensource-workshop.jp *}>
+<{/if}>
+
+<{include file="../testee_script.html"}>
+<{/strip}>

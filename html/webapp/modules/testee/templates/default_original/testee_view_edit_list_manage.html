@@ -23,13 +23,13 @@
 </a>
 <{* 試験毎権限設定 Eddyk *}>
 <{$lang._separator|smarty:nodefaults}>
-<a href="#" class="syslink" title="<{$lang.mdb_datecheck_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_tedcauthority_init',testee_id:<{$mdb.testee_id}>}); return false;">
+<a href="#" class="syslink" title="<{$lang.mdb_tedc_authority_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_tedcauthority_init',testee_id:<{$mdb.testee_id}>}); return false;">
 	<{$lang.mdb_tedc_authority|smarty:nodefaults}>
 </a>
 <{* 割付設定 *}>
 <{$lang._separator|smarty:nodefaults}>
-<a href="#" class="syslink" title="<{$lang.mdb_datecheck_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_allocation_list',testee_id:<{$mdb.testee_id}>}); return false;">
-	割付設定
+<a href="#" class="syslink" title="<{$lang.mdb_allocation_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_allocation_list',testee_id:<{$mdb.testee_id}>}); return false;">
+	<{$lang.mdb_allocation|smarty:nodefaults}>
 </a>
 <{$lang._separator|smarty:nodefaults}>
 <a href="#" class="syslink" title="<{$lang._del_title|smarty:nodefaults|sprintf:$mdb.testee_name}>" onclick="mdbCls['<{$id}>'].delMdb('<{$mdb.testee_id}>', '<{$lang._del_confirm|sprintf:"`$mdb.testee_name`"|smarty:nodefaults|escape:"javascript"|escape:"html"}>'); return false;">

@@ -226,8 +226,8 @@ INSERT INTO `items_authorities_link` (`item_id`, `user_authority_id`, `under_pub
 # -- テーブルのダンプデータ `items_desc`
 # --
 
-INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (1, 'USER_ITEM_MES_CHAR_DESCRIPTION', '');
-INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (3, 'USER_ITEM_MES_CHAR_DESCRIPTION', '');
+INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (1, 'USER_ITEM_MES_CHAR_DESCRIPTION_ID', '');
+INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (3, 'USER_ITEM_MES_CHAR_DESCRIPTION_PW', '');
 INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (5, '', 'size=\"35\"');
 INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (6, '', 'size=\"35\"');
 INSERT INTO `items_desc` (`item_id`, `description`, `attribute`) VALUES (4, '', 'size=\"25\"');

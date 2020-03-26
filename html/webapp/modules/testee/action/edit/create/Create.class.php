@@ -215,15 +215,17 @@ class Testee_Action_Edit_Create extends Action
                 if($items[1] == TESTEE_META_TYPE_N_HOSPITAL && $hospitals){
                     $select_content = null;
                     $select_content_code = null;
-                    $code = 0;
+                    // 設定するコード値を単純連番から施設コードに変更　※どう影響するのか忘れた
+//                    $code = 0;
                     foreach ($hospitals as $row) {
 						if($row["hospital"] != "|" && !is_null($row["hospital"])){
-							$code++;
+//							$code++;
 	//                        $hospital=str_replace("|","",$row["hospital"]);
 	//                        $select_content .= $hospital . "|";
 	//                        $select_content_code .= $code . "|";
 							$select_content .= $row["hospital"];
-							$select_content_code .= $code . "|";
+//							$select_content_code .= $code . "|";
+							$select_content_code .= $row["hospital_code"] . "|";
 						}
 					}	
 					$params["select_content"] = substr($select_content, 0, -1);

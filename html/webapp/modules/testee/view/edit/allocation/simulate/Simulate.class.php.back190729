@@ -1,0 +1,431 @@
+<?php
+
+/**
+ * 割付シミュレーション画面表示処理
+ *
+ * @package     NetCommons
+ * @author      Noriko Arai,Ryuji Masukawa
+ * @copyright   2006-2007 NetCommons Project
+ * @license     http://www.netcommons.org/license.txt  NetCommons License
+ * @project     NetCommons Project, supported by National Institute of Informatics
+ * @access      public
+ */
+class Testee_View_Edit_Allocation_Simulate extends Action
+{
+	// リクエストパラメータを受け取るため
+	var $room_id   = null;		// ルームID 
+	var $block_id  = null;		// ブロックID
+	var $testee_id = null;		// 臨床試験支援システムDBのID
+
+	// コンポーネントを受け取るため
+	var $mdbView = null;
+
+	// 値を受け取る為
+	var $init_flag = null;				// 設定画面からの表示の場合に1が設定されてくるフラグ
+
+	// 値をセットするため
+	var $allocation       = null;		// 割付情報
+	var $group_content    = null;		// 割付群情報
+	var $factor_list        = null;		// 割付因子情報
+	var $conbination_header = null;		// 置換ブロック法 割付因子層ヘッダ
+	var $conbination_list   = null;		// 置換ブロック法 割付因子層リスト
+	var $simu_setting       = null;		// 割付シミュレーション設定
+	var $case_file          = null;		// 症例ファイル情報
+	var $variable_block     = null;		// 可変ブロック情報
+	
+	var $result_factor_list   = null;
+	var $result_conbi_list    = null;
+	var $result_averag_header = null;
+	var $result_diff_header   = null;
+	
+	/**
+	 * @access  public
+	 */
+	function execute()
+	{
+//test_log( date('Y/m/d H:i:s') . ":Testee_View_Edit_Allocation_Simulate:Start" );
+		
+		// 割付情報取得
+		$this->allocation = $this->mdbView->getAllocationContent( $this->testee_id );
+		
+		// 割付群取得
+		$this->group_content = $this->mdbView->getGroupContent( $this->testee_id );
+		
+		// 割付因子と選択項目取得
+		$allocate_factors = $this->mdbView->getSelectedAllocationFactors( $this->testee_id );
+		$this->factor_list = $this->mdbView->getAllocationItemList( $allocate_factors );
+		
+		// 割付層情報取得
+		$allocation_conbination = $this->mdbView->getAllocationcConbination( $this->testee_id );
+		
+		
+		// 割付因子層ヘッダ取得
+		$this->conbination_header = $this->getConbinationHeader( $this->factor_list );
+		
+		// 割付因子層リスト取得
+		$this->conbination_list = $this->getConbinationList( $allocation_conbination );
+		
+		// 可変ブロック情報取得
+		$this->variable_block = $this->mdbView->getAllocateVariableBlock( $this->testee_id );
+		
+		
+		// シミュレーション設定を呼び出す（Validatorで登録してる）
+		$this->simu_setting = $this->mdbView->getAllocationSimsetting( $this->testee_id );
+		
+		// ファイルがアップロードしている場合はその情報を取得する
+		if( empty( $this->simu_setting ) === false && empty( $this->simu_setting["upload_id"] ) === false )
+		{
+			$result = $this->mdbView->getCaseFileInfo( $this->simu_setting["upload_id"] );
+			if( $result !== false && count( $result ) > 0 )
+			{
+				$this->case_file = array( "upload_id" => $result[ "upload_id" ],
+										  "file_name" => $result[ "file_name" ] );
+			}
+		}
+		
+		
+		// 初期表示フラグがONの場合はここで終了
+		if( $this->init_flag == 1 )
+		{
+//test_log( date('Y/m/d H:i:s') . ":Testee_View_Edit_Allocation_Simulate:End Init" );
+			return 'success';
+		}
+
+		
+		// 結果データを取得する（※失敗しても表示しないだけ）
+		$result = $this->mdbView->getAllocationSimResult( $this->testee_id );
+		if( $result === false || count( $result ) <= 0 )
+		{
+//test_log( date('Y/m/d H:i:s') . ":Testee_View_Edit_Allocation_Simulate:End Init02" );
+			return 'success';
+		}
+		
+		// 結果データを成形する
+		$result_list = $this->resetResultData( $result );
+//test_log("result_list");
+//test_log($result_list);
+		
+		
+		// 結果データを表示用に成形する
+		if( $this->allocation[ "allocation_flag" ] == 1 )
+		{
+			// 最小化法の場合
+			if( $this->allocation[ "force_allocation_flag" ] != 1 )
+			{
+				// 割付因子なし
+				$this->result_conbi_list = $this->countConbiCount( $result_list, $this->group_content, $this->simu_setting[ "repeat_count" ] );
+			}
+			else
+			{
+				// 割付因子あり
+				$this->result_factor_list = $this->countPerFactorCount( $result_list, $this->group_content, $this->factor_list, $this->simu_setting[ "repeat_count" ] );
+				$this->result_conbi_list  = $this->countConbiCount( $result_list, $this->group_content, $this->simu_setting[ "repeat_count" ] );
+			}
+		}
+		else
+		{
+			// 置換ブロック法の場合
+			$this->result_factor_list = $this->countPerFactorCount( $result_list, $this->group_content, $this->factor_list, $this->simu_setting[ "repeat_count" ] );
+			$this->result_conbi_list  = $this->countConbiCount( $result_list, $this->group_content, $this->simu_setting[ "repeat_count" ] );
+		}
+//test_log("result_factor_list");
+//test_log($this->result_factor_list);
+//test_log("result_conbi_list");
+//test_log($this->result_conbi_list);
+		
+		
+		$this->result_averag_header = $this->createResultHeaderAverag( $this->group_content, $this->allocation );
+		$this->result_diff_header   = $this->createResultHeaderDiff( $this->group_content );
+//test_log("result_averag_header");
+//test_log($this->result_averag_header);
+//test_log("result_diff_header");
+//test_log($this->result_diff_header);
+		
+		
+//test_log( date('Y/m/d H:i:s') . ":Testee_View_Edit_Allocation_Simulate:End" );
+		return 'success';
+	}
+	
+	
+	/**
+	 * 割付因子の層リストヘッダ取得
+	 *
+	 * @return  array  割付因子の層リストのヘッダ項目
+	 * @access  private
+	 */
+	private function getConbinationHeader( $factor_list )
+	{
+		$result = array();
+		foreach( $factor_list as $value )
+		{
+			$result[] = $value[ 'item_name' ];
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * 割付因子の層リスト取得
+	 *
+	 * @return  array  割付因子の層リスト
+	 * @access  private
+	 */
+	private function getConbinationList( $allocation_conbination )
+	{
+		$result = array();
+		foreach( $allocation_conbination as $value )
+		{
+			$factors = array();
+			$factors[ 'conbination_id' ] = $value[ 'conbination_id' ];
+			$factors[ 'factors' ]        = explode( '|', $value[ 'factor_contents' ] );
+			$factors[ 'block_count' ]    = $value[ 'next_block_count' ];
+			$factors[ 'exclude_count' ]  = $value[ 'exclude_count' ];
+			
+			$result[] = $factors;
+		}
+		
+		return $result;
+	}
+	
+	
+	private function resetResultData( $sim_result )
+	{
+		$result_list = array();
+		foreach( $sim_result as $record )
+		{
+			// ","で分割
+			$group_list = explode( ",", $record[ "counts" ] );
+			
+			$set_list = array();
+			foreach( $group_list as $counts )
+			{
+				// "|"で分割
+				$data_list = explode( "|", $counts );
+				
+				$set_list[ $data_list[0] ]  = $data_list[1];
+			}
+			
+			$result_list[ $record[ "factor_key" ] ] = $set_list;
+		}
+		
+		return $result_list;
+	}
+	
+	
+	private function countPerFactorCount( $result_list, $group_content, $factor_list, $repeat_count )
+	{
+		$show_result_list = array();
+		
+		$i = 0;
+		foreach( $factor_list as $metadata_id => $factor )
+		{
+			$factor_record = array();
+			foreach( $factor[ "select_content" ] as $index => $content )
+			{
+				$set_list = array();
+				$set_list[ "ratio" ] = $factor[ "factor_ratio" ][ $index ];
+				
+				// 結果リストから、一致する因子の件数を取得する
+				$count_list = $this->getFactorCountSummary( $result_list, $group_content, $content, $i );
+				
+				// 平均値を算出する
+				$average_list = $this->getAverage( $count_list, $repeat_count);
+				$set_list[ "average" ] = $average_list;
+				
+				// 各群差を取得する
+				$set_list[ "diff" ] = $this->getDiff( $average_list );
+				
+				
+				$factor_record[ $content ] = $set_list;
+			}
+			$show_result_list[ $factor[ "item_name" ] ] = $factor_record;
+			
+			$i++;
+		}
+		
+		return $show_result_list;
+	}
+	
+	
+	private function getFactorCountSummary( $result_list, $group_content, $content, $i )
+	{
+		$count_list = array();
+		foreach( $result_list as $factor_key => $record )
+		{
+			if( $this->checkFactorContent( $factor_key, $content, $i ) === false ) continue;
+			
+			// 平均値取得
+			$this->getSummay( $record, $group_content, $count_list );
+		}
+		
+		return $count_list;
+	}
+	
+	private function checkFactorContent( $factor_key, $content, $index )
+	{
+		$key_list = explode( "|", $factor_key );
+		
+		if( $key_list[ $index ] == $content )
+		{
+			return true;
+		}
+		
+		return false;
+	}
+	
+	
+	private function getSummay( $record, $group_content, &$count_list )
+	{
+		foreach( $group_content as $group )
+		{
+			$group_id = $group[ "allocation_group_id" ];
+			
+			if( array_key_exists( $group_id, $count_list ) === true )
+			{
+				$count_list[ $group_id ] += intval( $record[ $group_id ] );
+			}
+			else
+			{
+				$count_list[ $group_id ] = intval( $record[ $group_id ] );
+			}
+		}
+	}
+	
+	
+	private function getAverage( $count_list, $repeat_count )
+	{
+		$average_list = array();
+		
+		foreach( $count_list as $group_id => $count )
+		{
+			if( $count == 0 )
+			{
+				$average_list[ $group_id ] = 0;
+			}
+			else
+			{
+				$average_list[ $group_id ] = round( $count / $repeat_count, 2 );
+			}
+		}
+		
+		return $average_list;
+	}
+	
+	
+	private function getDiff( $average_list )
+	{
+		$diff_list = array();
+		
+		// キーの配列取得
+		$group_id_list = array_keys( $average_list );
+		
+		// 各群の差を取得
+		$start_index = 1;
+		foreach( $average_list as $group_id => $count )
+		{
+			for( $i = $start_index; $i < count( $average_list ); $i++ )
+			{
+				$key  = $group_id . "-" . $group_id_list[$i];
+//				$diff = $count - $average_list[ $group_id_list[$i] ];
+				$diff = round( round( $count, 2 ) - round( $average_list[ $group_id_list[$i] ], 2 ), 2 );
+				
+				$diff_list[ $key ] = $diff;
+			}
+			
+			$start_index++;
+		}
+		
+		$summary = 0;
+		foreach( $diff_list as $count )
+		{
+			$summary += $count;
+		}
+		
+		$result = array();
+		if( $summary == 0 )
+		{
+			$result[ "total" ] = 0;
+		}
+		else
+		{
+			$result[ "total" ] = round( $summary / count( $diff_list ), 2);
+		}
+		
+		foreach( $diff_list as $key => $value )
+		{
+			$result[ $key ] = $value;
+		}
+		
+		return $result;
+	}
+	
+	
+	private function countConbiCount( $result_list, $group_content, $repeat_count )
+	{
+		$conbi_list = array();
+		foreach( $result_list as $factor_key => $record )
+		{
+			// 平均値を表示用配列に設定する
+			$average_list = $this->getAverage( $record, $repeat_count );
+			
+			// 各群差を取得する
+			$diff_list = $this->getDiff( $average_list );
+			
+			// タイトルを表示用に変更する
+			$set_factor_key = str_replace( "|", "／", $factor_key );
+			
+			$conbi_list[ $set_factor_key ] = array( "average" => $average_list,
+												"diff"    => $diff_list );
+		}
+		
+		return $conbi_list;
+	}
+	
+	
+	private function createResultHeaderAverag( $group_content, $allocation )
+	{
+		$header = array();
+		$header[0] = array();
+		$header[1] = array();
+		
+		// 群ごとのヘッダ
+		foreach( $group_content as $record )
+		{
+			if( $allocation[ "allocation_flag" ] == 1 )
+			{
+				$header[0][] = ( $allocation[ "equal_ratio_flag" ] == 1 ? "均等比率" : $record[ "ratio" ] );
+			}
+			else
+			{
+				$header[0][] = $record[ "ratio_block" ];
+			}
+			
+			$header[1][] = $record[ "group_name" ];
+		}
+		
+		return $header;
+	}
+	
+	
+	private function createResultHeaderDiff( $group_content )
+	{
+		$header = array();
+		
+		$header[] = "TOTAL";
+		
+		$start_index = 1;
+		foreach( $group_content as $record )
+		{
+			for( $i = $start_index; $i < count( $group_content ); $i++ )
+			{
+				$header[] = $record[ "group_name" ] . "\n" . $group_content[ $i ][ "group_name" ];
+			}
+			
+			$start_index++;
+		}
+		
+		return $header;
+	}
+	
+}
+?>

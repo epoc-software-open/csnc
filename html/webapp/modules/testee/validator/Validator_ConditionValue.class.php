@@ -105,53 +105,58 @@ class Testee_Validator_ConditionValue extends Validator
 			}
 
 // 条件の符号指定の不整合性チェック
+			// 指定できない場所に"＝"が指定されていないかどうかのチェック
+			if( $attributes["cond1_fugo2"] == TESTEE_META_FUGO_EQ )
+			{
+				return "条件式１　不整合\n（右側には＝は指定できません）";
+			}
+			
+			if( $attributes["cond2_fugo2"] == TESTEE_META_FUGO_EQ )
+			{
+				return "条件式２　不整合\n（右側には＝は指定できません）";
+			}
+			
+			// 条件１：左側に"＝"が指定されている場合
+			if( $attributes["cond1_fugo1"] == TESTEE_META_FUGO_EQ )
+			{
+				if( $attributes["cond1_ew"] == TESTEE_META_EW_E )
+				{
+					// 条件１がエラー条件で、条件１右側/条件２左側/条件２右側のどれかに指定がある場合、エラー終了
+					if( $attributes["cond1_fugo2"] != "" || $attributes["cond2_fugo1"] != "" || $attributes["cond2_fugo2"] != "" )
+					{
+						return "条件式１　不整合\n（エラー条件の場合、＝を指定した場合は他の条件を指定できません）";
+					}
+				}
+				else if( $attributes["cond1_ew"] == TESTEE_META_EW_W )
+				{
+					// 条件１が警告条件で、条件１右側に指定がある場合、エラー
+					if( $attributes["cond1_fugo2"] != "" )
+					{
+						return "条件式１　不整合\n（＝を指定した場合、右側には条件を指定できません）";
+					}
+				}
+			}
+			
+			// 条件２：左側に"＝"が指定されている場合
+			if( $attributes["cond2_fugo1"] == TESTEE_META_FUGO_EQ )
+			{
+				if( $attributes["cond2_ew"] == TESTEE_META_EW_E )
+				{
+					// エラー条件の時は条件２に"＝"は指定できない（条件１の指定が無意味になってしまう為）
+					return "条件式２　不整合\n（エラー条件の場合、＝を指定できません）";
+				}
+				else if( $attributes["cond2_ew"] == TESTEE_META_EW_W )
+				{
+					// 条件２が警告条件で、条件２右側に指定がある場合、エラー
+					if( $attributes["cond2_fugo2"] != "" )
+					{
+						return "条件式２　不整合\n（＝を指定した場合、右側には条件を指定できません）";
+					}
+				}
+			}
+			
 			$condition = null;
 			$err_msg = null;
-		// "＝" "≠"以外の場合、同種の不等号を指定の場合エラー
-			if($attributes["cond1_fugo2"] != "") {
-				if(substr($attributes["cond1_fugo1"],0,1) != "3" && 
-					substr($attributes["cond1_fugo1"],0,1) == substr($attributes["cond1_fugo2"],0,1)) {
-					$condition = "条件式１";
-					$err_msg = "（ひとつの条件で同種の不等号が使用されています）";
-				}
-			}
-			if(is_null($condition)) {
-				if($attributes["cond2_fugo1"] != "" && $attributes["cond2_fugo2"] != "") {
-					if(substr($attributes["cond2_fugo1"],0,1) != "3" && 
-						substr($attributes["cond2_fugo1"],0,1) == substr($attributes["cond2_fugo2"],0,1)) {
-						$condition = "条件式２";
-						$err_msg = "（ひとつの条件で同種の不等号が使用されています）";
-					}
-				}
-			}
-
-		// "＝" はひとつのみ指定以外エラー
-			if(is_null($condition)) {
-		 		if($attributes["cond1_fugo1"] == TESTEE_META_FUGO_EQ) {
-			 		if($attributes["cond1_fugo2"] != "" || $attributes["cond2_fugo1"] != "" || $attributes["cond2_fugo2"] != "") {
-						$condition = "条件式";
-						$err_msg = "（＝はひとつのみ使用可能です）";
-					}
-				}
-			}
-			if(is_null($condition)) {
-		 		if($attributes["cond1_fugo2"] == TESTEE_META_FUGO_EQ) {
-					$condition = "条件式";
-					$err_msg = "（＝はひとつのみ使用可能です）";
-				}
-			}
-			if(is_null($condition)) {
-		 		if($attributes["cond2_fugo1"] == TESTEE_META_FUGO_EQ) {
-					$condition = "条件式";
-					$err_msg = "（＝はひとつのみ使用可能です）";
-				}
-			}
-			if(is_null($condition)) {
-		 		if($attributes["cond2_fugo2"] == TESTEE_META_FUGO_EQ) {
-					$condition = "条件式";
-					$err_msg = "（＝はひとつのみ使用可能です）";
-				}
-			}
 
 		// 不等号での値の指定チェック
 			if(is_null($condition)) {

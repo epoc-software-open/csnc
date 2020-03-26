@@ -58,6 +58,8 @@ class Testee_View_Main_Init extends Action
 
 	var $kentai_status = null;  // 検体の進捗管理の絞り込み用の項目
 
+	var $show_allocation_flag = null;	// 割付情報表示フラグ null or 0:非表示 / 1:表示
+
 	//ページ
 	var $data_cnt	= 0;
 	var $total_page = 0;
@@ -355,8 +357,32 @@ class Testee_View_Main_Init extends Action
 			return 'error';
 		}
 
-		// 割付設定の取得
-		$this->allocation = $this->mdbView->getAllocationContent( $this->testee_id );
+
+//		// 割付設定の取得
+		
+		// 割付情報の取得
+		$result = $this->mdbView->getAllocationContent( $this->testee_id );
+		if( $result === false )
+		{
+			return 'error';
+		}
+		else if( count( $result ) > 0 && empty( $result[ 'allocation_result_flag' ] ) === false )
+		{
+			// 割付参照権限を取得する
+			$user_id = $this->session->getParameter("_user_id");
+			if( empty( $user_id ) === false )
+			{
+				$result = $this->mdbView->getAllocationViewUser( $this->testee_id, $user_id );
+				if( $result === false ) return 'error';
+				
+				if( count( $result ) > 0 )
+				{
+					$this->show_allocation_flag = 1;
+				}
+			}
+		}
+		
+
 
 		// 進捗管理機能がon の場合、進捗データを取得する。
 		if ( TESTEE_KENTAI_SWITCH ) {

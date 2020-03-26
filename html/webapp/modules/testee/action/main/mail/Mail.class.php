@@ -89,6 +89,7 @@ class Testee_Action_Main_Mail extends Action
 			if($metadatas[$i]['type'] == TESTEE_META_TYPE_N_HOSPITAL || $metadatas[$i]['type'] == TESTEE_META_TYPE_N_GROUP) {
 				$data .= htmlspecialchars($metadatas[$i]['name']) . ':';
 				$data .= htmlspecialchars($mail['content'.$metadatas[$i]['metadata_id']]);
+				$data .= '　　　';
 				//$data .= '<br />';
 			}
 		}
@@ -98,7 +99,9 @@ class Testee_Action_Main_Mail extends Action
 		$result_allocation = $this->mdbView->getAllocationContent( $testee_id );
 		if ( !empty( $result_allocation ) ) {
 			// 割付使用＆表示の場合のみ、割付結果を表示
-			if ( $result_allocation["allocation_flag"] == 1 && $result_allocation["allocation_result_flag"] == 1 ) {
+			if ( ( $result_allocation["allocation_flag"] == 1 || $result_allocation["allocation_flag"] == 2 ) && 
+			     $result_allocation["allocation_result_flag"] == 1 ) {
+
 
 				$tags['X-ARMCD'] = $mail["group_name"];
 				$tags['X-ARM'] = $mail["intervention"];

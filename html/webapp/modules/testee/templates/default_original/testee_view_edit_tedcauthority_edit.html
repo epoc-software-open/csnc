@@ -52,6 +52,12 @@
 				</select>
 			</td>
 		</tr>
+		<tr>
+			<th>割付参照権限</th>
+			<td style="text-align: center;">
+				<input type="checkbox" name="view_auth" <{if $action.user.0.allocation_view}>checked="checked"<{/if}> />
+			</td>
+		</tr>
 	</table>
 	<div class="btn-bottom">
 		<input type="button" class="btn btn-block btn-primary" style="width: 100px; height: 30px; margin: 10px 10px 10px 0; float:left;" value="登録" onclick="mdbCls['<{$id}>'].editAuthority(); return false;" />

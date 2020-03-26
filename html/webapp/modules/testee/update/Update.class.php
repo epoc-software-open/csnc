@@ -374,6 +374,273 @@ class Testee_Update extends Action
 			if($result === false) return false;
 		}
 
+
+		// 割付群テーブルに[置換ブロック法用：比率(対比値)]を追加
+		$metaColumns = $adodb->MetaColumns($this->db->getPrefix()."testee_allocation_group");
+		if(!isset($metaColumns["RATIO_BLOCK"])) {
+			$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_allocation_group`
+						ADD `ratio_block` int(11) NOT NULL DEFAULT '0' AFTER `ratio` ;";
+			$result = $this->db->execute($sql);
+			if($result === false) return false;
+		}
+		
+		// テーブル情報取得
+		$metaTables = $adodb->MetaTables();
+		
+		// 割付層テーブルが存在しなかったら作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_conbination', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_conbination` ( "
+				.	 "`conbination_id`     int(11)      NOT NULL DEFAULT '0', "
+				.	 "`testee_id`          int(11)      NOT NULL DEFAULT '0', "
+				.	 "`factor_contents`    varchar(255), "
+				.	 "`next_block_count`   int(11)      NOT NULL DEFAULT '0', "
+				.	 "`insert_time`        varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`     varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`     varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name`   varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`        varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`     varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`     varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name`   varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`conbination_id`), "
+				.	 "KEY `index01` (`testee_id`, `conbination_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		else
+		{
+			// 割付層テーブルが既にあるけれど、次回ブロック数項目の属性がintの場合はvarcharに変更する
+			$allocConbiColumns = $adodb->MetaColumns($this->db->getPrefix()."testee_allocation_conbination");
+			if( $allocConbiColumns["NEXT_BLOCK_COUNT"]->type == "int" )
+			{
+				$sql = "ALTER TABLE `" . $this->db->getPrefix() . "testee_allocation_conbination` MODIFY `next_block_count` VARCHAR(14) ;";
+				$result = $this->db->execute($sql);
+				if($result === false) return false;
+			}
+			
+			// 除外連続数が定義されていなければ追加
+			if ( isset($allocConbiColumns["EXCLUDE_COUNT"]) == false )
+			{
+				$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_allocation_conbination`
+							ADD `exclude_count` varchar(14) NOT NULL default '' AFTER `next_block_count` ;";
+				$result = $this->db->execute($sql);
+				if($result === false) return false;
+			}
+			
+			// 現在ブロック数が定義されていなければ追加
+			if ( isset($allocConbiColumns["NOW_BLOCK_COUNT"]) == false )
+			{
+				$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_allocation_conbination`
+							ADD `now_block_count` int(11) NOT NULL default '0' AFTER `exclude_count` ;";
+				$result = $this->db->execute($sql);
+				if($result === false) return false;
+			}
+			
+		}
+		
+		// 割付ブロックデータテーブルが存在しなかったら作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_block', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_block` ( "
+				.	 "`allocation_block_id` int(11)      NOT NULL DEFAULT '0', "
+				.	 "`testee_id`           int(11)      NOT NULL DEFAULT '0', "
+				.	 "`conbination_id`      int(11)      NOT NULL DEFAULT '0', "
+				.	 "`allocation_seed_id`  int(11)      NOT NULL DEFAULT '0', "
+				.	 "`sequence_no`         int(11)      NOT NULL DEFAULT '0', "
+				.	 "`allocation_group_id` int(11)      NOT NULL DEFAULT '0', "
+				.	 "`allocation_flag`     tinyint(1)   NOT NULL DEFAULT '0', "
+				.	 "`insert_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`allocation_block_id`), "
+				.	 "KEY `index01` (`testee_id`, `conbination_id`, `sequence_no`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		
+		// 割付シードテーブルが存在しなかったら作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_seed', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" .  $this->db->getPrefix() . "testee_allocation_seed` ( "
+				.	 "`allocation_seed_id`  int(11)      NOT NULL DEFAULT '0', "
+				.	 "`testee_id`           int(11)      NOT NULL DEFAULT '0', "
+				.	 "`conbination_id`      int(11)      NOT NULL DEFAULT '0', "
+				.	 "`seed`                varchar(20)  NOT NULL DEFAULT '', "
+				.	 "`block_count`         int(11)      NOT NULL DEFAULT '0', "
+				.	 "`content_count`       int(11)      NOT NULL DEFAULT '0', "
+				.	 "`insert_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`allocation_seed_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		else
+		{
+			// 割付シードテーブルが存在している場合、[content_count](可変ブロック変更時症例数)が登録されているかチェック
+			$allocation_seed = $adodb->MetaColumns($this->db->getPrefix()."testee_allocation_seed");
+			if( isset( $allocation_seed[ "CONTENT_COUNT" ] ) === false )
+			{
+				$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_allocation_seed`
+							ADD `content_count` int(11) NOT NULL default '0' AFTER `block_count` ;";
+				$result = $this->db->execute($sql);
+				if($result === false) return false;
+			}
+		}
+		
+		// 割付情報参照ユーザーテーブルが存在しなかったら作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_viewuser', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_viewuser` ( "
+				.	 "`viewuser_id`         int(11)      NOT NULL DEFAULT '0', "
+				.	 "`testee_id`           int(11)      NOT NULL DEFAULT '0', "
+				.	 "`user_id`             varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`viewuser_id`), "
+				.	 "KEY `testee_id` (`testee_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		
+		// 割付可変ブロックテーブルが存在しなかったら作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_variable_block', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_variable_block` ( "
+				.	 "`allocation_variable_block_id` int(11) NOT NULL DEFAULT '0', "
+				.	 "`testee_id`                    int(11) NOT NULL DEFAULT '0', "
+				.	 "`case_count`                   int(11) NOT NULL DEFAULT '0', "
+				.	 "`insert_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`         varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`      varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`allocation_variable_block_id`), "
+				.	 "KEY `testee_id` (`testee_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		
+		// 割付シミュレーション設定TBLがなければ作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_simsetting', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_simsetting` ( "
+				.	 "`simsetting_id` int(11)    NOT NULL DEFAULT '0', "
+				.	 "`testee_id`     int(11)    NOT NULL DEFAULT '0', "
+				.	 "`input_type`    tinyint(1) NOT NULL DEFAULT '0', "
+				.	 "`case_count`    int(11)    NOT NULL DEFAULT '0', "
+				.	 "`upload_id`     int(11)    NOT NULL DEFAULT '0', "
+				.	 "`repeat_count`  int(11)    NOT NULL DEFAULT '0', "
+				.	 "`output_csv`    varchar(255) NOT NULL DEFAULT '', "
+				.	 "`allocate_seed` int(11)    NOT NULL DEFAULT '0', "
+				.	 "`case_seed`     int(11)    NOT NULL DEFAULT '0', "
+				.	 "`insert_time`      varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name` varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`      varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name` varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`simsetting_id`), "
+				.	 "KEY `testee_id` (`testee_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		
+		// 割付シミュレーション設定TBLがなければ作成する
+		if( !in_array( $this->db->getPrefix() . 'testee_allocation_simresult', $metaTables ) )
+		{
+			$sql = "CREATE TABLE `" . $this->db->getPrefix() . "testee_allocation_simresult` ( "
+				.	 "`simresult_id` int(11)      NOT NULL DEFAULT '0', "
+				.	 "`testee_id`    int(11)      NOT NULL DEFAULT '0', "
+				.	 "`factor_key`   varchar(255) NOT NULL DEFAULT '', "
+				.	 "`counts`       varchar(255) NOT NULL DEFAULT '', "
+				.	 "`insert_time`      varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`insert_site_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`insert_user_name` varchar(255) NOT NULL DEFAULT '', "
+				.	 "`update_time`      varchar(14)  NOT NULL DEFAULT '', "
+				.	 "`update_site_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_id`   varchar(40)  NOT NULL DEFAULT '', "
+				.	 "`update_user_name` varchar(255) NOT NULL DEFAULT '', "
+				.	 "PRIMARY KEY (`simresult_id`), "
+				.	 "KEY `testee_id` (`testee_id`) "
+				.	 ") ENGINE=MyISAM; ";
+			
+			$result = $this->db->execute($sql);
+			if ($result === false) {
+				return false;
+			}
+		}
+		
+		
+		// 割付因子テーブルに[因子比率]項目がなければ追加する
+		$adjustment = $adodb->MetaColumns($this->db->getPrefix()."testee_adjustment");
+		if( isset( $adjustment[ "FACTOR_RATIO" ] ) === false )
+		{
+			$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_adjustment`
+						ADD `factor_ratio` varchar(255) NOT NULL default '' AFTER `metadata_id` ;";
+			$result = $this->db->execute($sql);
+			if($result === false) return false;
+		}
+		
+		
+		// 割付行群紐づけテーブルに[割付シード値]項目がなければ追加する
+		$content_group = $adodb->MetaColumns($this->db->getPrefix()."testee_content_group");
+		if( isset( $content_group[ "ALLOCATE_SEED" ] ) === false )
+		{
+			$sql = "ALTER TABLE `".$this->db->getPrefix()."testee_content_group`
+						ADD `allocate_seed` int(11) NOT NULL default '0' AFTER `allocation_group_id` ;";
+			$result = $this->db->execute($sql);
+			if($result === false) return false;
+		}
+		
+		
+		
 		return true;
 	}
 }

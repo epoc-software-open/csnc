@@ -71,7 +71,6 @@ class Testee_View_Edit_Metadata_detail extends Action
 	 */
     function execute()
     {
-
     	if($this->metadata_id == 0) {
     		$this->metadata = null;						//初期化
     	}

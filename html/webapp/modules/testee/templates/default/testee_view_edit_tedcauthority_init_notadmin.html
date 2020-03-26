@@ -6,6 +6,7 @@
 			<th>NC権限</th>
 			<th>ベース権限</th>
 			<th>試験毎権限</th>
+			<th>割付参照権限</th>
 		</tr>
 
 		<{foreach item=user from=$action.users name=users_loop}>
@@ -16,6 +17,7 @@
 					<td><{$user.nc_authority_name}></td>
 					<td><{$user.item_tedc_authority_name|smarty:nodefaults}></td>
 					<td><{$user.tedc_authority_name}></td>
+					<td><{$user.allocation_view}></td>
 				</tr>
 			<{/if}>
 		<{/foreach}>

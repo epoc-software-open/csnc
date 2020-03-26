@@ -1,0 +1,367 @@
+<{strip}>
+<div class="nowrap bold">割付シミュレーション</div>
+
+<{* ***** 設定画面 ***************************************************************************** *}>
+<form id="testeeSimulateSetting<{$id}>" class="outerdiv" action="testee_action_edit_allocationsimulate" target="attachment_form<{$id}>" enctype="multipart/form-data" onsubmit="return false;">
+
+	<!-- ----- 基本設定 ---------------------------------------------------- -->
+	<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+	<div>
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+		<tbody>
+			<tr class="mdb_datecheck_tr">
+				<td>割付種別</td>
+				<td>
+					<table>
+					<tbody>
+						<tr>
+							<td>
+								<{if $action.allocation.allocation_flag=="2"}>
+									置換ブロック法
+								<{else}>
+									最小化法
+								<{/if}>
+							</td>
+							<td>シード値　<input type="text" name="allocate_seed" size="11" maxlength="10" value="<{$action.simu_setting.allocate_seed}>"></td>
+						</tr>
+					</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr class="mdb_datecheck_tr">
+				<td>症例数</td>
+				<td>
+<{* 2019.03.22 change by makino@opensource-workshop.jp *}>
+<{*					<{if $action.allocation.allocation_flag=="1" && $action.allocation.force_allocation_flag!="1"}> *}>
+					<{if !$action.factor_list}>
+<{* 2019.03.22 change end *}>
+						<input type="hidden" name="input_type" value="0" />
+						<input type="text" name="case_count" size="6" maxlength="5" value="<{$action.simu_setting.case_count}>">
+						<div class="display-none">
+							<input type="file" name="attachment[casefile]">
+						</div>
+						
+					<{else}>
+						<input type="radio" name="input_type" value="0" id="testee_allocsimu_input_type_auto" onChange="mdbCls['<{$id}>'].changeSimuInputType(); return false;" <{if $action.simu_setting.input_type==0}>checked<{/if}>><label for="testee_allocsimu_input_type_auto">自動生成</label><br/>
+						<div id="testee_allocsimu_input_auto<{$id}>" style="padding-left: 20px" <{if $action.simu_setting.input_type==1}>class="display-none"<{/if}>>
+							<table>
+							<tbody>
+								<tr class="mdb_datecheck_tr">
+									<td>症例数</td>
+									<td>シード値</td>
+								</tr>
+								<tr class="mdb_datecheck_tr">
+									<td>
+										<input type="text" name="case_count" size="6" maxlength="5" value="<{$action.simu_setting.case_count}>">
+									</td>
+									<td>
+										<input type="text" name="case_seed" size="11" maxlength="10" value="<{$action.simu_setting.case_seed}>">
+<{* 2019.04.17 change by makino@opensource-workshop.jp *}>
+										<br/>
+										<span style="color: red;">
+										割付シード値と異なる値を症例自動生成のシード値に入力してください！<br/>
+										同じ値を入力すると、誤った割付結果が出力されます。
+										</span>
+<{* 2019.04.17 change end *}>
+
+									</td>
+								</tr>
+							</tbody>
+							</table>
+							
+						</div>
+						<input type="radio" name="input_type" value="1" id="testee_allocsimu_input_type_file" onChange="mdbCls['<{$id}>'].changeSimuInputType(); return false;" <{if $action.simu_setting.input_type==1}>checked<{/if}>><label for="testee_allocsimu_input_type_file">ファイルから読み込み</label><br/>
+						<div id="testee_allocsimu_input_file<{$id}>" style="padding-left: 20px" <{if $action.simu_setting.input_type==0}>class="display-none"<{/if}>>
+							<{if $action.simu_setting.upload_id}>
+								<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+								<tbody>
+									<tr class="mdb_datecheck_tr">
+										<td>登録済みファイル</td>
+										<td>
+											<{$action.case_file.file_name}>　
+											<a class="link" href="javascript:void(0);" onClick="mdbCls['<{$id}>'].deleteCaseFile();">
+												削除
+											</a>
+										</td>
+									</tr>
+									<tr class="mdb_datecheck_tr">
+										<td colspan=2>
+											<input type="file" name="attachment[casefile]">
+										</td>
+									</tr>
+								</tbody>
+								</table>
+							<{else}>
+								<input type="file" name="attachment[casefile]">
+							<{/if}>
+						</div>
+					<{/if}>
+				</td>
+			</tr>
+			<tr class="mdb_datecheck_tr <{if $action.simu_setting.input_type==1}>display-none<{/if}>" id="testee_allocsimu_repeat_count<{$id}>">
+				<td>繰り返し数</td>
+				<td>
+					<input type="text" name="repeat_count" size="6" maxlength="5" value="<{$action.simu_setting.repeat_count}>">
+				</td>
+			</tr>
+		</tbody>
+		</table>
+	</div>
+	<br/>
+	
+	<!-- ----- 割付群の設定 ------------------------------------------------ -->
+	<div>
+		<p>割付群と比率</p>
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+		<tbody>
+			<tr class="mdb_datecheck_tr">
+				<th>割付群名</th>
+				<th>介入</th>
+				<th>比率</th>
+			</tr>
+			<{foreach from=$action.group_content item=item}>
+				<tr class="mdb_datecheck_tr">
+					<td><{$item.group_name}></td>
+					<td><{$item.intervention}></td>
+					<td>
+						<{if $action.allocation.allocation_flag=="2"}>
+							<{$item.ratio_block}>
+						<{else}>
+							<{if $action.allocation.equal_ratio_flag==1}>
+								均等比率
+							<{else}>
+								<{$item.ratio}>
+							<{/if}>
+						<{/if}>
+					</td>
+				</tr>
+			<{/foreach}>
+		</tbody>
+		</table>
+	</div>
+	
+	<!-- ----- 割付因子の設定 ---------------------------------------------- -->
+<{* 2019.03.22 change by makino@opensource-workshop.jp *}>
+<{*	<{if $action.allocation.allocation_flag!="2" && $action.allocation.force_allocation_flag=="1"}> *}>
+	<{if $action.allocation.allocation_flag=="1"}>
+<{* 2019.03.22 change end *}>
+		<br/>
+		<p>強制割付と調整因子</p>
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" style="margin-bottom: 5px;">
+		<tbody>
+			<{if $action.allocation.force_allocation_flag=="1"}>
+			<tr class="mdb_datecheck_tr">
+				<td>許容できる群間差</td>
+				<td><{$action.allocation.group_differences}></td>
+			</tr>
+			<tr class="mdb_datecheck_tr">
+				<td>強制割付確率</td>
+				<td><{$action.allocation.allocation_probability}>％</td>
+			</tr>
+			<{else}>
+			<tr class="mdb_datecheck_tr">
+				<td>強制割付</td>
+				<td>なし</td>
+			</tr>
+			<{/if}>
+		</tbody>
+		</table>
+	<{elseif $action.allocation.allocation_flag=="2"}>
+		<br/>
+		<p>調整因子</p>
+	<{/if}>
+<{* 2019.03.22 change by makino@opensource-workshop.jp *}>
+<{*	<{if ( $action.allocation.allocation_flag!="2" && $action.allocation.force_allocation_flag=="1" ) ||
+	     ( $action.allocation.allocation_flag=="2" )}> *}>
+	<{if $action.factor_list}>
+<{* 2019.03.22 change end *}>
+		<div id="testee_allocsimu_allocitem_file<{$id}>" <{if $action.simu_setting.input_type==0}>class="display-none"<{/if}>>
+			<{foreach from=$action.factor_list key=key item=items}>
+				<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" style="margin-bottom: 5px;">
+				<tbody>
+					<tr class="mdb_datecheck_tr">
+						<td><{$items.item_name}></td>
+					</tr>
+					<{foreach from=$items.select_content item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item}></td>
+					</tr>
+					<{/foreach}>
+				</tbody>
+				</table>
+			<{/foreach}>
+		</div>
+		<div id="testee_allocsimu_allocitem_auto<{$id}>" <{if $action.simu_setting.input_type==1}>class="display-none"<{/if}>>
+			<{foreach from=$action.factor_list key=metadata_id item=items}>
+				<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" style="margin-bottom: 5px;">
+				<tbody>
+					<tr class="mdb_datecheck_tr">
+						<td><{$items.item_name}></td>
+						<td>自動生成比率</td>
+					</tr>
+					<{foreach from=$items.select_content key=key item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item}></td>
+						<td><input type="text" name="factor_ratio[<{$metadata_id}>][<{$key}>]" size="4" maxlength="3" value="<{$items.factor_ratio[$key]}>">％</td>
+					</tr>
+					<{/foreach}>
+				</tbody>
+				</table>
+			<{/foreach}>
+		</div>
+	<{/if}>
+	<br/>
+	
+	<!-- ----- 割付層の設定 ------------------------------------------------ -->
+	<{if $action.allocation.allocation_flag=="2"}>
+		<p>割付層のブロック数</p>
+		<div>
+			<{if $action.variable_block}>
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" style="margin-bottom: 5px;">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<td>可変ブロック数</td>
+					<td><{$action.variable_block.case_count}></td>
+				</tr>
+			</tbody>
+			</table>
+			<{/if}>
+			<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+			<tbody>
+				<tr class="mdb_datecheck_tr">
+					<{foreach from=$action.conbination_header item=item}>
+						<th><{$item}></th>
+					<{/foreach}>
+					<th>ブロック数</th>
+					<th>除外連続数</th>
+				</tr>
+				<{foreach from=$action.conbination_list item=record}>
+					<tr class="mdb_datecheck_tr">
+						<{foreach from=$record.factors item=item}>
+							<td><{$item}></td>
+						<{/foreach}>
+						<td><{$record.block_count}></td>
+						<td><{$record.exclude_count}></td>
+					</tr>
+				<{/foreach}>
+			</tbody>
+			</table>
+		</div>
+		<br/>
+	<{/if}>
+	<div>
+		<input type="button" value="シミュレーション実施" onclick="mdbCls['<{$id}>'].executeSimulation(event);" style="padding-top: 5px; padding-bottom: 5px;">
+	</div>
+</form>
+
+<{* ***** 結果画面 ***************************************************************************** *}>
+<{if $action.init_flag != 1}>
+	<hr style="width: 100%; border:0;border-top:thin solid #ebebeb;">
+	<form id="testeeSimulateResult<{$id}>" action="#" onsubmit="return false;" >
+		<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<!-- 結果表示エリア -->
+	<div>
+		<p>割付シミュレーション結果</p>
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main" style="margin-bottom: 10px;">
+		<tbody>
+			<tr class="mdb_datecheck_tr">
+				<td>割付シード値</td>
+				<td><{$action.simu_setting.allocate_seed}></td>
+			</tr>
+<{* 2019.03.22 change start by makino@opensource-workshop.jp *}>
+<{*			<{if $action.allocation.allocation_flag==2 || ( $action.allocation.allocation_flag==1 && $action.allocation.force_allocation_flag==1 ) }> *}>
+			<{if $$action.factor_list}>
+<{* 2019.03.22 change end *}>
+			<{if $action.simu_setting.input_type==0}>
+			<tr class="mdb_datecheck_tr">
+				<td>症例シード値</td>
+				<td><{$action.simu_setting.case_seed}></td>
+			</tr>
+			<{/if}>
+			<{/if}>
+		</tbody>
+		</table>
+<{* 2019.03.22 add start by makino@opensource-workshop.jp *}>
+		<{* 置換ブロック法ではなく（最小化法であり）、かつ、強制割付なし、かつ、割付因子ありの場合 *}>
+		<{if $action.allocation.allocation_flag!="2" && $action.allocation.force_allocation_flag!="1" && $action.factor_list }>
+		<div style="margin-bottom: 10px;">
+			<span style="color: red;">※ 割付調整因子を用いた層別割付は行っていないが、EDCで設定されている割付調整因子で構成される層毎の集計結果を提示する。</span>
+		</div>
+		<{/if}>
+<{* 2019.03.22 add end *}>
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+		<tbody>
+			<!-- ヘッダ -->
+			<tr class="mdb_datecheck_tr" rowspan=2>
+<{* 2019.03.22 change start by makino@opensource-workshop.jp *}>
+<{*				<td rowspan=2 <{if $action.allocation.allocation_flag==2 || ( $action.allocation.allocation_flag==1 && $action.allocation.force_allocation_flag==1 ) }>colspan=3<{/if}> style="text-align:center;"> *}>
+				<td rowspan=2 <{if $action.factor_list }>colspan=3<{/if}> style="text-align:center;">
+<{* 2019.03.22 change end *}>
+				<{foreach from=$action.result_averag_header.0 key=key item=factor_header}>
+					<td style="text-align:center;"><{$factor_header}></td>
+				<{/foreach}>
+				<td colspan=<{$action.result_diff_header|@count}> style="text-align:center;">差</td>
+			</tr>
+			<tr class="mdb_datecheck_tr" rowspan=2>
+				<{foreach from=$action.result_averag_header.1 key=key item=factor_header}>
+					<td style="text-align:center;"><{$factor_header}></td>
+				<{/foreach}>
+				<{foreach from=$action.result_diff_header key=key item=diff_header}>
+					<td style="text-align:center;"><{$diff_header|nl2br}></td>
+				<{/foreach}>
+			</tr>
+			<!-- データ -->
+			<{if $action.result_factor_list}>
+			<{foreach from=$action.result_factor_list key=factor_name item=factor_result}>
+				<{foreach from=$factor_result key=content item=factor name="factor_result_loop"}>
+					<tr class="mdb_datecheck_tr">
+						<{if $smarty.foreach.factor_result_loop.iteration==1}>
+							<td rowspan=<{$factor_result|@count}>><{$factor_name}></td>
+						<{/if}>
+						<td><{$content}></td>
+						<td style="text-align:center;"><{$factor.ratio}></td>
+						<{foreach from=$factor.average key=key item=average}>
+							<td style="text-align:center;"><{$average}></td>
+						<{/foreach}>
+						<{foreach from=$factor.diff key=key item=diff}>
+							<td style="text-align:center;"><{$diff}></td>
+						<{/foreach}>
+					</tr>
+				<{/foreach}>
+			<{/foreach}>
+			<{/if}>
+			<{foreach from=$action.result_conbi_list key=factor_key item=conbi_result}>
+				<tr class="mdb_datecheck_tr">
+<{* 2019.03.22 change start by makino@opensource-workshop.jp *}>
+<{*					<td <{if $action.allocation.allocation_flag==2 || ( $action.allocation.allocation_flag==1 && $action.allocation.force_allocation_flag==1 ) }>colspan=3<{/if}>><{if $factor_key}><{$factor_key}><{else}>因子なし<{/if}></td> *}>
+					<td <{if $action.factor_list }>colspan=3<{/if}>><{if $factor_key}><{$factor_key}><{else}>因子なし<{/if}></td>
+<{* 2019.03.22 change end *}>
+					<{foreach from=$conbi_result.average key=key item=average}>
+						<td style="text-align:center;"><{$average}></td>
+					<{/foreach}>
+					<{foreach from=$conbi_result.diff key=key item=diff}>
+						<td style="text-align:center;"><{$diff}></td>
+					<{/foreach}>
+				</tr>
+			<{/foreach}>
+		</tbody>
+		<table>
+		※シミュレーション結果を出力したい場合は、ブラウザの印刷機能をご利用ください。<br/>
+	</div>
+	<{if $action.simu_setting.output_csv}>
+		<div style="margin-top:10px;">
+			<a href="#" class="syslink" onclick="location.href='.<{$smarty.const.INDEX_FILE_NAME}>?action=testee_view_edit_allocation_download&amp;testee_id=<{$action.testee_id}>&amp;block_id=<{$action.block_id}>&amp;_token='+$('_token<{$id}>').value;return false;">
+				全症例CSV出力
+			</a>
+
+		</div>
+	<{/if}>
+	</form>
+<{/if}>
+<div style="margin-top:10px;">
+	<input type="button" value="戻る" onclick="commonCls.sendView('<{$id}>', {action:'testee_view_edit_allocation_list',testee_id:<{$action.testee_id}>}); return false;" style="padding-top: 5px; padding-bottom: 5px;">
+</div>
+
+<{include file="../testee_script.html"}>
+<{/strip}>

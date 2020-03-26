@@ -66,6 +66,9 @@ class Testee_View_Main_Detail extends Action
 	var $status_show_list      = null;	// 進捗の表示リスト
 	var $status_list_show_flag = null;	// 進捗リスト表示フラグ
 
+	var $show_allocation_flag = null;		// 割付情報表示フラグ null or 0:非表示 / 1:表示
+
+
 	/**
 	 * コンテンツ詳細画面表示アクション
 	 *
@@ -101,9 +104,31 @@ class Testee_View_Main_Detail extends Action
 		//$datas = array ( 1017 => "Ⅲ", 1018 => "高分化" );
 		//$mdbAction->setContentAllocation( $this->testee_id, $datas );
 
-		// 割付設定の取得
-		$this->allocation = $this->mdbView->getAllocationContent( $this->testee_id );
 
+//		// 割付設定の取得
+		$result = $this->mdbView->getAllocationContent( $this->testee_id );
+		if( $result === false )
+		{
+			return 'error';
+		}
+		else if( count( $result ) > 0 && empty( $result[ 'allocation_result_flag' ] ) === false )
+		{
+			// ----- 割付結果詳細情報の表示 --------------------------------------------------------
+			// 割付参照権限を取得する
+			$user_id = $this->session->getParameter("_user_id");
+			if( empty( $user_id ) === false )
+			{
+				$result = $this->mdbView->getAllocationViewUser( $this->testee_id, $user_id );
+				if( $result === false ) return 'error';
+				
+				if( count( $result ) > 0 )
+				{
+					$this->show_allocation_flag = 1;
+				}
+			}
+		}
+		
+		
 		// 進捗の取得
 		$statuses = $this->mdbView->getContentStatus( $this->content_id );
 		//print_r( $statuses );

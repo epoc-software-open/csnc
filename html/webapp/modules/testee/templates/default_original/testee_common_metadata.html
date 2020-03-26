@@ -55,7 +55,7 @@
 			<td class="<{$mdb_detail_head}> nowrap">登録番号</td>
 			<td class="mdb_edit_detail"><{$item.content_no}></td>
 		</tr>
-		<{if $action.allocation.allocation_result_flag == 1}>
+		<{if $action.show_allocation_flag == 1}>
 			<tr style="border-top-width: 1px; border-top-style: solid; border-top-color: #c0c0c0; background-color:#F2DDDC;">
 				<td class="<{$mdb_detail_head}> mdb_detail_allocate nowrap">割付</td>
 				<td class="mdb_edit_detail mdb_detail_allocate"><{$item.group_name}></td>

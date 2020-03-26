@@ -1,0 +1,173 @@
+<{strip}>
+
+<form id="groupsettingForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="testee_action_edit_addgroup" />
+<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">群の設定</div></legend>
+
+		均等比率：<input name="equal_ratio_flag" type="checkbox" value="1" 
+		<{if $action.allocation.equal_ratio_flag==1}> checked<{/if}> />
+
+		<div class="btn-bottom" style="text-align: left; margin-left: 20px;">
+			<input type="button" onclick="mdbCls['<{$id}>'].changeEqual(groupsettingForm<{$id}>.equal_ratio_flag.checked, '<{$action.testee_id}>');" value="更新" />
+		</div>
+
+
+
+		<table cellspacing="0" cellpadding="5" summary="" class="mdb_datecheck_main">
+		<tbody>
+			<tr class="mdb_datecheck_tr">
+				<th>割付</th>
+				<th>介入</th>
+				<th>比率</th>
+				<th>操作</th>
+			</tr>
+			<{foreach from=$action.group_content item=item}>
+				<tr class="mdb_datecheck_tr">
+					<td><input type="text" name="group_name<{$item.allocation_group_id}>" size="20" value="<{$item.group_name}>"></td>
+					<td><input type="text" name="intervention<{$item.allocation_group_id}>" size="20" value="<{$item.intervention}>"></td>
+					<td><input type="text" name="ratio<{$item.allocation_group_id}>" size="4" value="<{$item.ratio}>" <{if $action.allocation.equal_ratio_flag==1}> disabled="disabled"<{/if}>>％</td>
+					<td>
+						<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].changeGroup('<{$item.allocation_group_id}>',
+																											 groupsettingForm<{$id}>.group_name<{$item.allocation_group_id}>.value,
+																											 groupsettingForm<{$id}>.intervention<{$item.allocation_group_id}>.value,
+																											 groupsettingForm<{$id}>.ratio<{$item.allocation_group_id}>.value,
+																											 '<{$action.testee_id}>');return false" >変更</a>&nbsp;|&nbsp;
+						<a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delGroup('<{$item.allocation_group_id}>', '<{$action.testee_id}>');return false" >削除</a>
+					</td>
+				</tr>
+			<{/foreach}>
+
+			<tr class="mdb_datecheck_tr">
+				<td><input type="text" name="new_group_name" size="20" value=""></td>
+				<td><input type="text" name="new_intervention" size="20" value=""></td>
+				<td><input type="text" name="new_ratio" size="4" value="">％</td>
+<{*				<td><input type="button" onclick="mdbCls['<{$id}>'].addGroup();" value="追加"></td> 2.4.2.3 change *}>
+				<td><input type="button" onclick="mdbCls['<{$id}>'].addGroup('<{$action.allocation.allocation_flag}>');" value="追加"></td>
+			</tr>
+		</tbody>
+		</table>
+	</fieldset>
+	<br />
+</form>
+
+
+<form id="forceallocationForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="testee_action_edit_forceallocation" />
+<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">強制割付</div></legend>
+
+		<table>
+		<tr>
+		<td nowrap valign="top" style="vertical-align: top;">
+			強制割付する：<input name="force_allocation_flag" type="checkbox" value="1" 
+							<{if $action.allocation.force_allocation_flag==1}> checked<{/if}> /><br />
+							
+			許容できる最大の群間差：<input type="text" name="group_differences" size="4" value="<{$action.allocation.group_differences}>"><br />
+			割付確率：<input type="text" name="allocation_probability" size="4" value="<{$action.allocation.allocation_probability}>">％
+
+			<div class="btn-bottom">
+				<input type="button" onclick="mdbCls['<{$id}>'].selectForce(force_allocation_flag.checked, 
+																							forceallocationForm<{$id}>.group_differences.value, 
+																							forceallocationForm<{$id}>.allocation_probability.value, 
+																							'<{$action.testee_id}>' 
+																							);return false" value="更新">
+			</div>
+
+		</td>
+		<td valign="top" style="vertical-align: top;">
+			<fieldset style="width: 500px; margin-left: 20px;">
+			最小化法によるランダム割付の過程で特定の割付け調整因子において許容できないほどの群間差が認められた場合、群間差が生じないように強制的に割付けるならばチェックを入れて下さい。<br />
+			一定の確率で強制割付けする場合は、パラメータ(割付確率)を入力下さい。
+			</fieldset>
+		</td>
+		</tr>
+		</table>
+	</fieldset>
+	<br />
+</form>
+
+
+<form id="addallocationForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="testee_action_edit_addallocation" />
+<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+<fieldset>
+	<legend><div class="nowrap bold">割付調整因子</div></legend>
+
+		<table cellspacing="0" cellpadding="5" class="mdb_datecheck_main" >
+		<tbody>
+			<tr class="mdb_datecheck_tr">
+				<th>項目名</th>
+				<th>操作</th>
+			</tr>
+				<{foreach from=$action.selected_allocation item=item}>
+					<tr class="mdb_datecheck_tr">
+						<td><{$item.name|smarty:nodefaults}></td>
+						<td><a class="syslink" href="#" onclick="mdbCls['<{$id}>'].delAllocationitem('<{$item.metadata_id}>', '<{$action.testee_id}>');return false" >削除</a></td>
+					</tr>
+				<{/foreach}>
+				
+
+			<tr class="mdb_datecheck_tr">
+				<td>
+					<select name="allocation_item_select">
+						<{foreach from=$action.adjust_metadata_item item=item}>
+							<option value="<{$item.metadata_id}>">
+								<{$item.name|smarty:nodefaults}>
+							</option>
+						<{/foreach}>
+					</select><br />
+				</td>
+<{*				<td><input type="button" onclick="mdbCls['<{$id}>'].addAllocationitem();" value="追加" <{if $action.adjust_metadata_item==NULL}> disabled="disabled"<{/if}>></td> 2.4.2.3 change *}>
+				<td><input type="button" onclick="mdbCls['<{$id}>'].addAllocationitem('<{$action.allocation.allocation_flag}>');" value="追加" <{if $action.adjust_metadata_item==NULL}> disabled="disabled"<{/if}>></td>
+			</tr>
+		</tbody>
+		</table>
+	</fieldset>
+	<br />
+</form>
+
+
+<form id="allocationresultForm<{$id}>" class="outerdiv" action="#" onsubmit="return false;">
+<input type="hidden" name="action" value="testee_action_edit_allocationresult" />
+<input type="hidden" name="testee_id" value="<{$action.testee_id}>" />
+
+	<fieldset>
+		<legend><div class="nowrap bold">出力設定</div></legend>
+			割付の結果を表示する：
+			<input type="checkbox" name="allocation_result_flag" value="1" <{if $action.allocation.allocation_result_flag==1}> checked<{/if}>>
+			<{if $action.setting_history}>
+			&nbsp;&nbsp;(<{$action.setting_history.set_time}> 設定:<{if $action.setting_history.allocation_result_flag==1}>ON<{else}>OFF<{/if}>)<br />
+			<{else}>
+			&nbsp;&nbsp;( 設定:OFF )<br />
+			<{/if}>
+
+			<div class="btn-bottom" style="text-align: left; margin-left: 60px;">
+<{*				<input type="button" onclick="mdbCls['<{$id}>'].selectAllocationresult();" value="更新"> 2.4.2.3 change *}>
+				<input type="button" onclick="mdbCls['<{$id}>'].selectAllocationresult('<{$action.allocation.allocation_flag}>');" value="更新">
+			</div>
+	</fieldset>
+
+</form>
+<br/>
+<{* 18.08.23 add start by makino@opensource-workshop.jp *}>
+<fieldset>
+	<legend><div class="nowrap bold">割付シミュレーション</div></legend>
+	<div class="btn-bottom" style="text-align: left; margin-left: 20px;">
+		<input type="button" value="割付シミュレーション" onclick="mdbCls['<{$id}>'].showAllocSimulate(event, '<{$action.testee_id}>');" style="padding-top: 5px; padding-bottom: 5px;">
+	</div>
+</fieldset>
+<br />
+<{* 18.08.23 add end by makino@opensource-workshop.jp *}>
+
+<div class="btn-bottom">
+	<input type="button" onclick="commonCls.sendView('<{$id}>', 'testee_view_edit_list'); return false;" value="一覧表示" class="btn-width lined_btn">
+</div>
+
+<{include file="../testee_script.html"}>
+<{/strip}>

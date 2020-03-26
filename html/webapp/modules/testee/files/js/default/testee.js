@@ -1559,23 +1559,6 @@ clsTestee.prototype = {
 		commonCls.sendPost(this.id, "action=testee_action_edit_tedcauthority&" + Form.serialize(fromElement), option);
 
 	},
-	showPopupSelectAllocation: function(event, testee_id, condition_id) {
-		condition_id = (condition_id == undefined) ? 0 : condition_id;
-		var param_popup = new Object();
-		var params = new Object();
-		param_popup = {
-						"action":"testee_view_edit_allocation_detail",
-						"testee_id":testee_id,
-						"condition_id":condition_id,
-						"prefix_id_name":"popup"
-					};
-		var top_el = $(this.id);
-		params['top_el'] = top_el;
-		params['target_el'] = top_el;
-		params['center_flag'] = true;
-		params['modal_flag'] = true;
-		commonCls.sendPopupView(event, param_popup, params);
-	},
 	/* ルームに参加しているユーザの施設を取り込む */
 	selectRoomHospital: function(event) {
 		var param_popup = new Object();
@@ -1623,10 +1606,22 @@ clsTestee.prototype = {
 	},
 	
 	//割付調整因子項目追加
-	addAllocationitem: function() {
+	addAllocationitem: function( allocation_flag ) {
 
-		var fromElement = $("addallocationForm" + this.id);
-		var messageBody = Form.serialize(fromElement);
+		if( allocation_flag == 1 )
+		{
+			var fromElement = $("addallocationForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else if( allocation_flag == 2 )
+		{
+			var fromElement = $("testeeBlockItemForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else
+		{
+			var messageBody = "";
+		}
 
 		var option = new Object();
 		option["target_el"] = $(this.id);
@@ -1666,10 +1661,22 @@ clsTestee.prototype = {
 	
 	
 	//群の設定追加
-	addGroup: function() {
+	addGroup: function( allocation_flag ) {
 
-		var fromElement = $("groupsettingForm" + this.id);
-		var messageBody = Form.serialize(fromElement);
+		if( allocation_flag == 1 )
+		{
+			var fromElement = $("groupsettingForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else if( allocation_flag == 2 )
+		{
+			var fromElement = $("testeeBlockGroupForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else
+		{
+			var messageBody = "";
+		}
 
 		var option = new Object();
 		option["target_el"] = $(this.id);
@@ -1770,10 +1777,22 @@ clsTestee.prototype = {
 	},
 	
 	//出力設定切り替え
-	selectAllocationresult: function() {
+	selectAllocationresult: function( allocation_flag ) {
 
-		var fromElement = $("allocationresultForm" + this.id);
-		var messageBody = Form.serialize(fromElement);
+		if( allocation_flag == 1 )
+		{
+			var fromElement = $("allocationresultForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else if( allocation_flag == 2 )
+		{
+			var fromElement = $("testeeBlockOutputForm" + this.id);
+			var messageBody = Form.serialize(fromElement);
+		}
+		else
+		{
+			var messageBody = "";
+		}
 
 		var option = new Object();
 		option["target_el"] = $(this.id);
@@ -1879,6 +1898,236 @@ clsTestee.prototype = {
 									commonCls.sendPost(this.id, {"action":"testee_action_main_statusmail"}, {"loading_el":null});
 								}.bind(this);
 		commonCls.sendPost(this.id, messageBody, option);
+	},
+
+
+	// 割付層作成処理
+	createAllocationConbination: function()
+	{
+		var fromElement = $("testeeBlockSettingForm" + this.id);
+		var messageBody = Form.serialize(fromElement);
+		
+		var option = new Object();
+		option["target_el"] = $(this.id);
+		option["callbackfunc"] = function(response) {
+									commonCls.alert("作成しました。");
+								}.bind(this);
+		commonCls.sendPost(this.id, messageBody, option);
+	},
+	
+	// 置換ブロック法用：割付群/割付因子 変更処理
+	changeAllocationBlockSetting: function( testee_id )
+	{
+		// 確認メッセージ
+		if( confirm("割付比率の設定と割付層の作成を行いますか？") == false ) return false;
+		
+		
+		var messageBody = "action=testee_view_edit_allocation_list"
+							+ "&testee_id=" + testee_id
+							+ "&change_block_allocation_flag=1";
+
+		var option = new Object();
+		option["target_el"] = $(this.id);
+
+		commonCls.sendView(this.id, messageBody, option);
+	},
+	
+	// 置換ブロック法用：割付比率・ブロック数更新処理
+	changeAllocationBlockCount: function()
+	{
+		// 確認メッセージ
+		if( confirm("割付比率と割付層のブロック数を更新しますか？") == false ) return false;
+		
+		
+		var fromElement = $("testeeBlockRatioForm" + this.id);
+		var messageBody = Form.serialize(fromElement);
+		
+		var option = new Object();
+		option["target_el"] = $(this.id);
+		option["callbackfunc"] = function(response) {
+									commonCls.alert("更新しました。");
+								}.bind(this);
+		commonCls.sendPost(this.id, messageBody, option);
+	},
+	
+// 18.08.01 add start by makino@opensource-workshop.jp
+	// 置換ブロック法用：可変ブロック使用する/しない変更処理
+	changeVariableBlock: function()
+	{
+		// フォーム取得
+		var fromElement = $("testeeBlockRatioForm" + this.id);
+		
+		// 可変ブロックエリア表示/非表示切り替え
+		if( fromElement.testee_radio_variable_block_use.checked == true )
+		{
+			commonCls.displayVisible( $("testee_variable_block" + this.id) );
+		}
+		else
+		{
+			commonCls.displayNone( $("testee_variable_block" + this.id) );
+		}
+		
+		return;
+	},
+// 18.08.01 add end by makino@opensource-workshop.jp
+	
+	
+	// 患者情報登録時割付状態チェック処理
+	checkAllocation: function( form_el, temp_flag, warning_ok, confirm_ok )
+	{
+		// POSTの設定
+		var postString = "action=testee_action_main_checkallocation" +
+						 "&" + Form.serialize(form_el);
+		
+		// POSTオプションの設定
+		var params = new Object();
+		params["target_el"] = null;
+		
+		// 正常処理
+		params["callbackfunc"] = function(res)
+		{
+			this.contentSubmit( form_el, temp_flag, warning_ok, confirm_ok );
+		}.bind(this);
+		
+		// ワーニング処理
+		params["callbackfunc_error"] = function(res)
+		{
+			if( commonCls.confirm( res ) == true )
+			{
+				this.contentSubmit( form_el, temp_flag, warning_ok, confirm_ok );
+			}
+		}.bind(this);
+		
+		// 実施
+		commonCls.sendPost(this.id, postString, params);
+	},
+	
+	
+// 18.08.23 add start by makino@opensource-workshop.jp
+	// 割付シミュレーション画面表示処理
+	showAllocSimulate: function(event, testee_id)
+	{
+		var messageBody = "action=testee_view_edit_allocation_simulate"
+							+ "&testee_id=" + testee_id
+							+ "&init_flag=1";
+
+		var option = new Object();
+		option["target_el"] = $(this.id);
+
+		commonCls.sendView(this.id, messageBody, option);
+	},
+	
+	// 割付シミュレーション画面：症例入力タイプ変更処理
+	changeSimuInputType: function()
+	{
+		// フォーム取得
+		var fromElement = $("testeeSimulateSetting" + this.id);
+		
+		// 可変ブロックエリア表示/非表示切り替え
+		if( fromElement.testee_allocsimu_input_type_file.checked == true )
+		{
+			commonCls.displayVisible( $("testee_allocsimu_input_file" + this.id) );
+			commonCls.displayNone( $("testee_allocsimu_input_auto" + this.id) );
+			commonCls.displayNone( $("testee_allocsimu_repeat_count" + this.id) );
+			if( $("testee_allocsimu_allocitem_file" + this.id) != null )
+			{
+				commonCls.displayVisible( $("testee_allocsimu_allocitem_file" + this.id) );
+				commonCls.displayNone( $("testee_allocsimu_allocitem_auto" + this.id) );
+			}
+		}
+		else
+		{
+			commonCls.displayNone( $("testee_allocsimu_input_file" + this.id) );
+			commonCls.displayVisible( $("testee_allocsimu_input_auto" + this.id) );
+			commonCls.displayVisible( $("testee_allocsimu_repeat_count" + this.id) );
+			if( $("testee_allocsimu_allocitem_file" + this.id) != null )
+			{
+				commonCls.displayNone( $("testee_allocsimu_allocitem_file" + this.id) );
+				commonCls.displayVisible( $("testee_allocsimu_allocitem_auto" + this.id) );
+			}
+		}
+		
+		return;
+	},
+	
+	// 割付シミュレーショ実施処理
+	executeSimulation: function(eventObject)
+	{
+		// 確認メッセージ
+		if( confirm("割付シミュレーションを実施しますか？") == false ) return false;
+		
+		// 処理中ダイアログの設定
+		var queryString = "action=testee_view_edit_allocation_uploading"
+								+ "&prefix_id_name=popup_uploading";
+
+		var pop_option            = new Object();
+		pop_option["top_el"]      = $(this.id);
+		pop_option["target_el"]   = $(this.id);
+		pop_option["modal_flag"]  = true;			// モーダル(閉じるまで親ウィンドウ操作不可)表示
+		pop_option["center_flag"] = true;			// ダイアログを中央に表示
+
+		commonCls.sendPopupView(eventObject, queryString, pop_option);
+		
+		
+		
+		var messageBody = new Object();
+		messageBody[ "action" ] = "testee_action_edit_allocationsimulate";
+		
+		var option = new Object();
+		option["param"]        = messageBody;
+		option["top_el"]       = $(this.id);
+		option["target_el"]    = $(this.id);
+		option["timeout_flag"] = false;
+		option["callbackfunc"] = function(response)
+		{
+			commonCls.alert("シミュレーション終了しました。");
+			
+			// 処理中ダイアログが表示されている場合はそれを削除
+			commonCls.removeBlock("_popup_uploading"+this.id);
+			
+		}.bind(this);
+		option["callbackfunc_error"] = function(file, response)
+		{
+			// 戻ってきたメッセージをアラート表示
+			commonCls.alert(response);
+			
+			// [ファイルをアップロード中です]ダイアログが表示されている場合はそれを削除
+			commonCls.removeBlock("_popup_uploading"+this.id);
+		}.bind(this);
+		
+		
+		// 処理実施
+		commonCls.sendAttachment(option);
+		
+	},
+	
+	// 割付シミュレーション：症例ファイル削除
+	deleteCaseFile: function()
+	{
+		// 確認メッセージ
+		if( confirm("症例ファイルを削除しますか？") == false ) return false;
+		
+		var fromElement = $("testeeSimulateSetting" + this.id);
+		
+		// POSTの設定
+		var postString = "action=testee_action_edit_delcasefile" +
+						 "&testee_id=" + fromElement.testee_id.value;
+		
+		
+		// POSTオプションの設定
+		var params = new Object();
+		params["target_el"] = null;
+		
+		// 正常処理
+		params["callbackfunc"] = function(res)
+		{
+			confirm("削除しました。");
+			commonCls.sendRefresh(this.id);
+		}.bind(this);
+		
+		// 実施
+		commonCls.sendPost(this.id, postString, params);
+
 	}
 
 }

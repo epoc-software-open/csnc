@@ -36,6 +36,21 @@ class Testee_View_Edit_Tedcauthority_Init extends Action
     {
 		// ルーム参加の会員情報（会員情報のベース権限、試験毎権限付）を取得する
 		$this->users = $this->mdbView->getRoomUsers($this->room_id, $this->testee_id);
+		
+		// 割付参照権限を持つユーザーのリストを取得
+		$view_users = $this->mdbView->getAllocationViewUsers( $this->testee_id );
+		if( $view_users !== false && count( $view_users ) > 0 )
+		{
+			for( $i = 0; $i < count( $this->users ); $i++ )
+			{
+				$user_id = $this->users[ $i ]["user_id"];
+				
+				if( array_key_exists( $user_id, $view_users ) === true )
+				{
+					$this->users[ $i ]["allocation_view"] = "◯";
+				}
+			}
+		}
 
 		//if( $this->session->getParameter( "_role_auth_id" ) == _ROLE_AUTH_ADMIN ) {
 		if( $this->session->getParameter( "_user_auth_id" ) == _AUTH_ADMIN ) {
@@ -44,5 +59,6 @@ class Testee_View_Edit_Tedcauthority_Init extends Action
 	        return 'success_notadmin';
 		}
     }
+	
 }
 ?>

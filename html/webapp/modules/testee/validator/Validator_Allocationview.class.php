@@ -53,11 +53,25 @@ class Testee_Validator_Allocationview extends Validator
 		}
 
 		// 割付使用＆表示の場合のみ、割付結果を表示
-		if ( $result_allocation["allocation_flag"] == 1 && $result_allocation["allocation_result_flag"] == 1 ) {
+		if ( ( $result_allocation["allocation_flag"] == 1 || $result_allocation["allocation_flag"] == 2 ) && $result_allocation["allocation_result_flag"] == 1 ) {
 		}
 		else {
 			return "症例登録が完了しました。";
 		}
+
+		// 割付参照権限がない人には見せないようにする
+		$user_id = $session->getParameter("_user_id");
+		if( empty( $user_id ) === true )
+		{
+			return "症例登録が完了しました。";
+		}
+		// 割付参照権限取得
+		$result = $mdbView->getAllocationViewUser( $insert_testee_id, $user_id );
+		if( $result === false || count( $result ) <= 0 )
+		{
+			return "症例登録が完了しました。";
+		}
+
 
 		// 詳細データ取得
 		$result = $mdbView->getMDBDetail($insert_content_id, $metadatas);
