@@ -49,31 +49,90 @@ class Filter_UserinfLog extends Filter {
 
 	    // アクション名
 	    $action_name = ( array_key_exists( 'action', $_REQUEST ) ) ? $_REQUEST['action'] : '';
-		//新規かどうかの判断
-	    $this->user_id = ( $this->_request->getParameter("user_id") ) ? $this->_request->getParameter("user_id") : 0;
-		$edit_flag = _ON;
-		if($this->user_id == null || $this->user_id == "0") {
-			$this->user_id = "0";
-			$edit_flag = _OFF;	//新規
-		}
 
-		// 記録の対象を会員情報からの変更のみとする
-//		if($action_name == "user_action_admin_regist" || $action_name == "userinf_action_main_init" ) {
-		if($action_name == "userinf_action_main_init" ) {
-			if($edit_flag) {
-//test_log($action_name);
-		    	    $this->_prefilter();
+// 2020.06.10 change start パスワード再発行に対応
+
+//		//新規かどうかの判断
+//	    $this->user_id = ( $this->_request->getParameter("user_id") ) ? $this->_request->getParameter("user_id") : 0;
+//		$edit_flag = _ON;
+//		if($this->user_id == null || $this->user_id == "0") {
+//			$this->user_id = "0";
+//			$edit_flag = _OFF;	//新規
+//		}
+//
+//		// 記録の対象を会員情報からの変更のみとする
+////		if($action_name == "user_action_admin_regist" || $action_name == "userinf_action_main_init" ) {
+//		if($action_name == "userinf_action_main_init" ) {
+//			if($edit_flag) {
+////test_log($action_name);
+//		    	    $this->_prefilter();
+//			}
+//		}
+//
+//	    $this->_filterChain->execute();
+//
+////		if($action_name == "user_action_admin_regist" || $action_name == "userinf_action_main_init" ) {
+//		if($action_name == "userinf_action_main_init" ) {
+//			if($edit_flag) {
+//			        $this->_postfilter();
+//			}
+//		}
+
+		// アクションによって処理分岐
+		if( $action_name == "userinf_action_main_init" )
+		{
+			// ----- ユーザー管理画面からの変更 --------------------------------
+			
+			//新規かどうかの判断
+		    $this->user_id = ( $this->_request->getParameter("user_id") ) ? $this->_request->getParameter("user_id") : 0;
+			if($this->user_id == null || $this->user_id == "0")
+			{
+				// 新規登録の場合は処理しない
+				$this->user_id = "0";
+				
+				$this->_filterChain->execute();		// 次の処理
+			}
+			else
+			{
+				// 変更の場合のみ処理実施
+				$this->_prefilter();				// 前処理
+				$this->_filterChain->execute();		// 次の処理
+				$this->_postfilter($action_name);	// 後処理
+				
 			}
 		}
-
-	    $this->_filterChain->execute();
-
-//		if($action_name == "user_action_admin_regist" || $action_name == "userinf_action_main_init" ) {
-		if($action_name == "userinf_action_main_init" ) {
-			if($edit_flag) {
-			        $this->_postfilter();
+		else if( $action_name == "login_action_main_forgetpass" )
+		{
+			// ----- パスワード再発行からの変更 --------------------------------
+			// リクエストパラメータ取得（Validatorで設定されているハズ）
+			$target_user = $this->_request->getParameter( "target_user" );
+			
+			if( $target_user == null || empty( $target_user ) === true || count( $target_user ) <= 0 )
+			{
+				// 何も設定されていない場合、Validatorでエラーがでているからなので、何も処理しない
+				$this->_filterChain->execute();		// 次の処理
+			}
+			else
+			{
+				// 設定がある場合はValidatorをクリアしているので処理を行う
+				$this->user_id = $target_user["user_id"];
+				
+				$this->_prefilter();				// 前処理
+				$this->_filterChain->execute();		// 次の処理
+				$this->_postfilter($action_name);	// 後処理
 			}
 		}
+		else
+		{
+			//----- 上記以外の処理の場合 ---------------------------------------
+			
+			// 次の処理実施
+			$this->_filterChain->execute();
+		}
+
+// 2020.06.10 change end パスワード再発行に対応
+
+
     }
 
     /**
@@ -82,7 +141,6 @@ class Filter_UserinfLog extends Filter {
      */
     function _prefilter()
     {
-//test_log("Filter_UserLog_prefilter");
 		// 会員データ取得
 		$users =& $this->_db->selectExecute("users", array("user_id" => $this->user_id));
 		if($users === false) return 'error';
@@ -97,9 +155,9 @@ class Filter_UserinfLog extends Filter {
      * ポストフィルタ
      * @access private
      */
-    function _postfilter()
+//    function _postfilter()		// 2020.06.10 change
+    function _postfilter( $action_name )
     {
-//test_log("Filter_UserLog_postfilter");
 
 		// 変更記録対象項目を取得
 	    $check_fields = $this->getAttributes();
@@ -167,7 +225,8 @@ class Filter_UserinfLog extends Filter {
                     $params["hospital_name"] = null;    // 施設情報が無い場合nullを設定
                 }
                 
-				$this->sendMail($email, $params);
+//				$this->sendMail($email, $params);		// 2020.06.10 change 
+				$this->sendMail($email, $params, $action_name);
 			}
 		}
     }
@@ -177,9 +236,21 @@ class Filter_UserinfLog extends Filter {
 	 * @return	
 	 * @access	public
 	 **/
-    function sendMail($email, $params)
+//    function sendMail($email, $params)		// 2020.06.10 change 
+    function sendMail($email, $params, $action_name)
 	{
-		$this->mailMain->setSubject("【UserinfLog】会員情報のパスワードが変更されました");
+		// 2020.06.10 change start 
+		//$this->mailMain->setSubject("【UserinfLog】会員情報のパスワードが変更されました");
+		if( $action_name == "login_action_main_forgetpass" )
+		{
+			$this->mailMain->setSubject("【UserinfLog】会員情報のパスワードが再発行により変更されました");
+		}
+		else
+		{
+			$this->mailMain->setSubject("【UserinfLog】会員情報のパスワードが変更されました");
+		}
+		// 2020.06.10 change end
+
 		$this->mailMain->setBody("以下の会員のパスワードが変更されました\n".
 "---------------------------------------------\n" .
 "ログインＩＤ：{X-LOGIN-ID}\n" .
@@ -191,6 +262,7 @@ class Filter_UserinfLog extends Filter {
 	                    "X-HANDLE" => $params["handle"],
 	                    "X-HOSPITAL-NAME" => $params["hospital_name"],
 	        );
+		
 		$this->mailMain->assign($tags);
 		$emails = explode( ',', $email );
 		$user = array();

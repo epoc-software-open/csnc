@@ -49,7 +49,8 @@ define('INSTALL_CONF_MAIL_GET_PASSWORD_BODY_JAPANESE', ' {X-SITE_NAME}におけ�
 define('INSTALL_CONF_MAIL_NEW_PASSWORD_SUBJECT_JAPANESE', '[{X-SITE_NAME}]新規パスワードの発行');
 define('INSTALL_CONF_MAIL_NEW_PASSWORD_BODY_JAPANESE', '{X-SITE_NAME}におけるログイン用パスワードの新規発行リクエストがありました。
 下記があなたのログイン用IDと新しいパスワードです。
-セキュリティを保つため、ただちに{X-SITE_NAME}にログインし、パスワードを変更することをお勧めします。');
+セキュリティを保つため、ただちに{X-SITE_NAME}にログインし、パスワードを変更することをお勧めします。
+パスワードの変更方法は入力マニュアルをご参照下さい。');
 define('INSTALL_CONF_MAIL_ADD_USER_SUBJECT_JAPANESE', '{X-SITE_NAME}へようこそ');
 define('INSTALL_CONF_MAIL_ADD_USER_BODY_JAPANESE', '会員登録が完了しましたのでお知らせします。
 ハンドル：{X-HANDLE}

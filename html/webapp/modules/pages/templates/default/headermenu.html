@@ -42,6 +42,15 @@
 				</a>
 				<{*ログアウト*}>
 				<a class="menulink header_btn" href="#" title="<{$lang.pages_logout_title}>" onclick="loginCls['_0'].loginLogout(event);return false;"><{$lang._logout}></a>
+
+<{* 権限設定で「ページスタイルのレイアウト変更」を許可していない場合は、ページスタイル全般を使用させない。 *}>
+<{* 権限設定で「主担」をベースに「編集者」権限を作成し、編集者にはブロックの編集はさせたいが、ページスタイルを使用させたくない場合に使用するため。 *}>
+<{* mod by nagahara@opensource-workshop.jp *}>
+<{* mod by makino@opensource-workshop.jp プライベートスペースの場合はこの対応を行わないように修正 *}>
+<{* <{if $smarty.session._allow_layout_flag}> *}>
+<{if (($smarty.session._main_room_id != $smarty.session._self_myroom_page.room_id) && $smarty.session._allow_layout_flag) ||
+      ($smarty.session._main_room_id == $smarty.session._self_myroom_page.room_id)}>
+
 				<{if ($main_display_position == _DISPLAY_POSITION_CENTER && ($smarty.session._auth_arr.0 >= _AUTH_CHIEF)) ||
 					($main_display_position == _DISPLAY_POSITION_LEFT && ($smarty.session._auth_arr.1 >= _AUTH_CHIEF)) ||
 					($main_display_position == _DISPLAY_POSITION_RIGHT && ($smarty.session._auth_arr.2 >= _AUTH_CHIEF))}>
@@ -50,12 +59,23 @@
 						<{$lang._edit_page_design}>
 					</a>
 				<{/if}>
+<{/if}>
+
 				<{*編集・セッティングモード切替*}>
 				<{*
 				<{if ($main_display_position == _DISPLAY_POSITION_CENTER && ($smarty.session._auth_arr.0 >= _AUTH_CHIEF || $smarty.session._auth_arr.1 >= _AUTH_CHIEF || $smarty.session._auth_arr.2 >= _AUTH_CHIEF)) ||
 					($main_display_position == _DISPLAY_POSITION_LEFT && ($smarty.session._auth_arr.1 >= _AUTH_CHIEF)) ||
 					($main_display_position == _DISPLAY_POSITION_RIGHT && ($smarty.session._auth_arr.2 >= _AUTH_CHIEF))}>
 				*}>
+
+<{* 権限設定で「ページスタイルのレイアウト変更」を許可していない場合は、セッティングモードも使用させない。 *}>
+<{* 権限設定で「主担」をベースに「編集者」権限を作成し、編集者にはブロックの編集はさせたいが、セッティングモードを使用させたくない場合に使用するため。 *}>
+<{* mod by nagahara@opensource-workshop.jp *}>
+<{* mod by makino@opensource-workshop.jp プライベートスペースの場合はこの対応を行わないように修正 *}>
+<{* <{if $smarty.session._allow_layout_flag}> *}>
+<{if (($smarty.session._main_room_id != $smarty.session._self_myroom_page.room_id) && $smarty.session._allow_layout_flag) ||
+      ($smarty.session._main_room_id == $smarty.session._self_myroom_page.room_id)}>
+
 				<{if $main_display_position == _DISPLAY_POSITION_CENTER && $smarty.session._auth_arr.0 >= _AUTH_CHIEF}>
 					<{if $layoutmode == "on"}>
 						<a id="_settingmode" class="bold menulink" href="<{$smarty.const.PERMALINK_URL|smarty:nodefaults}><{if preg_match('/\?/',$smarty.const.PERMALINK_URL)}>&amp;<{else}>?<{/if}>_layoutmode=off" title="<{$smarty.const._SETTINGMODE_END_TITLE}>" onmouseover="if(typeof(commonCls) != 'undefined') {commonCls.imgChange(this,'setting_end_h.gif','setting_end_h_over.gif');}" onmouseout="if(typeof(commonCls) != 'undefined') {commonCls.imgChange(this,'setting_end_h_over.gif','setting_end_h.gif');}">
@@ -69,6 +89,7 @@
 						</a>
 					<{/if}>
 				<{/if}>
+<{/if}>
 			<{/if}>
 		</td>
 	</tr>

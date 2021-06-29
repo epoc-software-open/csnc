@@ -27,6 +27,7 @@ class Login_Validator_Forgetpass extends Validator
 	 */
 	function validate($attributes, $errStr, $params)
 	{
+
 		// container取得
 		$container =& DIContainerFactory::getContainer();
 		$session =& $container->getComponent("Session");
@@ -79,6 +80,14 @@ class Login_Validator_Forgetpass extends Validator
 		$action =& $actionChain->getCurAction();
 		BeanUtils::setAttributes($action, array("user"=>$user));
 		BeanUtils::setAttributes($action, array("send_email"=>$email));
+
+		// 2020.06.10 add start
+		// リクエスト・コンポーネント
+		$request = $container->getComponent("Request");
+		
+		// リクエストコンポーネントに渡す情報を書きこむ（Filter_UserinfLogに渡す為）
+		$request->setParameter( "target_user", $user );
+		// 2020.06.10 add end
 
 		return;
 	}
